@@ -11,6 +11,15 @@
                         <input type="text" class="form-control" id="nama_perusahaan" name="nama_perusahaan" value="<?php echo htmlspecialchars(string: $data['perusahaan']['nama_perusahaan'] ?? ''); ?>" required>
                     </div>
                     <div class="mb-3">
+                        <label for="jenis_usaha" class="form-label">Jenis Usaha</label>
+                        <select class="form-select" id="jenis_usaha" name="jenis_usaha" required>
+                            <option value="dagang" <?php echo (($data['perusahaan']['jenis_usaha'] ?? '') == 'dagang') ? 'selected' : ''; ?>>Dagang (Perdagangan Barang)</option>
+                            <option value="jasa" <?php echo (($data['perusahaan']['jenis_usaha'] ?? '') == 'jasa') ? 'selected' : ''; ?>>Jasa (Layanan/Service)</option>
+                            <option value="manufaktur" <?php echo (($data['perusahaan']['jenis_usaha'] ?? '') == 'manufaktur') ? 'selected' : ''; ?>>Manufaktur (Produksi)</option>
+                        </select>
+                        <div class="form-text">Perusahaan Jasa tidak memerlukan pencatatan HPP dan Stok.</div>
+                    </div>
+                    <div class="mb-3">
                         <label for="alamat" class="form-label">Alamat</label>
                         <textarea class="form-control" id="alamat" name="alamat" rows="3"><?php echo htmlspecialchars(string: $data['perusahaan']['alamat'] ?? ''); ?></textarea>
                     </div>

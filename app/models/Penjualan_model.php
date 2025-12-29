@@ -47,20 +47,26 @@ class Penjualan_model {
         
         $this->db->beginTransaction();
         try {
-            // Ambil akun piutang dari pengaturan
-            $this->db->query("SELECT akun_piutang_default FROM perusahaan WHERE id = 1");
-            $akun_piutang_usaha = $this->db->single()['akun_piutang_default'];
+            // Ambil akun piutang dan jenis usaha dari pengaturan
+            $this->db->query("SELECT akun_piutang_default, jenis_usaha FROM perusahaan WHERE id = 1");
+            $perusahaan = $this->db->single();
+            $akun_piutang_usaha = $perusahaan['akun_piutang_default'];
+            $jenisUsaha = $perusahaan['jenis_usaha'] ?? 'dagang';
+            $isJasa = ($jenisUsaha === 'jasa');
+            
             if (empty($akun_piutang_usaha)) {
                 throw new Exception("Akun Piutang Usaha default belum diatur di Pengaturan Perusahaan.");
             }
 
-            // Validasi Stok
-            foreach ($data['details']['id_barang'] as $index => $id_barang) {
-                $barang = $persediaanModel->getBarangById($id_barang);
-                if (!$barang) throw new Exception("Data barang dengan ID {$id_barang} tidak ditemukan.");
-                $qty_dijual = (float)$data['details']['kuantitas'][$index];
-                if ($barang['stok_saat_ini'] < $qty_dijual) {
-                    throw new Exception("Stok untuk '{$barang['nama_barang']}' tidak cukup (tersisa: {$barang['stok_saat_ini']}).");
+            // Validasi Stok (hanya untuk perusahaan Dagang/Manufaktur)
+            if (!$isJasa) {
+                foreach ($data['details']['id_barang'] as $index => $id_barang) {
+                    $barang = $persediaanModel->getBarangById($id_barang);
+                    if (!$barang) throw new Exception("Data barang dengan ID {$id_barang} tidak ditemukan.");
+                    $qty_dijual = (float)$data['details']['kuantitas'][$index];
+                    if ($barang['stok_saat_ini'] < $qty_dijual) {
+                        throw new Exception("Stok untuk '{$barang['nama_barang']}' tidak cukup (tersisa: {$barang['stok_saat_ini']}).");
+                    }
                 }
             }
 
@@ -83,14 +89,21 @@ class Penjualan_model {
             $pendapatanGrouped = []; $hppGroupedDebit = []; $hppGroupedKredit = [];
             foreach ($data['details']['id_barang'] as $index => $id_barang) {
                 $barang = $persediaanModel->getBarangById($id_barang);
-                $subtotal_hpp = (float)$data['details']['kuantitas'][$index] * (float)$barang['harga_beli'];
                 $pendapatanGrouped[$barang['akun_penjualan']] = ($pendapatanGrouped[$barang['akun_penjualan']] ?? 0) + $data['details']['subtotal'][$index];
-                $hppGroupedDebit[$barang['akun_hpp']] = ($hppGroupedDebit[$barang['akun_hpp']] ?? 0) + $subtotal_hpp;
-                $hppGroupedKredit[$barang['akun_persediaan']] = ($hppGroupedKredit[$barang['akun_persediaan']] ?? 0) + $subtotal_hpp;
+                
+                // HPP hanya untuk perusahaan Dagang/Manufaktur (bukan Jasa)
+                if (!$isJasa && !empty($barang['akun_hpp']) && !empty($barang['akun_persediaan'])) {
+                    $subtotal_hpp = (float)$data['details']['kuantitas'][$index] * (float)$barang['harga_beli'];
+                    $hppGroupedDebit[$barang['akun_hpp']] = ($hppGroupedDebit[$barang['akun_hpp']] ?? 0) + $subtotal_hpp;
+                    $hppGroupedKredit[$barang['akun_persediaan']] = ($hppGroupedKredit[$barang['akun_persediaan']] ?? 0) + $subtotal_hpp;
+                }
             }
             foreach ($pendapatanGrouped as $akun => $total) { $jurnalData['details'][] = ['kode_akun' => $akun, 'debit' => 0, 'kredit' => $total]; }
-            foreach ($hppGroupedDebit as $akun => $total) { $jurnalData['details'][] = ['kode_akun' => $akun, 'debit' => $total, 'kredit' => 0]; }
-            foreach ($hppGroupedKredit as $akun => $total) { $jurnalData['details'][] = ['kode_akun' => $akun, 'debit' => 0, 'kredit' => $total]; }
+            // Jurnal HPP hanya untuk perusahaan Dagang/Manufaktur
+            if (!$isJasa) {
+                foreach ($hppGroupedDebit as $akun => $total) { $jurnalData['details'][] = ['kode_akun' => $akun, 'debit' => $total, 'kredit' => 0]; }
+                foreach ($hppGroupedKredit as $akun => $total) { $jurnalData['details'][] = ['kode_akun' => $akun, 'debit' => 0, 'kredit' => $total]; }
+            }
             
             $id_jurnal = $jurnalModel->simpanJurnal($jurnalData);
             if ($id_jurnal == 0) throw new Exception("Gagal menyimpan jurnal penjualan.");
@@ -136,16 +149,19 @@ class Penjualan_model {
                 $this->db->bind('akun', $barang['akun_penjualan']);
                 $this->db->execute();
                 
-                $this->db->query($queryUpdateStok);
-                $this->db->bind('qty', $qty);
-                $this->db->bind('id_barang', $id_barang);
-                $this->db->execute();
+                // Update stok dan kartu stok hanya untuk perusahaan Dagang/Manufaktur
+                if (!$isJasa) {
+                    $this->db->query($queryUpdateStok);
+                    $this->db->bind('qty', $qty);
+                    $this->db->bind('id_barang', $id_barang);
+                    $this->db->execute();
 
-                $this->db->query($queryKartuStok);
-                $this->db->bind('id_barang', $id_barang);
-                $this->db->bind('qty', $qty);
-                $this->db->bind('keterangan', 'Faktur Penjualan: ' . $data['no_faktur']);
-                $this->db->execute();
+                    $this->db->query($queryKartuStok);
+                    $this->db->bind('id_barang', $id_barang);
+                    $this->db->bind('qty', $qty);
+                    $this->db->bind('keterangan', 'Faktur Penjualan: ' . $data['no_faktur']);
+                    $this->db->execute();
+                }
             }
 
             if ($data['metode_pembayaran'] === 'Kredit') {

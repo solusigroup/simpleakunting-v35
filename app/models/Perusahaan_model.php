@@ -15,7 +15,7 @@ class Perusahaan_model {
 
     public function updatePerusahaan($data, $logo_path) {
         $query = "UPDATE {$this->table} SET 
-                    nama_perusahaan = :nama, alamat = :alamat, telepon = :telepon, email = :email,
+                    nama_perusahaan = :nama, jenis_usaha = :jenis_usaha, alamat = :alamat, telepon = :telepon, email = :email,
                     kota_laporan = :kota_laporan, path_logo = :path_logo,
                     penandatangan_1_id = :p1_id, penandatangan_2_id = :p2_id,
                     akun_piutang_default = :akun_piutang, akun_utang_default = :akun_utang,
@@ -26,6 +26,7 @@ class Perusahaan_model {
                   
         $this->db->query($query);
         $this->db->bind('nama', $data['nama_perusahaan']);
+        $this->db->bind('jenis_usaha', $data['jenis_usaha'] ?? 'dagang');
         $this->db->bind('alamat', $data['alamat']);
         $this->db->bind('telepon', $data['telepon']);
         $this->db->bind('email', $data['email']);
