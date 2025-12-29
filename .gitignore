@@ -1,0 +1,33 @@
+# Vendor and dependencies
+/vendor/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+logs/
+
+# Cache and temp files
+cache/
+tmp/
+temp/
+
+# Uploaded files (if any)
+uploads/
+
+# Archive folder (legacy files)
+_archive/
