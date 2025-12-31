@@ -26,12 +26,24 @@ class Kas extends Controller {
         $grouped_accounts = [];
 
         foreach ($all_accounts as $akun) {
-            if ($akun['tipe_akun'] == 'Detail') {
-                // PERBAIKAN: Gunakan '??' untuk memberikan nilai default string kosong jika data NULL.
-                if (trim(strtolower($akun['sub_grup_akun'] ?? '')) == 'kas & bank') {
+            if ($akun['tipe_akun'] != 'Header') {
+                // Akun Kas & Bank biasanya diawali dengan 1
+                if (substr($akun['kode_akun'], 0, 1) == '1') {
                     $data['akun_kas_list'][] = $akun;
                 } else {
-                    $grup = $akun['grup_akun'] ?? 'Lain-lain';
+                    $firstDigit = substr($akun['kode_akun'], 0, 1);
+                    $grupNames = [
+                        '1' => 'Aset',
+                        '2' => 'Kewajiban',
+                        '3' => 'Ekuitas',
+                        '4' => 'Pendapatan',
+                        '5' => 'HPP',
+                        '6' => 'Beban',
+                        '7' => 'Beban',
+                        '8' => 'Pendapatan Lainnya',
+                        '9' => 'Beban Lainnya'
+                    ];
+                    $grup = $grupNames[$firstDigit] ?? 'Lain-lain';
                     $grouped_accounts[$grup][] = $akun;
                 }
             }
@@ -63,12 +75,23 @@ class Kas extends Controller {
         $data['akun_kas_list'] = [];
         $grouped_accounts = [];
         foreach ($all_accounts as $akun) {
-            if ($akun['tipe_akun'] == 'Detail') {
-                // PERBAIKAN: Gunakan '??' untuk memberikan nilai default string kosong jika data NULL.
-                if (trim(strtolower($akun['sub_grup_akun'] ?? '')) == 'kas & bank') {
+            if ($akun['tipe_akun'] != 'Header') {
+                if (substr($akun['kode_akun'], 0, 1) == '1') {
                     $data['akun_kas_list'][] = $akun;
                 } else {
-                    $grup = $akun['grup_akun'] ?? 'Lain-lain';
+                    $firstDigit = substr($akun['kode_akun'], 0, 1);
+                    $grupNames = [
+                        '1' => 'Aset',
+                        '2' => 'Kewajiban',
+                        '3' => 'Ekuitas',
+                        '4' => 'Pendapatan',
+                        '5' => 'HPP',
+                        '6' => 'Beban',
+                        '7' => 'Beban',
+                        '8' => 'Pendapatan Lainnya',
+                        '9' => 'Beban Lainnya'
+                    ];
+                    $grup = $grupNames[$firstDigit] ?? 'Lain-lain';
                     $grouped_accounts[$grup][] = $akun;
                 }
             }

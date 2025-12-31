@@ -55,13 +55,25 @@
                 <div class="col-md-6 mb-3">
                     <label for="akun_piutang_default" class="form-label">Akun Piutang Usaha</label>
                     <select class="form-select" id="akun_piutang_default" name="akun_piutang_default" required>
-                        <?php foreach($data['akun'] as $akun){ if(substr(string: $akun['kode_akun'],offset: 0,length: 3)=='1.1' && $akun['tipe_akun']=='Detail'){ $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_piutang_default']) ? 'selected' : ''; echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; } } ?>
+                        <?php foreach($data['akun'] as $akun){ 
+                            // Tampilkan semua akun Aset (Prefix 1) yang bukan Header
+                            if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_piutang_default']) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="akun_utang_default" class="form-label">Akun Utang Usaha</label>
                     <select class="form-select" id="akun_utang_default" name="akun_utang_default" required>
-                        <?php foreach($data['akun'] as $akun){ if(substr(string: $akun['kode_akun'],offset: 0,length: 3)=='2.1' && $akun['tipe_akun']=='Detail'){ $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_utang_default']) ? 'selected' : ''; echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; } } ?>
+                        <?php foreach($data['akun'] as $akun){ 
+                             // Tampilkan semua akun Kewajiban (Prefix 2) yang bukan Header
+                             if(substr($akun['kode_akun'],0,1)=='2' && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_utang_default']) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
                     </select>
                 </div>
             </div>
@@ -75,7 +87,7 @@
                         <?php foreach($data['users'] as $user): ?>
                             <?php $selected = ($user['id_user'] == $data['perusahaan']['penandatangan_1_id']) ? 'selected' : ''; ?>
                             <option value="<?php echo $user['id_user']; ?>" <?php echo $selected; ?>>
-                                <?php echo htmlspecialchars(string: $user['nama_user']); ?> (<?php echo htmlspecialchars(string: $user['jabatan']); ?>)
+                                <?php echo htmlspecialchars($user['nama_user']); ?> (<?php echo htmlspecialchars($user['jabatan']); ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -88,7 +100,7 @@
                          <?php foreach($data['users'] as $user): ?>
                             <?php $selected = ($user['id_user'] == $data['perusahaan']['penandatangan_2_id']) ? 'selected' : ''; ?>
                             <option value="<?php echo $user['id_user']; ?>" <?php echo $selected; ?>>
-                                <?php echo htmlspecialchars(string: $user['nama_user']); ?> (<?php echo htmlspecialchars(string: $user['jabatan']); ?>)
+                                <?php echo htmlspecialchars($user['nama_user']); ?> (<?php echo htmlspecialchars($user['jabatan']); ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -100,13 +112,25 @@
                 <div class="col-md-6 mb-3">
                     <label for="akun_laba_ditahan" class="form-label">Akun Laba Ditahan</label>
                     <select class="form-select" id="akun_laba_ditahan" name="akun_laba_ditahan" required>
-                        <?php foreach($data['akun'] as $akun){ if(substr(string: $akun['kode_akun'],offset: 0,length: 1)=='3' && $akun['tipe_akun']=='Detail'){ $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_laba_ditahan']) ? 'selected' : ''; echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; } } ?>
+                        <?php foreach($data['akun'] as $akun){ 
+                             // Tampilkan semua akun Ekuitas (Prefix 3) yang bukan Header
+                             if(substr($akun['kode_akun'],0,1)=='3' && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_laba_ditahan']) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="akun_ikhtisar_lr" class="form-label">Akun Ikhtisar Laba/Rugi</label>
                     <select class="form-select" id="akun_ikhtisar_lr" name="akun_ikhtisar_lr" required>
-                        <?php foreach($data['akun'] as $akun){ if(substr(string: $akun['kode_akun'],offset: 0,length: 1)=='3' && $akun['tipe_akun']=='Detail'){ $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_ikhtisar_lr']) ? 'selected' : ''; echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; } } ?>
+                        <?php foreach($data['akun'] as $akun){ 
+                             // Tampilkan semua akun Ekuitas (Prefix 3) yang bukan Header
+                             if(substr($akun['kode_akun'],0,1)=='3' && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_ikhtisar_lr']) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
                     </select>
                 </div>
             </div>

@@ -64,7 +64,7 @@
                 // PERBAIKAN: Menambahkan pengecekan untuk memastikan $data['akun'] ada dan merupakan array
                 if (isset($data['akun']) && is_array($data['akun'])) {
                     foreach($data['akun'] as $akun) {
-                        if($akun['tipe_akun'] == 'Detail') {
+                        if($akun['tipe_akun'] != 'Header') {
                             echo '<option value="' . htmlspecialchars($akun['kode_akun']) . '">' . htmlspecialchars($akun['kode_akun'] . ' - ' . $akun['nama_akun']) . '</option>';
                         }
                     }

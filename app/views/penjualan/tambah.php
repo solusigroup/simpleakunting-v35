@@ -22,8 +22,8 @@
                     <label for="akun_kas_bank">Setor Ke Akun Kas/Bank</label>
                     <select name="akun_kas_bank" id="akun_kas_bank" class="form-select">
                         <?php foreach($data['akun_kas'] as $akun){ 
-                            // Filter hanya untuk akun Kas & Bank (biasanya seri 1.11XX)
-                            if(substr($akun['kode_akun'], 0, 3) == '1.1' && $akun['tipe_akun'] == 'Detail'){ 
+                            // Tampilkan semua akun Aset (Prefix 1) yang bukan Header
+                            if(substr($akun['kode_akun'], 0, 1) == '1' && $akun['tipe_akun'] != 'Header'){ 
                                 echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; 
                             } 
                         } ?>

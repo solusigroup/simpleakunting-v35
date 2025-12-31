@@ -40,7 +40,7 @@
                             <select name="details[kode_akun][]" class="form-select" required>
                                 <option value="">Pilih Akun...</option>
                                 <?php foreach($data['akun'] as $akun): ?>
-                                    <?php if($akun['tipe_akun'] == 'Detail'): ?>
+                                    <?php if($akun['tipe_akun'] != 'Header'): ?>
                                         <option value="<?php echo htmlspecialchars($akun['kode_akun']); ?>" <?php echo ($akun['kode_akun'] == $detail['kode_akun']) ? 'selected' : ''; ?>>
                                             <?php echo htmlspecialchars($akun['kode_akun'] . ' - ' . $akun['nama_akun']); ?>
                                         </option>
@@ -83,7 +83,7 @@
                 // PERBAIKAN: Menambahkan pengecekan untuk memastikan $data['akun'] ada dan merupakan array
                 if (isset($data['akun']) && is_array($data['akun'])) {
                     foreach($data['akun'] as $akun) {
-                        if($akun['tipe_akun'] == 'Detail') {
+                        if($akun['tipe_akun'] != 'Header') {
                             echo '<option value="' . htmlspecialchars($akun['kode_akun']) . '">' . htmlspecialchars($akun['kode_akun'] . ' - ' . $akun['nama_akun']) . '</option>';
                         }
                     }

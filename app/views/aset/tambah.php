@@ -17,9 +17,9 @@
                 <hr>
                 <h5>Akun Terkait</h5>
                 <div class="row">
-                    <div class="col-md-4 mb-3"><label>Akun Aset</label><select name="akun_aset" class="form-select" required><?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,3)=='1-2' && $akun['tipe_akun']=='Detail'){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?></select></div>
-                    <div class="col-md-4 mb-3"><label>Akun Akumulasi Depresiasi</label><select name="akun_akumulasi_depresiasi" class="form-select" required><?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,3)=='1-2' && $akun['tipe_akun']=='Detail' && str_contains($akun['nama_akun'], 'Akumulasi')){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?></select></div>
-                    <div class="col-md-4 mb-3"><label>Akun Beban Depresiasi</label><select name="akun_beban_depresiasi" class="form-select" required><?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,3)=='6-4' && $akun['tipe_akun']=='Detail'){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?></select></div>
+                    <div class="col-md-4 mb-3"><label>Akun Aset</label><select name="akun_aset" class="form-select" required><?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,3)=='1-2' && $akun['tipe_akun']!='Header'){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?></select></div>
+                    <div class="col-md-4 mb-3"><label>Akun Akumulasi Depresiasi</label><select name="akun_akumulasi_depresiasi" class="form-select" required><?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,3)=='1-2' && $akun['tipe_akun']!='Header' && (str_contains($akun['nama_akun'], 'Akumulasi') || str_contains($akun['nama_akun'], 'Akum.'))){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?></select></div>
+                    <div class="col-md-4 mb-3"><label>Akun Beban Depresiasi</label><select name="akun_beban_depresiasi" class="form-select" required><?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='6' && $akun['tipe_akun']!='Header'){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?></select></div>
                 </div>
                 <button type="submit" class="btn btn-primary">Simpan</button>
             </form>

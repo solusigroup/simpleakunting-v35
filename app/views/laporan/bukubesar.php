@@ -10,7 +10,7 @@
                     <select class="form-select" name="kode_akun" id="kode_akun" required>
                         <option value="">-- Pilih Akun Detail --</option>
                         <?php foreach($data['akun'] as $akun): ?>
-                            <?php if($akun['tipe_akun'] == 'Detail'): ?>
+                            <?php if($akun['tipe_akun'] != 'Header'): ?>
                                 <option value="<?php echo $akun['kode_akun'] ?>" <?php echo (($data['kode_akun_terpilih'] ?? '') == $akun['kode_akun']) ? 'selected' : '' ?>>
                                     <?php echo $akun['kode_akun'] . ' - ' . $akun['nama_akun'] ?>
                                 </option>

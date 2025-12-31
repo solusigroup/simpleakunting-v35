@@ -28,11 +28,9 @@ class Penerimaan extends Controller {
         
         // Lakukan pemfilteran di sini, di dalam Controller
         foreach ($all_accounts as $akun) {
-            if ($akun['tipe_akun'] == 'Detail') {
-                // PERBAIKAN: Bersihkan data dan abaikan huruf besar/kecil
-                if (trim(strtolower($akun['sub_grup_akun'] ?? '')) == 'kas & bank') {
-                    $data['akun_kas_list'][] = $akun;
-                }
+            // Tampilkan semua akun Aset (Prefix 1) yang bukan Header
+            if (substr($akun['kode_akun'], 0, 1) == '1' && $akun['tipe_akun'] != 'Header') {
+                $data['akun_kas_list'][] = $akun;
             }
         }
 

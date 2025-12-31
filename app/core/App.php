@@ -78,6 +78,24 @@ class App {
             $url = explode('/', $url);
             return $url;
         }
+        
+        // Fallback untuk PHP Built-in Server
+        $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $scriptName = dirname($_SERVER['SCRIPT_NAME']);
+        
+        // Remove script path from request URI if present (e.g. if installed in subdirectory)
+        if ($scriptName !== '/' && strpos($requestUri, $scriptName) === 0) {
+            $requestUri = substr($requestUri, strlen($scriptName));
+        }
+        
+        $url = ltrim($requestUri, '/');
+        if (!empty($url)) {
+            $url = rtrim($url, '/');
+            $url = filter_var($url, FILTER_SANITIZE_URL);
+            $url = explode('/', $url);
+            return $url;
+        }
+
         return [];
     }
 }

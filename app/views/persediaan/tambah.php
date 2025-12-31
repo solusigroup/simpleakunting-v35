@@ -40,21 +40,21 @@
                     <label for="akun_persediaan" class="form-label">Akun Persediaan</label>
                     <select id="akun_persediaan" name="akun_persediaan" class="form-select" required>
                         <option value="">Pilih Akun...</option>
-                        <?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']=='Detail'){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?>
+                        <?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?>
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="akun_hpp" class="form-label">Akun HPP</label>
                     <select id="akun_hpp" name="akun_hpp" class="form-select" required>
                          <option value="">Pilih Akun...</option>
-                        <?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='5' && $akun['tipe_akun']=='Detail'){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?>
+                        <?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='5' && $akun['tipe_akun']!='Header'){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?>
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="akun_penjualan" class="form-label">Akun Penjualan</label>
                     <select id="akun_penjualan" name="akun_penjualan" class="form-select" required>
                          <option value="">Pilih Akun...</option>
-                        <?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='4' && $akun['tipe_akun']=='Detail'){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?>
+                        <?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='4' && $akun['tipe_akun']!='Header'){ echo "<option value='{$akun['kode_akun']}'>{$akun['nama_akun']}</option>"; } } ?>
                     </select>
                 </div>
             </div>
