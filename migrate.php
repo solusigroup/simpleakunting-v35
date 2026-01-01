@@ -1,0 +1,74 @@
+<?php
+/**
+ * Script untuk update database production
+ */
+require_once 'app/config.php';
+require_once 'app/core/Database.php';
+
+$db = new Database();
+
+$sql = "
+-- 1. Update Tabel Akun
+ALTER TABLE akun ADD COLUMN IF NOT EXISTS saldo_awal DECIMAL(15,2) DEFAULT 0.00;
+ALTER TABLE akun ADD COLUMN IF NOT EXISTS posisi_saldo_normal VARCHAR(20) DEFAULT 'Debit';
+
+-- 2. Tabel Penerimaan Pelanggan
+CREATE TABLE IF NOT EXISTS penerimaan_pelanggan (
+    id_penerimaan BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_pelanggan BIGINT UNSIGNED NOT NULL,
+    id_jurnal BIGINT UNSIGNED NOT NULL,
+    no_bukti VARCHAR(50) NOT NULL,
+    tanggal DATE NOT NULL,
+    akun_kas_bank VARCHAR(20) NOT NULL,
+    total_diterima DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    keterangan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pelanggan) REFERENCES pelanggan(id_pelanggan),
+    FOREIGN KEY (id_jurnal) REFERENCES jurnal_umum(id_jurnal)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS penerimaan_pelanggan_detail (
+    id_detail BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_penerimaan BIGINT UNSIGNED NOT NULL,
+    id_penjualan VARCHAR(50) NOT NULL,
+    jumlah_bayar DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_penerimaan) REFERENCES penerimaan_pelanggan(id_penerimaan) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 3. Tabel Pembayaran Pemasok
+CREATE TABLE IF NOT EXISTS pembayaran_pemasok (
+    id_pembayaran BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_pemasok BIGINT UNSIGNED NOT NULL,
+    id_jurnal BIGINT UNSIGNED NOT NULL,
+    no_bukti VARCHAR(50) NOT NULL,
+    tanggal DATE NOT NULL,
+    akun_kas_bank VARCHAR(20) NOT NULL,
+    total_dibayar DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    keterangan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pemasok) REFERENCES pemasok(id_pemasok),
+    FOREIGN KEY (id_jurnal) REFERENCES jurnal_umum(id_jurnal)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS pembayaran_pemasok_detail (
+    id_detail BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_pembayaran BIGINT UNSIGNED NOT NULL,
+    id_pembelian VARCHAR(50) NOT NULL,
+    jumlah_bayar DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_pembayaran) REFERENCES pembayaran_pemasok(id_pembayaran) ON DELETE CASCADE
+) ENGINE=InnoDB;
+";
+
+try {
+    echo "Memulai migrasi database...\n";
+    // PDO exec bisa menjalankan multiple query sekaligus
+    $db->query($sql);
+    $db->execute();
+    echo "✅ Database berhasil diperbarui!\n";
+} catch (Exception $e) {
+    echo "❌ Error migrasi: " . $e->getMessage() . "\n";
+}

@@ -1,8 +1,9 @@
 <?php
 
-// URL Dasar Aplikasi (wajib HTTPS untuk keamanan)
-// define('BASEURL', 'https://v3.simpleakunting.biz.id');
-define('BASEURL', 'http://localhost:8000'); // Localhost URL
+// URL Dasar Aplikasi (Otomatis mendeteksi localhost atau production)
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
+define('BASEURL', $protocol . "://" . $host);
 
 // Path Absolut Aplikasi
 define('APPROOT', dirname(dirname(__FILE__)));

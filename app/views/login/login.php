@@ -42,7 +42,7 @@
             justify-content: center;
         }
         .illustration-side {
-            background: linear-gradient(135deg, #0d6efd, #0d63e3);
+            background: linear-gradient(135deg, #1b4e78, #2a6a9c);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -50,10 +50,14 @@
             padding: 40px;
             text-align: center;
         }
-        .illustration-side svg {
+        .illustration-side img {
             width: 80%;
             max-width: 300px;
             height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: white;
+            padding: 15px;
         }
         .form-control {
             border-radius: 8px;
@@ -101,14 +105,9 @@
             <!-- Sisi Ilustrasi -->
             <div class="col-lg-6 illustration-side d-none d-lg-flex">
                 <div>
-                    <!-- Ilustrasi SVG -->
-                    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                      <path fill="#FFFFFF" d="M37.5,-45.3C52.3,-34.8,70.6,-22.7,76.8,-6.4C83,9.9,77.1,30.3,64.2,43.2C51.3,56.1,31.4,61.6,13.1,64.1C-5.2,66.6,-21.8,66.2,-36.5,59.3C-51.2,52.4,-64,39,-69.1,23.3C-74.2,7.6,-71.7,-10.5,-62.7,-23.5C-53.7,-36.5,-38.3,-44.4,-23.6,-51.2C-8.9,-58,-0.7,-57.7,9.3,-56.3C19.3,-54.9,37.5,-45.3,37.5,-45.3Z" transform="translate(100 100)" opacity="0.1" />
-                      <path fill="#FFFFFF" d="M47.8,-53.4C62,-44.8,73.4,-30.9,79.5,-14.2C85.6,2.6,86.4,22.3,77.8,37.8C69.2,53.4,51.3,64.9,33.1,71.2C14.9,77.5,-3.6,78.6,-21.7,73.9C-39.8,69.2,-57.5,58.8,-67.2,43.9C-77,29,-78.8,9.6,-74.6,-6.5C-70.3,-22.6,-59.9,-35.4,-47.5,-44.7C-35,-54,-20.4,-60,-5.2,-58.9C10.1,-57.8,20.2,-50,47.8,-53.4Z" transform="translate(130 90)" opacity="0.15" />
-                    </svg>
-                    <h2 class="fw-bold mt-4">Modal awal dari Dana Desa habis tanpa jejak?</h2>
-                    <p><h2 class="fw-bold mt-4">Kelola Keuangan Anda</h2></p>
-                    <p class="mt-2">SIMPLE AKUNTING membantu Anda mencatat setiap transaksi dengan mudah dan menghasilkan laporan yang akurat sesuai kaidah, menghindarkan modal awal dari Dana Desa habis tanpa jejak</p>
+                    <img src="<?php echo BASEURL; ?>/img/login_illustration.jpg" alt="Illustration" class="img-fluid mb-4">
+                    <h2 class="fw-bold mt-4">Kelola Keuangan Anda</h2>
+                    <p class="mt-2">SIMPLE AKUNTING membantu Anda mencatat setiap transaksi dengan mudah dan menghasilkan laporan yang akurat sesuai kaidah.</p>
                 </div>
             </div>
             <!-- Sisi Form Login -->
@@ -143,7 +142,7 @@
             &copy; <?php echo date('Y'); ?> - SIMPLE AKUNTING created by <a href="https://solusiconsulting.simpleakunting.biz.id" target="_blank">Kurniawan @Simple Akunting</a>
         </footer>
         <footer class="login-footer">
-            &copy; <?php echo date('Y'); ?> - Analisa Laporan Keuangan <a href="https://finratio.simpleakunting.biz.id" target="_blank">oleh Kurniawan</a>
+            &copy; <?php echo date('Y'); ?> - supported by <a href="https://simpleakunting.biz.id/Kurniawan_Profile_Infographic.html" target="_blank">PT Mentari Commsindo Jaya </a>
         </footer>
     </div>
 </body>
