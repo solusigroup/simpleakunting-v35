@@ -2,7 +2,7 @@
 
 require_once 'Jurnal_model.php';
 require_once 'Persediaan_model.php';
-require_once 'BOM_model.php';
+require_once 'Bom_model.php';
 
 class Produksi_model {
     private $table = 'produksi';
@@ -51,7 +51,7 @@ class Produksi_model {
     public function selesaikanProduksi($id, $postData, $tenant_id) {
         $jurnalModel = new Jurnal_model($this->db);
         $persediaanModel = new Persediaan_model($this->db);
-        $bomModel = new BOM_model($this->db);
+        $bomModel = new Bom_model($this->db);
         $perusahaanModel = new Perusahaan_model($this->db);
 
         $this->db->beginTransaction();
