@@ -100,6 +100,24 @@
             background-color: #f8fafc;
         }
 
+        .input-group .form-control.border-x-0 {
+            border-left: none;
+            border-right: none;
+        }
+
+        .toggle-password {
+            border-top-right-radius: 12px !important;
+            border-bottom-right-radius: 12px !important;
+            border-color: #e2e8f0;
+            color: #64748b;
+        }
+
+        .toggle-password:hover {
+            background-color: #fff !important;
+            color: var(--pasuruan-green-light);
+            border-color: #e2e8f0;
+        }
+
         .form-control:focus {
             box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
             border-color: var(--pasuruan-green-light);
@@ -227,8 +245,11 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0"><i
                                             class="bi bi-key"></i></span>
-                                    <input type="password" class="form-control border-start-0" name="password"
-                                        placeholder="******" required>
+                                    <input type="password" class="form-control border-x-0" name="password"
+                                        id="password-tenant" placeholder="******" required>
+                                    <button class="btn btn-outline-secondary border-start-0 bg-white toggle-password" type="button" data-target="password-tenant">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="d-grid mt-4">
@@ -261,8 +282,11 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0"><i
                                             class="bi bi-key"></i></span>
-                                    <input type="password" class="form-control border-start-0" name="password"
-                                        placeholder="******" required>
+                                    <input type="password" class="form-control border-x-0" name="password"
+                                        id="password-central" placeholder="******" required>
+                                    <button class="btn btn-outline-secondary border-start-0 bg-white toggle-password" type="button" data-target="password-central">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="d-grid mt-4">
@@ -276,7 +300,7 @@
 
         <!-- Footer Section -->
         <div class="login-footer text-center mt-4">
-            <p class="mb-1">&copy; 2025 - SIMPLE AKUNTING created by <a
+            <p class="mb-1">&copy; 2025 - SIMPLE AKUNTING developed by <a
                     href="https://simpleakunting.my.id/riwayathidupku.html#home" target="_blank"
                     class="text-decoration-none">Kurniawan @Simple Akunting</a></p>
             <p class="mb-0">&copy; <?php echo date('Y'); ?> - supported by <a
@@ -285,6 +309,23 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.replace('bi-eye', 'bi-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.replace('bi-eye-slash', 'bi-eye');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
