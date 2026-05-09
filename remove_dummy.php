@@ -8,8 +8,7 @@ try {
     echo "Memulai penghapusan data dummy...\n";
 
     // 1. Jurnal Umum & Detail
-    // Mengambil id_jurnal dari jurnal dummy
-    $stmt = $pdo->query("SELECT id_jurnal FROM jurnal_umum WHERE no_transaksi = 'JU-001' AND deskripsi = 'Penyesuaian Persediaan Awal'");
+    $stmt = $pdo->query("SELECT id_jurnal FROM jurnal_umum WHERE no_transaksi LIKE 'JU-001%' AND deskripsi = 'Penyesuaian Persediaan Awal'");
     $jurnal_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
     if (!empty($jurnal_ids)) {
         $inQuery = implode(',', $jurnal_ids);
@@ -19,7 +18,7 @@ try {
     }
 
     // 2. Kas Transaksi
-    $pdo->exec("DELETE FROM kas_transaksi WHERE no_bukti IN ('KM-001', 'KK-001')");
+    $pdo->exec("DELETE FROM kas_transaksi WHERE no_bukti LIKE 'KM-001%' OR no_bukti LIKE 'KK-001%'");
     echo "- Data Kas Transaksi dummy dihapus.\n";
 
     // 3. BOM & BOM Detail
@@ -33,11 +32,11 @@ try {
     }
 
     // 4. Persediaan
-    $pdo->exec("DELETE FROM master_persediaan WHERE kode_barang IN ('BB-01', 'BP-01', 'WP-01', 'BJ-01')");
+    $pdo->exec("DELETE FROM master_persediaan WHERE kode_barang LIKE 'BB-01%' OR kode_barang LIKE 'BP-01%' OR kode_barang LIKE 'WP-01%' OR kode_barang LIKE 'BJ-01%'");
     echo "- Data Persediaan dummy dihapus.\n";
 
     // 5. Aset Tetap
-    $pdo->exec("DELETE FROM aset_tetap WHERE kode_aset = 'AST-001'");
+    $pdo->exec("DELETE FROM aset_tetap WHERE kode_aset LIKE 'AST-001%'");
     echo "- Data Aset Tetap dummy dihapus.\n";
 
     // 6. Pemasok
