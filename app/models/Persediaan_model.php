@@ -69,7 +69,7 @@ class Persediaan_model {
             return $this->db->rowCount();
         } catch (\PDOException $e) {
             if ($this->db->inTransaction()) $this->db->rollBack();
-            error_log("Error tambahDataBarang: " . $e->getMessage());
+            die("<strong>ERROR DATABASE SAAT TAMBAH BARANG:</strong> <br>" . $e->getMessage());
             return 0;
         }
     }
