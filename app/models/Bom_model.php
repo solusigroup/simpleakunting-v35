@@ -1,6 +1,6 @@
 <?php
 
-class BOM_model {
+class Bom_model {
     private $table = 'bom';
     private $db;
 

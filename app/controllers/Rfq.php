@@ -1,13 +1,13 @@
 <?php
 
-class RFQ extends Controller {
+class Rfq extends Controller {
     public function __construct() {
         parent::__construct();
     }
 
     public function index() {
         $data['judul'] = 'Request for Quotation (RFQ)';
-        $data['rfq'] = $this->model('RFQ')->getAllRFQ($this->tenantId());
+        $data['rfq'] = $this->model('Rfq')->getAllRFQ($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('rfq/index', $data);
         $this->view('templates/footer');
@@ -25,7 +25,7 @@ class RFQ extends Controller {
     }
 
     public function simpan() {
-        if ($this->model('RFQ')->simpanRFQ($_POST, $this->tenantId())) {
+        if ($this->model('Rfq')->simpanRFQ($_POST, $this->tenantId())) {
             Flash::setFlash('RFQ berhasil disimpan.', 'success');
             header('Location: ' . BASEURL . '/rfq');
         } else {
@@ -37,7 +37,7 @@ class RFQ extends Controller {
 
     public function lihat($id) {
         $data['judul'] = 'Detail RFQ';
-        $data['rfq'] = $this->model('RFQ')->getRFQById($id, $this->tenantId());
+        $data['rfq'] = $this->model('Rfq')->getRFQById($id, $this->tenantId());
         if (!$data['rfq']) {
             Flash::setFlash('RFQ tidak ditemukan.', 'danger');
             header('Location: ' . BASEURL . '/rfq');
@@ -49,7 +49,7 @@ class RFQ extends Controller {
     }
 
     public function convert_to_invoice($id) {
-        $rfq = $this->model('RFQ')->getRFQById($id, $this->tenantId());
+        $rfq = $this->model('Rfq')->getRFQById($id, $this->tenantId());
         if (!$rfq) {
             Flash::setFlash('Data RFQ tidak ditemukan.', 'danger');
             header('Location: ' . BASEURL . '/rfq');
@@ -85,7 +85,7 @@ class RFQ extends Controller {
         $dataPembelian['akun_kas_bank'] = null;
 
         if ($this->model('Pembelian')->simpanPembelian($dataPembelian, $this->tenantId())) {
-            $this->model('RFQ')->updateStatus($id, 'Ordered', $this->tenantId());
+            $this->model('Rfq')->updateStatus($id, 'Ordered', $this->tenantId());
             Flash::setFlash('RFQ berhasil dikonversi menjadi Faktur Pembelian.', 'success');
             header('Location: ' . BASEURL . '/pembelian');
         } else {

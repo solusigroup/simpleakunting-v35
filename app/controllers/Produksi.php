@@ -17,7 +17,7 @@ class Produksi extends Controller {
 
     public function tambah() {
         $data['judul'] = 'Tambah Perintah Produksi';
-        $data['bom_list'] = $this->model('BOM')->getAllBOM($this->tenantId());
+        $data['bom_list'] = $this->model('Bom')->getAllBOM($this->tenantId());
         $data['no_produksi'] = $this->generateAutoNumber('PRD', 'produksi', 'no_produksi', $this->tenantId());
 
         $this->view('templates/header', $data);

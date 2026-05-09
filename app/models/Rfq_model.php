@@ -1,6 +1,6 @@
 <?php
 
-class RFQ_model {
+class Rfq_model {
     private $db;
 
     public function __construct($db) {

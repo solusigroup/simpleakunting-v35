@@ -1,13 +1,13 @@
 <?php
 
-class BOM extends Controller {
+class Bom extends Controller {
     public function __construct() {
         parent::__construct();
     }
 
     public function index() {
         $data['judul'] = 'Bill of Materials (BOM)';
-        $data['bom'] = $this->model('BOM')->getAllBOM($this->tenantId());
+        $data['bom'] = $this->model('Bom')->getAllBOM($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('bom/index', $data);
         $this->view('templates/footer');
@@ -22,7 +22,7 @@ class BOM extends Controller {
     }
 
     public function simpan() {
-        if ($this->model('BOM')->tambahBOM($_POST, $this->tenantId())) {
+        if ($this->model('Bom')->tambahBOM($_POST, $this->tenantId())) {
             Flash::setFlash('BOM berhasil disimpan.', 'success');
             header('Location: ' . BASEURL . '/bom');
             exit;
@@ -35,7 +35,7 @@ class BOM extends Controller {
 
     public function lihat($id) {
         $data['judul'] = 'Detail BOM';
-        $data['bom'] = $this->model('BOM')->getBOMById($id, $this->tenantId());
+        $data['bom'] = $this->model('Bom')->getBOMById($id, $this->tenantId());
         if (!$data['bom']) {
             Flash::setFlash('BOM tidak ditemukan.', 'danger');
             header('Location: ' . BASEURL . '/bom');
@@ -47,7 +47,7 @@ class BOM extends Controller {
     }
 
     public function hapus($id) {
-        if ($this->model('BOM')->hapusBOM($id, $this->tenantId())) {
+        if ($this->model('Bom')->hapusBOM($id, $this->tenantId())) {
             Flash::setFlash('BOM berhasil dihapus.', 'success');
         }
         header('Location: ' . BASEURL . '/bom');
