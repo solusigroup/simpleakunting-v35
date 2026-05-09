@@ -3,7 +3,6 @@
 class TutupBuku extends Controller {
     public function __construct() {
         parent::__construct();
-        // **PERBAIKAN: Izinkan akses untuk Admin DAN Manajer**
         if (!Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Hanya Admin atau Manajer yang dapat mengakses halaman ini.', 'danger');
             header('Location: ' . BASEURL . '/dashboard');
@@ -15,7 +14,7 @@ class TutupBuku extends Controller {
         $data['judul'] = 'Tutup Buku Akhir Periode';
         
         $tutupBukuModel = $this->model('TutupBuku');
-        $latestClosed = $tutupBukuModel->getLatestClosedPeriod();
+        $latestClosed = $tutupBukuModel->getLatestClosedPeriod($this->tenantId());
         
         $nextMonthPeriod = $latestClosed ? date('Y-m', strtotime($latestClosed['tahun'].'-'.$latestClosed['bulan'].'-01' . ' +1 month')) : date('Y-m', strtotime('first day of last month'));
         $data['periode_bulanan_next'] = $nextMonthPeriod;
@@ -28,10 +27,12 @@ class TutupBuku extends Controller {
 
             if ($data['tipe_proses'] == 'Bulanan') {
                 $data['periode_label'] = date('F Y', strtotime($data['periode_raw'].'-01'));
-                $data['preview'] = $tutupBukuModel->getClosingJournalPreview($data['periode_raw']);
+                // Pastikan urutan argumen: $periode, $tenant_id, $isTahunan
+                $data['preview'] = $tutupBukuModel->getClosingJournalPreview($data['periode_raw'], $this->tenantId(), false);
             } else { // Tahunan
                 $data['periode_label'] = 'Tahun ' . $data['periode_raw'];
-                $data['preview'] = $tutupBukuModel->getClosingJournalPreview($data['periode_raw'], true);
+                // Pastikan urutan argumen: $periode, $tenant_id, $isTahunan
+                $data['preview'] = $tutupBukuModel->getClosingJournalPreview($data['periode_raw'], $this->tenantId(), true);
             }
         }
         
@@ -43,7 +44,7 @@ class TutupBuku extends Controller {
     public function proses() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['periode'])) {
             $tutupBukuModel = $this->model('TutupBuku');
-            if ($tutupBukuModel->prosesTutupBuku($_POST['periode'], $_POST['tipe_proses'])) {
+            if ($tutupBukuModel->prosesTutupBuku($_POST['periode'], $_POST['tipe_proses'], $this->tenantId())) {
                 Flash::setFlash('Proses tutup buku berhasil.', 'success');
             }
         }
@@ -51,4 +52,3 @@ class TutupBuku extends Controller {
         exit;
     }
 }
-

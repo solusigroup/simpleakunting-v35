@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panduan Pengguna - SIMPLE AKUNTING</title>
+    <title>Panduan Pengguna - SIMPLE AKUNTING v3.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -17,18 +18,22 @@
         .content-card {
             background-color: white;
             border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 2.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
             margin-bottom: 2rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .content-card:hover {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.05);
         }
         .sticky-nav a {
-            color: #4b5563;
+            color: #64748b;
             transition: all 0.2s ease;
             font-weight: 500;
             border-left: 3px solid transparent;
         }
         .sticky-nav a:hover {
-            color: #1d4ed8;
+            color: #2563eb;
             border-left-color: #93c5fd;
             background-color: #eff6ff;
         }
@@ -36,137 +41,268 @@
             color: #1d4ed8;
             font-weight: 700;
             border-left-color: #2563eb;
+            background-color: #f0fdf4;
         }
         .flow-step {
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            padding: 1rem;
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.75rem;
+            padding: 1.5rem;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            flex: 1;
+            transition: all 0.2s;
+        }
+        .flow-step:hover {
+            border-color: #93c5fd;
+            background-color: #eff6ff;
+            transform: translateY(-2px);
         }
         .flow-icon {
             font-size: 2.5rem;
             line-height: 1;
-            margin-bottom: 0.75rem;
-            color: #1d4ed8;
+            margin-bottom: 1rem;
+            color: #2563eb;
         }
         .flow-arrow {
             font-size: 2rem;
-            color: #9ca3af;
+            color: #cbd5e1;
             align-self: center;
-        }
-        pre {
-            background-color: #1e293b;
-            color: #e2e8f0;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            white-space: pre-wrap;
-            word-wrap: break-word;
         }
     </style>
 </head>
-<body class="bg-slate-50">
+<body class="text-slate-800">
 
-    <div class="container mx-auto p-4 md:p-8">
+    <!-- Header / Hero Section -->
+    <div class="bg-teal-700 text-white pt-16 pb-24 px-4 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <svg class="h-full w-full" fill="currentColor" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 100L100 0V100H0z"/></svg>
+        </div>
+        <div class="container mx-auto relative z-10 text-center">
+            <div class="inline-block bg-teal-800 rounded-full px-4 py-1.5 text-sm font-semibold tracking-wider mb-6 text-teal-200 uppercase shadow-inner border border-teal-600">
+                Edisi Dinas Koperasi Kab. Pasuruan
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black mb-4 tracking-tight">Pusat Bantuan SimpleAkunting</h1>
+            <p class="text-xl text-teal-100 max-w-2xl mx-auto">Dokumentasi interaktif untuk memaksimalkan penggunaan sistem akuntansi *multi-tenant* bagi UMKM binaan.</p>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 md:px-8 -mt-12 relative z-20 pb-16">
         <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+            
             <!-- Navigasi Samping -->
             <aside class="hidden lg:block lg:col-span-3">
-                <nav class="sticky top-8 space-y-2 sticky-nav">
-                    <h4 class="px-4 text-sm font-bold text-gray-500 uppercase">Panduan</h4>
-                    <a href="#pendahuluan" class="block p-3 rounded-r-lg">Pendahuluan</a>
-                    <a href="#memulai" class="block p-3 rounded-r-lg">Memulai</a>
-                    <a href="#master-data" class="block p-3 rounded-r-lg">Master Data</a>
-                    <a href="#transaksi" class="block p-3 rounded-r-lg">Alur Transaksi</a>
-                    <a href="#laporan" class="block p-3 rounded-r-lg">Laporan & Analisis</a>
-                    <a href="#proses-akhir" class="block p-3 rounded-r-lg">Proses Akhir Periode</a>
-                    <a href="#pengaturan" class="block p-3 rounded-r-lg">Pengaturan</a>
+                <nav class="sticky top-8 space-y-1 sticky-nav bg-white rounded-xl shadow-sm p-4 border border-slate-200">
+                    <h4 class="px-4 text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Daftar Isi</h4>
+                    <a href="#pendahuluan" class="block p-3 rounded-r-lg text-sm">Pendahuluan</a>
+                    <a href="#central-admin" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-shield-lock me-2"></i>Dinas Koperasi (Pusat)</a>
+                    <a href="#master-data" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-stack me-2"></i>Master Data UMKM</a>
+                    <a href="#transaksi" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-arrow-down-up me-2"></i>Alur Dagang & Jasa</a>
+                    <a href="#manufaktur" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-gear-wide-connected me-2"></i>Alur Manufaktur</a>
+                    <a href="#laporan" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-file-bar-graph me-2"></i>Laporan Keuangan</a>
+                    <a href="#proses-akhir" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-archive me-2"></i>Tutup Buku</a>
                 </nav>
             </aside>
 
             <!-- Konten Utama -->
             <main class="lg:col-span-9">
-                <section id="pendahuluan" class="content-card">
-                    <h1 class="text-4xl font-black text-blue-800 mb-4">Panduan Pengguna SIMPLE AKUNTING</h1>
-                    <p class="text-lg text-gray-600">Selamat datang di panduan penggunaan aplikasi SIMPLE AKUNTING. Dokumen ini dirancang untuk membantu Anda, mulai dari pengguna baru hingga manajer, untuk memahami dan memanfaatkan semua fitur yang tersedia secara maksimal.</p>
+                
+                <section id="pendahuluan" class="content-card border-t-4 border-teal-500">
+                    <h2 class="text-3xl font-black text-slate-800 mb-6">Selamat Datang di Program Digitalisasi! 🎉</h2>
+                    <p class="text-lg text-slate-600 mb-6">Sistem <strong class="text-teal-700">SimpleAkunting v3.5</strong> ini difasilitasi langsung oleh <strong>Dinas Koperasi Kabupaten Pasuruan</strong> untuk memberdayakan UMKM binaan agar memiliki pembukuan yang modern, tertata, dan <i>Bankable</i>.</p>
+                    
+                    <div class="bg-teal-50 border border-teal-100 rounded-lg p-5 flex gap-4 items-start">
+                        <i class="bi bi-lightbulb-fill text-2xl text-teal-500"></i>
+                        <div>
+                            <h4 class="font-bold text-teal-900 mb-1">Tips Interaktif</h4>
+                            <p class="text-teal-800 text-sm">Beberapa bagian panduan ini menggunakan menu *dropdown* (Accordion). Klik pada judul bagian untuk membuka dan membaca detail penjelasan di dalamnya.</p>
+                        </div>
+                    </div>
                 </section>
 
-                <section id="memulai" class="content-card">
-                    <h2 class="text-3xl font-bold mb-6 border-b pb-3"><i class="bi bi-rocket-takeoff-fill text-blue-600"></i> Memulai</h2>
-                    <h3 class="text-xl font-bold mb-2">1. Memahami Dashboard</h3>
-                    <p class="mb-4">Setelah login, Anda akan disambut oleh Dashboard. Halaman ini adalah pusat komando Anda, yang menampilkan ringkasan kondisi keuangan usaha Anda secara visual, seperti total piutang, total utang, dan tren penjualan.</p>
-                    <h3 class="text-xl font-bold mb-2">2. Langkah Paling Penting: Siapkan Master Data</h3>
-                    <p>Sebelum mencatat transaksi apapun, **WAJIB** hukumnya untuk melengkapi **Master Data** terlebih dahulu. Master data adalah fondasi dari seluruh aplikasi. Tanpa data ini, Anda tidak akan bisa mencatat transaksi dengan benar.</p>
+                <section id="central-admin" class="content-card">
+                    <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4 flex items-center gap-3">
+                        <div class="bg-red-100 text-red-600 p-2 rounded-lg"><i class="bi bi-shield-lock-fill"></i></div> 
+                        Central Admin (Khusus Superadmin)
+                    </h2>
+                    <p class="mb-6 text-slate-600">Modul ini beroperasi secara *global* di atas *tenant* dan hanya dapat diakses oleh akun tingkat **Superadmin**.</p>
+                    
+                    <div x-data="{ active: 1 }" class="space-y-3">
+                        <!-- Accordion 1 -->
+                        <div class="border border-slate-200 rounded-lg overflow-hidden">
+                            <button @click="active = active === 1 ? null : 1" class="w-full px-5 py-4 text-left font-bold bg-slate-50 hover:bg-slate-100 flex justify-between items-center transition-colors">
+                                <span><i class="bi bi-buildings text-indigo-500 me-2"></i> Manajemen Tenant</span>
+                                <i class="bi" :class="active === 1 ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                            </button>
+                            <div x-show="active === 1" x-collapse>
+                                <div class="p-5 bg-white text-slate-600 text-sm border-t border-slate-100">
+                                    Anda dapat membuat cabang atau perusahaan mandiri (*tenant*) yang sepenuhnya terisolasi satu sama lain. Setiap tenant akan memiliki data keuangan, master akun, dan logo perusahaannya sendiri.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Accordion 2 -->
+                        <div class="border border-slate-200 rounded-lg overflow-hidden">
+                            <button @click="active = active === 2 ? null : 2" class="w-full px-5 py-4 text-left font-bold bg-slate-50 hover:bg-slate-100 flex justify-between items-center transition-colors">
+                                <span><i class="bi bi-key text-amber-500 me-2"></i> Centralized RBAC (Roles List)</span>
+                                <i class="bi" :class="active === 2 ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                            </button>
+                            <div x-show="active === 2" x-collapse>
+                                <div class="p-5 bg-white text-slate-600 text-sm border-t border-slate-100">
+                                    <p class="mb-3">Hak akses pengguna kini dikelola dari pusat. Superadmin dapat mendefinisikan Role kustom (misal: "Supervisor Gudang") dan secara granular memilih fitur apa saja (Permissions) yang boleh diakses.</p>
+                                    <p>Perubahan pada Role di pusat akan secara instan berlaku bagi semua pengguna di seluruh tenant yang memiliki Role tersebut.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Accordion 3 -->
+                        <div class="border border-slate-200 rounded-lg overflow-hidden">
+                            <button @click="active = active === 3 ? null : 3" class="w-full px-5 py-4 text-left font-bold bg-slate-50 hover:bg-slate-100 flex justify-between items-center transition-colors">
+                                <span><i class="bi bi-activity text-green-500 me-2"></i> Monitoring & Agregat</span>
+                                <i class="bi" :class="active === 3 ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                            </button>
+                            <div x-show="active === 3" x-collapse>
+                                <div class="p-5 bg-white text-slate-600 text-sm border-t border-slate-100">
+                                    Laporan ini memberikan pandangan *helicopter view* untuk Superadmin memonitor lalu lintas transaksi dan akumulasi pendapatan/pengeluaran dari *seluruh tenant* secara bersamaan tanpa perlu *login* bergantian.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
-                <section id="master-data" class="content-card">
-                    <h2 class="text-3xl font-bold mb-6 border-b pb-3"><i class="bi bi-stack text-blue-600"></i> Master Data</h2>
-                    <p class="mb-6">Akses semua modul ini melalui menu sidebar **Master Data**. Pastikan semua data di sini sudah lengkap dan benar sebelum Anda mulai bertransaksi.</p>
-                    <div class="space-y-4">
-                        <p><strong class="text-blue-700"><i class="bi bi-journal-text"></i> Daftar Akun (CoA):</strong> Ini adalah "tulang punggung" akuntansi Anda. Definisikan semua akun Aset, Kewajiban, Modal, Pendapatan, dan Beban di sini.</p>
-                        <p><strong class="text-blue-700"><i class="bi bi-people-fill"></i> Pelanggan & Pemasok:</strong> Daftarkan semua pelanggan dan pemasok Anda di sini, lengkap dengan saldo awal piutang atau utang jika ada.</p>
-                        <p><strong class="text-blue-700"><i class="bi bi-box-seam-fill"></i> Persediaan:</strong> Daftarkan semua barang dagangan atau jasa yang Anda jual. Masukkan stok awal dan harga beli/jual di sini.</p>
-                        <p><strong class="text-blue-700"><i class="bi bi-building"></i> Aset Tetap:</strong> Catat semua aset jangka panjang perusahaan seperti kendaraan, gedung, atau peralatan kantor.</p>
+        <section id="master-data" class="content-card">
+                    <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4 flex items-center gap-3">
+                        <div class="bg-blue-100 text-blue-600 p-2 rounded-lg"><i class="bi bi-stack"></i></div> 
+                        Modul Master Data
+                    </h2>
+                    <p class="mb-6 text-slate-600">Fondasi dari operasional Tenant. Anda wajib mengatur data ini sebelum mencatat transaksi keuangan apapun.</p>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="p-4 border border-slate-200 rounded-xl bg-white shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-2"><i class="bi bi-journal-text text-blue-500 me-2"></i>Bagan Akun (CoA)</h4>
+                            <p class="text-sm text-slate-500">Struktur tulang punggung. Definisikan akun Kas, Aset, Utang, Modal, Pendapatan, dan Beban.</p>
+                        </div>
+                        <div class="p-4 border border-slate-200 rounded-xl bg-white shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-2"><i class="bi bi-people-fill text-blue-500 me-2"></i>Pelanggan</h4>
+                            <p class="text-sm text-slate-500">Master data pembeli Anda. Diperlukan untuk melacak histori transaksi faktur penjualan dan sisa Piutang yang belum dilunasi.</p>
+                        </div>
+                        <div class="p-4 border border-slate-200 rounded-xl bg-white shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-2"><i class="bi bi-truck text-blue-500 me-2"></i>Pemasok</h4>
+                            <p class="text-sm text-slate-500">Master data *supplier* (pemasok) bahan atau barang. Penting untuk mengontrol tagihan Utang Usaha Anda agar tidak jatuh tempo.</p>
+                        </div>
+                        <div class="p-4 border border-slate-200 rounded-xl bg-white shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-2"><i class="bi bi-box-seam-fill text-blue-500 me-2"></i>Persediaan & Jasa</h4>
+                            <p class="text-sm text-slate-500">Master barang dagangan, bahan baku manufaktur, hingga layanan jasa (tanpa kontrol stok).</p>
+                        </div>
+                        <div class="p-4 border border-slate-200 rounded-xl bg-white shadow-sm lg:col-span-2">
+                            <h4 class="font-bold text-slate-800 mb-2"><i class="bi bi-building-fill-up text-blue-500 me-2"></i>Aset Tetap</h4>
+                            <p class="text-sm text-slate-500">Katalog aset jangka panjang perusahaan (kendaraan, gedung) untuk perhitungan depresiasi otomatis setiap bulannya.</p>
+                        </div>
                     </div>
                 </section>
                 
                 <section id="transaksi" class="content-card">
-                    <h2 class="text-3xl font-bold mb-6 border-b pb-3"><i class="bi bi-arrow-down-up text-blue-600"></i> Alur Transaksi Harian</h2>
-                    <p class="mb-8">Setelah Master Data siap, Anda bisa mulai mencatat transaksi harian melalui menu **Transaksi**. Aplikasi ini dirancang dengan alur yang logis:</p>
-                    <div class="flex flex-col md:flex-row items-stretch justify-center gap-0">
+                    <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4 flex items-center gap-3">
+                        <div class="bg-emerald-100 text-emerald-600 p-2 rounded-lg"><i class="bi bi-arrow-down-up"></i></div> 
+                        Siklus Dagang & Jasa
+                    </h2>
+                    <p class="mb-8 text-slate-600">Alur transaksi standar yang saling terhubung (terintegrasi). Pembuatan dokumen di modul ini otomatis membentuk Jurnal Umum di latar belakang.</p>
+                    
+                    <div class="flex flex-col md:flex-row items-stretch justify-center gap-2">
                         <div class="flow-step">
-                            <div class="flow-icon">📦</div>
-                            <h4 class="font-bold">Pembelian</h4>
-                            <p class="text-sm text-gray-500">Beli barang dari Pemasok (stok bertambah).</p>
+                            <div class="flow-icon"><i class="bi bi-cart-plus"></i></div>
+                            <h4 class="font-bold text-slate-800">Pembelian</h4>
+                            <p class="text-xs text-slate-500 mt-2">Mencatat Faktur Beli. Stok persediaan bertambah, menimbulkan Kas Keluar atau Utang.</p>
                         </div>
-                        <div class="flow-arrow mt-8 hidden md:block">&#10230;</div>
-                        <div class="flow-arrow my-4 block md:hidden">&#11167;</div>
+                        <div class="flow-arrow mt-10 hidden md:block"><i class="bi bi-arrow-right"></i></div>
+                        <div class="flow-arrow my-2 block md:hidden"><i class="bi bi-arrow-down"></i></div>
                         <div class="flow-step">
-                            <div class="flow-icon">💰</div>
-                            <h4 class="font-bold">Penjualan</h4>
-                            <p class="text-sm text-gray-500">Jual barang ke Pelanggan (stok berkurang).</p>
+                            <div class="flow-icon"><i class="bi bi-shop"></i></div>
+                            <h4 class="font-bold text-slate-800">Penjualan</h4>
+                            <p class="text-xs text-slate-500 mt-2">Mencetak Faktur Jual. Stok berkurang, menghasilkan Kas Masuk atau Piutang Pelanggan.</p>
                         </div>
-                        <div class="flow-arrow mt-8 hidden md:block">&#10230;</div>
-                        <div class="flow-arrow my-4 block md:hidden">&#11167;</div>
+                        <div class="flow-arrow mt-10 hidden md:block"><i class="bi bi-arrow-right"></i></div>
+                        <div class="flow-arrow my-2 block md:hidden"><i class="bi bi-arrow-down"></i></div>
                         <div class="flow-step">
-                            <div class="flow-icon">💵</div>
-                            <h4 class="font-bold">Pelunasan</h4>
-                            <p class="text-sm text-gray-500">Catat pelunasan piutang (di Penerimaan) atau utang (di Pembayaran).</p>
+                            <div class="flow-icon"><i class="bi bi-cash-coin"></i></div>
+                            <h4 class="font-bold text-slate-800">Pelunasan</h4>
+                            <p class="text-xs text-slate-500 mt-2">Modul Penerimaan (Piutang) dan Pembayaran (Utang) untuk menutup tagihan faktur.</p>
                         </div>
                     </div>
-                    <p class="mt-6">Untuk transaksi di luar siklus di atas (seperti bayar listrik, sewa, atau setoran modal), gunakan modul **Kas & Bank**.</p>
+                    <div class="mt-8 bg-slate-50 rounded-lg p-4 text-sm text-slate-600 border border-slate-200">
+                        <strong>Catatan Bebas:</strong> Untuk transaksi operasional seperti bayar gaji, biaya listrik, atau setoran modal awal, gunakan modul <strong>Kas & Bank</strong> atau langsung via <strong>Jurnal Umum</strong>.
+                    </div>
+                </section>
+
+                <section id="manufaktur" class="content-card bg-indigo-50 border-0">
+                    <h2 class="text-3xl font-bold mb-6 border-b border-indigo-200 pb-4 flex items-center gap-3 text-indigo-900">
+                        <div class="bg-indigo-600 text-white p-2 rounded-lg"><i class="bi bi-gear-wide-connected"></i></div> 
+                        Siklus Manufaktur
+                    </h2>
+                    <p class="mb-6 text-indigo-800">Untuk perusahaan yang memproduksi barang sendiri (Bahan Baku menjadi Barang Jadi), gunakan alur terpisah berikut:</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-indigo-100">
+                            <h4 class="font-bold text-indigo-900 mb-3 border-b pb-2">1. Bill of Materials (BOM)</h4>
+                            <p class="text-sm text-slate-600">Resep produksi. Di sini Anda meracik formula: "Untuk menghasilkan 1 Meja (Barang Jadi), dibutuhkan 2 Kayu dan 10 Paku (Bahan Baku)".</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-indigo-100">
+                            <h4 class="font-bold text-indigo-900 mb-3 border-b pb-2">2. Perintah Produksi</h4>
+                            <p class="text-sm text-slate-600">Eksekusi formula BOM. Sistem akan secara otomatis mengurangi stok Bahan Baku dari gudang, dan menambahkan stok Barang Jadi siap jual. Biaya Pokok Produksi (HPP) juga terkalkulasi otomatis.</p>
+                        </div>
+                    </div>
                 </section>
 
                 <section id="laporan" class="content-card">
-                    <h2 class="text-3xl font-bold mb-6 border-b pb-3"><i class="bi bi-file-earmark-bar-graph-fill text-blue-600"></i> Laporan & Analisis</h2>
-                    <p class="mb-4">Inilah hasil akhir dari semua pencatatan Anda. Akses melalui menu **Laporan & Analisis** untuk mendapatkan wawasan bisnis. Semua laporan dapat ditampilkan secara komparatif dan diekspor ke Excel/PDF.</p>
-                    <ul class="list-disc list-inside space-y-2">
-                        <li><strong>Laba Rugi:</strong> Untuk melihat kinerja dan profitabilitas usaha Anda.</li>
-                        <li><strong>Posisi Keuangan (Neraca):</strong> Untuk melihat kesehatan keuangan (total aset, utang, dan modal).</li>
-                        <li><strong>Analisis Keuangan:</strong> Untuk melihat rasio-rasio keuangan penting secara otomatis.</li>
+                    <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4 flex items-center gap-3">
+                        <div class="bg-fuchsia-100 text-fuchsia-600 p-2 rounded-lg"><i class="bi bi-file-bar-graph-fill"></i></div> 
+                        Laporan Keuangan
+                    </h2>
+                    <p class="mb-6 text-slate-600">Sistem melakukan agregasi semua jurnal menjadi wawasan bisnis otomatis (Otomasi Laporan).</p>
+                    
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <i class="bi bi-check-circle-fill text-fuchsia-500 mt-1"></i>
+                            <div>
+                                <strong class="text-slate-800 d-block">Buku Besar & Neraca Saldo</strong>
+                                <p class="text-sm text-slate-500">Pelacakan mutasi dan akumulasi saldo spesifik per akun dalam periode waktu tertentu.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="bi bi-check-circle-fill text-fuchsia-500 mt-1"></i>
+                            <div>
+                                <strong class="text-slate-800 d-block">Laba Rugi (Profit & Loss)</strong>
+                                <p class="text-sm text-slate-500">Melihat kinerja operasional. Tersedia fitur Komparasi (membandingkan performa bulan ini dengan bulan lalu).</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="bi bi-check-circle-fill text-fuchsia-500 mt-1"></i>
+                            <div>
+                                <strong class="text-slate-800 d-block">Neraca Keuangan (Balance Sheet)</strong>
+                                <p class="text-sm text-slate-500">Laporan keseimbangan antara Total Aset dengan total Kewajiban + Ekuitas.</p>
+                            </div>
+                        </li>
                     </ul>
                 </section>
 
                 <section id="proses-akhir" class="content-card">
-                    <h2 class="text-3xl font-bold mb-6 border-b pb-3"><i class="bi bi-archive-fill text-blue-600"></i> Proses Akhir Periode</h2>
-                    <p class="mb-4">Ini adalah fitur canggih yang biasanya dilakukan oleh Manajer atau Admin pada akhir bulan atau tahun.</p>
-                     <div class="space-y-4">
-                        <p><strong class="text-blue-700">Jurnal Penyesuaian:</strong> Sistem akan secara otomatis menghitung dan membuat jurnal untuk beban penyusutan semua aset tetap Anda.</p>
-                        <p><strong class="text-blue-700">Tutup Buku:</strong> Proses formal untuk menutup buku pada akhir periode, me-nol-kan saldo akun laba rugi, dan memindahkan laba bersih ke modal.</p>
+                    <h2 class="text-3xl font-bold mb-6 border-b border-slate-100 pb-4 flex items-center gap-3">
+                        <div class="bg-amber-100 text-amber-600 p-2 rounded-lg"><i class="bi bi-archive-fill"></i></div> 
+                        Proses Akhir (Period Lock)
+                    </h2>
+                    <p class="mb-4 text-slate-600">Tugas *Maintenance* akhir periode yang dikerjakan oleh Pimpinan Akuntan (Admin/Manajer).</p>
+                    
+                    <div class="bg-slate-50 rounded-lg p-5 border border-slate-200 mt-4">
+                        <h4 class="font-bold text-amber-700 mb-2"><i class="bi bi-calculator"></i> Penyesuaian Otomatis</h4>
+                        <p class="text-sm text-slate-600 mb-4">Mengkalkulasi depresiasi (penyusutan) Aset Tetap secara otomatis dan membentuk Jurnal Penyusutan tanpa input manual.</p>
+                        
+                        <h4 class="font-bold text-amber-700 mb-2"><i class="bi bi-lock-fill"></i> Tutup Buku & Period Lock</h4>
+                        <p class="text-sm text-slate-600">Fungsi kritis untuk mereset akun Pendapatan & Beban ke Modal (Laba Ditahan). Bulan/Tahun yang telah ditutup bukunya akan mengalami status **Locked** (terkunci), di mana tidak ada staf yang bisa menambah, mengubah, atau menghapus transaksi di bulan tersebut. Ini menjamin integritas pembukuan.</p>
                     </div>
                 </section>
                 
-                <section id="pengaturan" class="content-card">
-                    <h2 class="text-3xl font-bold mb-6 border-b pb-3"><i class="bi bi-gear-fill text-blue-600"></i> Pengaturan</h2>
-                     <p>Hanya Admin yang dapat mengakses menu ini untuk mengatur parameter dasar aplikasi, seperti:</p>
-                     <ul class="list-disc list-inside space-y-2 mt-4">
-                        <li>Mengubah detail perusahaan, logo, dan kota laporan.</li>
-                        <li>Mengatur akun-akun default (Piutang, Utang, Laba Ditahan).</li>
-                        <li>Menambah, mengedit, atau menghapus pengguna (Admin, Manajer, Staf).</li>
-                    </ul>
-                </section>
             </main>
         </div>
     </div>
@@ -187,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
         });
-    }, { rootMargin: "-50% 0px -50% 0px" });
+    }, { rootMargin: "-40% 0px -60% 0px" });
 
     sections.forEach(section => {
         observer.observe(section);

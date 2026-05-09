@@ -12,7 +12,7 @@
                 </div>
                 <div class="col-md-4">
                     <label for="no_transaksi" class="form-label">No. Transaksi / Bukti</label>
-                    <input type="text" class="form-control" id="no_transaksi" name="no_transaksi" placeholder="Contoh: INV/001" required>
+                    <input type="text" class="form-control bg-light" id="no_transaksi" name="no_transaksi" value="<?php echo htmlspecialchars($data['no_transaksi']); ?>" readonly required>
                 </div>
                 <div class="col-md-4">
                     <label for="deskripsi" class="form-label">Deskripsi</label>

@@ -1,133 +1,132 @@
 <?php
-// **PERBAIKAN 1: Muat file Jurnal_model secara manual di sini**
-require_once 'Jurnal_model.php';
 
 class Aset_model {
-    private $table = 'master_aset_tetap';
+    private $table = 'aset_tetap';
     private $db;
 
-    /**
-     * Constructor baru yang menerima koneksi database dari Controller.
-     */
     public function __construct($db) {
         $this->db = $db;
     }
 
-    public function getAllAset() {
-        $this->db->query('SELECT * FROM ' . $this->table . ' ORDER BY kode_aset ASC');
+    public function getAllAset($tenant_id) {
+        $this->db->query("SELECT * FROM {$this->table} WHERE tenant_id = :tenant_id ORDER BY created_at DESC");
+        $this->db->bind('tenant_id', $tenant_id);
         return $this->db->resultSet();
     }
-    
-    public function getAsetById($id) {
-        $this->db->query('SELECT * FROM ' . $this->table . ' WHERE id_aset = :id');
+
+    public function getAsetById($id, $tenant_id) {
+        $this->db->query("SELECT * FROM {$this->table} WHERE id = :id AND tenant_id = :tenant_id");
         $this->db->bind('id', $id);
+        $this->db->bind('tenant_id', $tenant_id);
         return $this->db->single();
     }
-   
-    public function tambahDataAset($data) {
-        $query = "INSERT INTO {$this->table} (kode_aset, nama_aset, kelompok_aset, tanggal_perolehan, harga_perolehan, masa_manfaat, akun_aset, akun_akumulasi_depresiasi, akun_beban_depresiasi) 
-                  VALUES (:kode, :nama, :kelompok, :tgl, :harga, :masa, :akun_aset, :akun_akumulasi, :akun_beban)";
+
+    public function simpanAset($data, $tenant_id) {
+        $query = "INSERT INTO {$this->table} (tenant_id, kode_aset, nama_aset, tanggal_perolehan, harga_perolehan, nilai_residu, umur_ekonomis, metode_penyusutan, akun_aset, akun_akumulasi, akun_beban, keterangan) 
+                  VALUES (:tenant_id, :kode, :nama, :tanggal, :harga, :residu, :umur, :metode, :akun_aset, :akun_akumulasi, :akun_beban, :keterangan)";
         $this->db->query($query);
+        $this->db->bind('tenant_id', $tenant_id);
         $this->db->bind('kode', $data['kode_aset']);
         $this->db->bind('nama', $data['nama_aset']);
-        $this->db->bind('kelompok', $data['kelompok_aset']);
-        $this->db->bind('tgl', $data['tanggal_perolehan']);
+        $this->db->bind('tanggal', $data['tanggal_perolehan']);
         $this->db->bind('harga', $data['harga_perolehan']);
-        $this->db->bind('masa', $data['masa_manfaat']);
+        $this->db->bind('residu', $data['nilai_residu']);
+        $this->db->bind('umur', $data['umur_ekonomis']);
+        $this->db->bind('metode', $data['metode_penyusutan']);
         $this->db->bind('akun_aset', $data['akun_aset']);
-        $this->db->bind('akun_akumulasi', $data['akun_akumulasi_depresiasi']);
-        $this->db->bind('akun_beban', $data['akun_beban_depresiasi']);
+        $this->db->bind('akun_akumulasi', $data['akun_akumulasi']);
+        $this->db->bind('akun_beban', $data['akun_beban']);
+        $this->db->bind('keterangan', $data['keterangan'] ?? '');
         $this->db->execute();
         return $this->db->rowCount();
     }
 
-    public function ubahDataAset($data) {
+    public function updateAset($data, $tenant_id) {
         $query = "UPDATE {$this->table} SET 
-                    kode_aset = :kode, nama_aset = :nama, kelompok_aset = :kelompok, 
-                    tanggal_perolehan = :tgl, harga_perolehan = :harga, masa_manfaat = :masa, 
-                    akun_aset = :akun_aset, akun_akumulasi_depresiasi = :akun_akumulasi, akun_beban_depresiasi = :akun_beban
-                  WHERE id_aset = :id";
+                    kode_aset = :kode, nama_aset = :nama, tanggal_perolehan = :tanggal, harga_perolehan = :harga, 
+                    nilai_residu = :residu, umur_ekonomis = :umur, metode_penyusutan = :metode, 
+                    akun_aset = :akun_aset, akun_akumulasi = :akun_akumulasi, akun_beban = :akun_beban, 
+                    status = :status, keterangan = :keterangan
+                  WHERE id = :id AND tenant_id = :tenant_id";
         $this->db->query($query);
+        $this->db->bind('id', $data['id']);
+        $this->db->bind('tenant_id', $tenant_id);
         $this->db->bind('kode', $data['kode_aset']);
         $this->db->bind('nama', $data['nama_aset']);
-        $this->db->bind('kelompok', $data['kelompok_aset']);
-        $this->db->bind('tgl', $data['tanggal_perolehan']);
+        $this->db->bind('tanggal', $data['tanggal_perolehan']);
         $this->db->bind('harga', $data['harga_perolehan']);
-        $this->db->bind('masa', $data['masa_manfaat']);
+        $this->db->bind('residu', $data['nilai_residu']);
+        $this->db->bind('umur', $data['umur_ekonomis']);
+        $this->db->bind('metode', $data['metode_penyusutan']);
         $this->db->bind('akun_aset', $data['akun_aset']);
-        $this->db->bind('akun_akumulasi', $data['akun_akumulasi_depresiasi']);
-        $this->db->bind('akun_beban', $data['akun_beban_depresiasi']);
-        $this->db->bind('id', $data['id_aset']);
+        $this->db->bind('akun_akumulasi', $data['akun_akumulasi']);
+        $this->db->bind('akun_beban', $data['akun_beban']);
+        $this->db->bind('status', $data['status']);
+        $this->db->bind('keterangan', $data['keterangan'] ?? '');
         $this->db->execute();
         return $this->db->rowCount();
     }
 
-    public function hapusDataAset($id) {
-        $query = "DELETE FROM {$this->table} WHERE id_aset = :id";
-        $this->db->query($query);
+    public function hapusAset($id, $tenant_id) {
+        $this->db->query("DELETE FROM {$this->table} WHERE id = :id AND tenant_id = :tenant_id");
         $this->db->bind('id', $id);
+        $this->db->bind('tenant_id', $tenant_id);
         $this->db->execute();
         return $this->db->rowCount();
     }
-    /**
-     * FUNGSI BARU: Menghitung data penyusutan untuk periode tertentu.
-     * @param string $periode Format 'YYYY-MM'.
-     * @return array Data penyusutan yang sudah dikelompokkan per akun.
-     */
-    public function getDepreciationData($periode) {
-        $akhir_bulan = date('Y-m-t', strtotime($periode . '-01'));
 
-        $this->db->query("SELECT 
-                            akun_beban_depresiasi, 
-                            akun_akumulasi_depresiasi,
-                            SUM(harga_perolehan / (masa_manfaat * 12)) as beban_bulanan
-                         FROM {$this->table}
-                         WHERE tanggal_perolehan <= :akhir_bulan
-                         GROUP BY akun_beban_depresiasi, akun_akumulasi_depresiasi");
-        $this->db->bind('akhir_bulan', $akhir_bulan);
-        return $this->db->resultSet();
-    }
-    
-    /**
-     * FUNGSI BARU: Menjalankan proses penjurnalan penyusutan.
-     * @param string $periode Format 'YYYY-MM'.
-     * @param array $depreciationData Data dari getDepreciationData().
-     * @return bool True jika sukses.
-     */
-    public function runDepreciationJournal($periode, $depreciationData) {
+    public function prosesPenyusutan($bulan, $tahun, $tenant_id) {
+        $tanggal_akhir = date("Y-m-t", strtotime("$tahun-$bulan-01"));
+        $this->db->query("SELECT * FROM aset_tetap WHERE status = 'Aktif' AND tenant_id = :tenant_id AND tanggal_perolehan <= :tgl_akhir");
+        $this->db->bind('tenant_id', $tenant_id);
+        $this->db->bind('tgl_akhir', $tanggal_akhir);
+        $assets = $this->db->resultSet();
+        
+        $count = 0;
         $jurnalModel = new Jurnal_model($this->db);
-        $tanggal_jurnal = date('Y-m-t', strtotime($periode . '-01'));
 
-        $jurnalData = [
-            'no_transaksi' => 'AJE-DEP-' . date('Ym', strtotime($periode . '-01')),
-            'tanggal' => $tanggal_jurnal,
-            'deskripsi' => 'Penyesuaian Beban Penyusutan Periode ' . date('F Y', strtotime($periode . '-01')),
-            'sumber_jurnal' => 'Adjustment',
-            'details' => []
-        ];
+        foreach ($assets as $aset) {
+            $this->db->query("SELECT id FROM penyusutan_aset WHERE id_aset = :id_aset AND bulan = :bulan AND tahun = :tahun");
+            $this->db->bind('id_aset', $aset['id']);
+            $this->db->bind('bulan', $bulan);
+            $this->db->bind('tahun', $tahun);
+            if ($this->db->single()) continue; 
+            
+            $monthly = ($aset['harga_perolehan'] - $aset['nilai_residu']) / $aset['umur_ekonomis'];
+            
+            $jurnalData = [
+                'no_transaksi' => "DEP/" . str_replace('/', '', $aset['kode_aset']) . "/$tahun$bulan",
+                'tanggal' => $tanggal_akhir,
+                'deskripsi' => "Penyusutan Aset: {$aset['nama_aset']} ($bulan/$tahun)",
+                'sumber_jurnal' => 'Penyusutan',
+                'details' => [
+                    ['kode_akun' => $aset['akun_beban'], 'debit' => $monthly, 'kredit' => 0],
+                    ['kode_akun' => $aset['akun_akumulasi'], 'debit' => 0, 'kredit' => $monthly]
+                ]
+            ];
+            
+            $this->db->beginTransaction();
+            try {
+                $id_jurnal = $jurnalModel->simpanJurnal($jurnalData, $tenant_id);
+                $this->db->query("UPDATE jurnal_umum SET is_locked = 1 WHERE id_jurnal = :id");
+                $this->db->bind('id', $id_jurnal);
+                $this->db->execute();
 
-        foreach ($depreciationData as $data) {
-            $beban = (float)$data['beban_bulanan'];
-            if ($beban > 0) {
-                // Sisi Debit (Beban Depresiasi)
-                $jurnalData['details'][] = ['kode_akun' => $data['akun_beban_depresiasi'], 'debit' => $beban, 'kredit' => 0];
-                // Sisi Kredit (Akumulasi Depresiasi)
-                $jurnalData['details'][] = ['kode_akun' => $data['akun_akumulasi_depresiasi'], 'debit' => 0, 'kredit' => $beban];
+                $this->db->query("INSERT INTO penyusutan_aset (tenant_id, id_aset, id_jurnal, bulan, tahun, jumlah) VALUES (:tenant_id, :id_aset, :id_jurnal, :bulan, :tahun, :jumlah)");
+                $this->db->bind('tenant_id', $tenant_id);
+                $this->db->bind('id_aset', $aset['id']);
+                $this->db->bind('id_jurnal', $id_jurnal);
+                $this->db->bind('bulan', $bulan);
+                $this->db->bind('tahun', $tahun);
+                $this->db->bind('jumlah', $monthly);
+                $this->db->execute();
+                
+                $this->db->commit();
+                $count++;
+            } catch (Exception $e) {
+                if ($this->db->inTransaction()) $this->db->rollBack();
             }
         }
-        
-        // Simpan jurnal hanya jika ada detail yang akan dijurnal
-        if (empty($jurnalData['details'])) {
-            return true; // Dianggap sukses jika tidak ada yang perlu disusutkan
-        }
-
-        $id_jurnal = $jurnalModel->simpanJurnal($jurnalData);
-        if ($id_jurnal > 0) {
-            $this->db->query("UPDATE jurnal_umum SET is_locked = 1 WHERE id_jurnal = :id");
-            $this->db->bind('id', $id_jurnal);
-            $this->db->execute();
-            return true;
-        }
-        return false;
+        return $count;
     }
 }

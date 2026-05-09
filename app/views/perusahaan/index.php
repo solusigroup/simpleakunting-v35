@@ -133,8 +133,94 @@
                         } ?>
                     </select>
                 </div>
+            <hr>
+            <h5>Akun Kontrol Aset & Depresiasi</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="akun_akumulasi_depresiasi_default" class="form-label">Akun Akumulasi Depresiasi (Kredit)</label>
+                    <select class="form-select" id="akun_akumulasi_depresiasi_default" name="akun_akumulasi_depresiasi_default">
+                        <option value="">-- Pilih Akun --</option>
+                        <?php foreach($data['akun'] as $akun){ 
+                             if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_akumulasi_depresiasi_default'] ?? '')) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="akun_beban_depresiasi_default" class="form-label">Akun Beban Depresiasi (Debit)</label>
+                    <select class="form-select" id="akun_beban_depresiasi_default" name="akun_beban_depresiasi_default">
+                        <option value="">-- Pilih Akun --</option>
+                        <?php foreach($data['akun'] as $akun){ 
+                             if(substr($akun['kode_akun'],0,1)=='6' && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_beban_depresiasi_default'] ?? '')) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
+                    </select>
+                </div>
             </div>
             <hr>
+            <h5>Akun Kontrol Manufaktur (HPP)</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="akun_tenaga_kerja_langsung" class="form-label">Akun Biaya Tenaga Kerja Langsung</label>
+                    <select class="form-select" id="akun_tenaga_kerja_langsung" name="akun_tenaga_kerja_langsung">
+                        <option value="">-- Pilih Akun --</option>
+                        <?php foreach($data['akun'] as $akun){ 
+                             if((substr($akun['kode_akun'],0,1)=='5' || substr($akun['kode_akun'],0,1)=='6') && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_tenaga_kerja_langsung'] ?? '')) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="akun_overhead_pabrik" class="form-label">Akun Biaya Overhead Pabrik</label>
+                    <select class="form-select" id="akun_overhead_pabrik" name="akun_overhead_pabrik">
+                        <option value="">-- Pilih Akun --</option>
+                        <?php foreach($data['akun'] as $akun){ 
+                             if((substr($akun['kode_akun'],0,1)=='5' || substr($akun['kode_akun'],0,1)=='6') && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_overhead_pabrik'] ?? '')) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
+                    </select>
+                </div>
+            </div>
+            <hr>
+            <h5>Akun Kontrol Pajak (PPN)</h5>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="akun_pajak_penjualan" class="form-label">Akun Hutang Pajak Penjualan (PPN Keluaran)</label>
+                    <select class="form-select" id="akun_pajak_penjualan" name="akun_pajak_penjualan">
+                        <option value="">-- Pilih Akun --</option>
+                        <?php foreach($data['akun'] as $akun){ 
+                             if(substr($akun['kode_akun'],0,1)=='2' && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_pajak_penjualan'] ?? '')) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="akun_pajak_pembelian" class="form-label">Akun Pajak Pembelian (PPN Masukan)</label>
+                    <select class="form-select" id="akun_pajak_pembelian" name="akun_pajak_pembelian">
+                        <option value="">-- Pilih Akun --</option>
+                        <?php foreach($data['akun'] as $akun){ 
+                             if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
+                                $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_pajak_pembelian'] ?? '')) ? 'selected' : ''; 
+                                echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
+                            } 
+                        } ?>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="persentase_pajak_default" class="form-label">Persentase Pajak Default (%)</label>
+                    <input type="number" step="0.01" class="form-control" id="persentase_pajak_default" name="persentase_pajak_default" value="<?php echo htmlspecialchars($data['perusahaan']['persentase_pajak_default'] ?? '11.00'); ?>">
+                </div>
+            </div>
             <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
         </form>
     </div>

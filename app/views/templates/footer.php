@@ -10,42 +10,62 @@
 
 </div> <!-- Penutup .main-wrapper -->
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        
-        if (sidebarToggle) {
-            // Logika untuk tombol toggle utama
-            sidebarToggle.addEventListener('click', function() {
-                document.body.classList.toggle('sidebar-collapsed');
-                localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed'));
-            });
-
-            // Cek status dari localStorage saat halaman dimuat (untuk desktop)
-            if (window.innerWidth >= 992) {
-                if (localStorage.getItem('sidebarCollapsed') === 'true') {
-                    document.body.classList.add('sidebar-collapsed');
-                }
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            // Sidebar Toggle (Mobile & Desktop)
+            const savedSidebar = localStorage.getItem('sidebar-collapsed') === 'true';
+            if (savedSidebar && window.innerWidth >= 992) {
+                body.classList.add('sidebar-collapsed');
             }
-        }
-        
-        // **PERBAIKAN: Logika baru untuk auto-hide di layar kecil**
-        const sidebarLinks = document.querySelectorAll('.sidebar a.nav-link');
-        sidebarLinks.forEach(link => {
-            // Kita tidak ingin collapse trigger menutup sidebar, hanya link navigasi
-            if (!link.getAttribute('data-bs-toggle')) {
-                link.addEventListener('click', function() {
-                    // Hanya jalankan di layar kecil (lebar < 992px)
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
                     if (window.innerWidth < 992) {
-                        document.body.classList.remove('sidebar-collapsed');
-                        localStorage.setItem('sidebarCollapsed', 'false');
+                        body.classList.toggle('sidebar-open');
+                    } else {
+                        body.classList.toggle('sidebar-collapsed');
+                        localStorage.setItem('sidebar-collapsed', body.classList.contains('sidebar-collapsed'));
                     }
                 });
             }
+
+            // Theme Toggle
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const currentTheme = body.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    setTheme(newTheme);
+                });
+            }
+
+            function setTheme(theme) {
+                body.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                if (themeIcon) {
+                    themeIcon.className = theme === 'light' ? 'bi bi-moon-fill fs-5' : 'bi bi-sun-fill fs-5';
+                }
+            }
+            
+            // Auto-hide sidebar on small screens after clicking link
+            const sidebarLinks = document.querySelectorAll('.sidebar a.nav-link:not([data-bs-toggle])');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 992) {
+                        body.classList.remove('sidebar-open');
+                    }
+                });
+            });
         });
-    });
-</script>
+    </script>
 </body>
 </html>
 

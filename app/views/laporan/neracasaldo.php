@@ -3,16 +3,27 @@
         <h3>Neraca Saldo (Trial Balance)</h3>
     </div>
     <div class="card-body">
-        <form action="<?php echo BASEURL; ?>/laporan/neracasaldo" method="post">
+        <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/neracaSaldo" method="post">
             <div class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label for="tanggal_selesai" class="form-label">Per Tanggal</label>
                     <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control" value="<?php echo $data['tanggal_selesai']; ?>">
                 </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary w-100">Tampilkan Laporan</button>
+                <div class="col-md-4">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">Tampilkan</button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Ekspor</button>
+                            <ul class="dropdown-menu">
+                                <li><button type="button" id="export-excel" class="dropdown-item">ke Excel</button></li>
+                                <li><button type="button" id="export-pdf" class="dropdown-item">ke PDF</button></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <!-- Input tersembunyi untuk ekspor -->
+            <input type="hidden" name="tanggal_selesai_export" id="tanggal_selesai_export">
         </form>
     </div>
 </div>
@@ -72,19 +83,51 @@
                 </tfoot>
             </table>
         </div>
+
+        <div class="row mt-5" style="page-break-inside: avoid;">
+            <div class="col-6 text-center">
+                <p><?php echo htmlspecialchars($data['penandatangan_1']['jabatan'] ?? ''); ?></p>
+                <br><br><br><br>
+                <p class="fw-bold mb-0"><u><?php echo htmlspecialchars($data['penandatangan_1']['nama_user'] ?? ''); ?></u></p>
+            </div>
+            <div class="col-6 text-center">
+                <p><?php echo htmlspecialchars($data['kota_laporan'] ?? 'Kota Anda'); ?>, <?php echo date('d F Y'); ?></p>
+                <p><?php echo htmlspecialchars($data['penandatangan_2']['jabatan'] ?? ''); ?></p>
+                <br><br><br><br>
+                <p class="fw-bold mb-0"><u><?php echo htmlspecialchars($data['penandatangan_2']['nama_user'] ?? ''); ?></u></p>
+            </div>
+        </div>
     </div>
 </div>
-      <div class="row mt-5" style="page-break-inside: avoid;">
-           <div class="col-6 text-center">
-            <br>
-               <p><?php echo htmlspecialchars($data['penandatangan_1']['jabatan'] ?? ''); ?></p>
-               <br><br><br><br>
-               <p class="fw-bold mb-0"><u><?php echo htmlspecialchars($data['penandatangan_1']['nama_user'] ?? ''); ?></u></p>
-           </div>
-           <div class="col-6 text-center">
-               <p><?php echo htmlspecialchars($data['kota_laporan'] ?? 'Kota Anda'); ?>, <?php echo date('d F Y'); ?></p>
-               <p><?php echo htmlspecialchars($data['penandatangan_2']['jabatan'] ?? ''); ?>
-            </p><br><br><br>
-               <p class="fw-bold mb-0"><u><?php echo htmlspecialchars($data['penandatangan_2']['nama_user'] ?? ''); ?></u></p>
-        </div>
-     </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('laporan-form');
+        const exportExcelBtn = document.getElementById('export-excel');
+        const exportPdfBtn = document.getElementById('export-pdf');
+
+        function prepareExportData() {
+            document.getElementById('tanggal_selesai_export').value = document.getElementById('tanggal_selesai').value;
+        }
+
+        if (exportExcelBtn) {
+            exportExcelBtn.addEventListener('click', function() {
+                prepareExportData();
+                form.action = "<?php echo BASEURL; ?>/laporan/eksporNeracaSaldo";
+                form.submit();
+                form.action = "<?php echo BASEURL; ?>/laporan/neracaSaldo";
+            });
+        }
+        
+        if (exportPdfBtn) {
+            exportPdfBtn.addEventListener('click', function() {
+                prepareExportData();
+                form.action = "<?php echo BASEURL; ?>/laporan/eksporPdfNeracaSaldo";
+                form.target = "_blank";
+                form.submit();
+                form.action = "<?php echo BASEURL; ?>/laporan/neracaSaldo";
+                form.target = "_self";
+            });
+        }
+    });
+</script>

@@ -2,15 +2,41 @@
 
 class Dashboard extends Controller {
     public function index() {
-        $data['judul'] = 'Dashboard';
-        
+        $user = Auth::user();
         $dashboardModel = $this->model('Dashboard');
+        $currentTenantId = $this->tenantId();
         
-        // Ambil data ringkasan untuk kartu
-        $data['summary'] = $dashboardModel->getSummary();
+        if ($user['role'] === 'Superadmin' && $currentTenantId === null) {
+            // CENTRAL DASHBOARD LOGIC (Melihat Aggregate)
+            $data['judul'] = 'Central Dashboard';
+            $data['summary'] = $dashboardModel->getCentralSummary();
+            $data['tenants'] = $this->model('Tenants')->getAllTenants();
+            
+            // Tren agregat
+            $trendData = $dashboardModel->getSalesPurchasesTrend(null);
+            $data['chart_trend'] = $this->_prepareTrendData($trendData);
 
-        // Ambil dan format data untuk grafik tren penjualan vs pembelian
-        $trendData = $dashboardModel->getSalesPurchasesTrend();
+            $this->view('templates/header', $data);
+            $this->view('dashboard/central', $data);
+            $this->view('templates/footer');
+        } else {
+            // TENANT DASHBOARD LOGIC (Bisa user normal atau Superadmin yang sedang memantau tenant)
+            $data['judul'] = 'Dashboard';
+            if (isset($user['impersonating'])) {
+                $data['judul'] .= ' - Monitoring ' . ($user['tenant_name'] ?? '');
+            }
+            
+            $data['summary'] = $dashboardModel->getSummary($currentTenantId);
+            $trendData = $dashboardModel->getSalesPurchasesTrend($currentTenantId);
+            $data['chart_trend'] = $this->_prepareTrendData($trendData);
+
+            $this->view('templates/header', $data);
+            $this->view('dashboard/index', $data);
+            $this->view('templates/footer');
+        }
+    }
+
+    private function _prepareTrendData($trendData) {
         $labels = [];
         $salesData = [];
         $purchasesData = [];
@@ -19,14 +45,10 @@ class Dashboard extends Controller {
             $salesData[] = $row['total_penjualan'];
             $purchasesData[] = $row['total_pembelian'];
         }
-        $data['chart_trend'] = [
+        return [
             'labels' => json_encode($labels),
             'sales' => json_encode($salesData),
             'purchases' => json_encode($purchasesData)
         ];
-
-        $this->view('templates/header', $data);
-        $this->view('dashboard/index', $data);
-        $this->view('templates/footer');
     }
 }

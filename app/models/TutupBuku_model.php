@@ -10,12 +10,13 @@ class TutupBuku_model
         $this->db = $db;
     }
 
-    public function getLatestClosedPeriod() {
-        $this->db->query("SELECT * FROM periode_akuntansi WHERE status = 'Closed' AND tipe_proses = 'Bulanan' ORDER BY tahun DESC, bulan DESC LIMIT 1");
+    public function getLatestClosedPeriod($tenant_id) {
+        $this->db->query("SELECT * FROM periode_akuntansi WHERE status = 'Closed' AND tipe_proses = 'Bulanan' AND tenant_id = :tenant_id ORDER BY tahun DESC, bulan DESC LIMIT 1");
+        $this->db->bind('tenant_id', $tenant_id);
         return $this->db->single();
     }
     
-    public function getClosingJournalPreview($periode, $isTahunan = false) {
+    public function getClosingJournalPreview($periode, $tenant_id, $isTahunan = false) {
         $jurnalModel = new Jurnal_model($this->db);
         
         if ($isTahunan) {
@@ -26,13 +27,10 @@ class TutupBuku_model
             $tanggal_selesai = date('Y-m-t', strtotime($tanggal_mulai));
         }
         
-        return $jurnalModel->getLabaRugi($tanggal_mulai, $tanggal_selesai);
+        return $jurnalModel->getLabaRugi($tanggal_mulai, $tanggal_selesai, null, null, $tenant_id);
     }
 
-    /**
-     * FUNGSI YANG DIPERBARUI dengan logika pembuatan jurnal penutup yang lengkap.
-     */
-    public function prosesTutupBuku($periode, $tipe_proses) {
+    public function prosesTutupBuku($periode, $tipe_proses, $tenant_id) {
         $jurnalModel = new Jurnal_model($this->db);
         $isTahunan = ($tipe_proses == 'Tahunan');
 
@@ -44,13 +42,18 @@ class TutupBuku_model
             $tanggal_selesai = date('Y-m-t', strtotime($tanggal_mulai));
         }
 
-        $labaRugiData = $this->getClosingJournalPreview($periode, $isTahunan);
+        $labaRugiData = $this->getClosingJournalPreview($periode, $tenant_id, $isTahunan);
         $labaBersih = ($labaRugiData['total_pendapatan_1'] ?? 0) - ($labaRugiData['total_beban_1'] ?? 0);
         $totalPendapatan = $labaRugiData['total_pendapatan_1'] ?? 0;
         $totalBeban = $labaRugiData['total_beban_1'] ?? 0;
 
-        $akun_ikhtisar_lr = '3-9999';
-        $akun_laba_ditahan = '3-2000'; // Pastikan sesuai dengan Daftar Akun Anda
+        // Ambil akun pengaturan dari tenant
+        $this->db->query("SELECT akun_laba_ditahan FROM perusahaan WHERE tenant_id = :tenant_id");
+        $this->db->bind('tenant_id', $tenant_id);
+        $pengaturan = $this->db->single();
+        
+        $akun_ikhtisar_lr = '3-9999'; // Akun sistem
+        $akun_laba_ditahan = $pengaturan['akun_laba_ditahan'] ?? '3-2000';
 
         $this->db->beginTransaction();
         try {
@@ -65,43 +68,41 @@ class TutupBuku_model
             // 1. Tutup semua akun Pendapatan ke Ikhtisar L/R
             if (!empty($labaRugiData['pendapatan'])) {
                 foreach($labaRugiData['pendapatan'] as $akun) {
-                    // Debit akun Pendapatan untuk me-nol-kan saldo kreditnya
                     $jurnalData['details'][] = ['kode_akun' => $akun['kode_akun'], 'debit' => $akun['total_1'], 'kredit' => 0];
                 }
-                // Kredit Ikhtisar L/R sebesar total Pendapatan
                 $jurnalData['details'][] = ['kode_akun' => $akun_ikhtisar_lr, 'debit' => 0, 'kredit' => $totalPendapatan];
             }
 
             // 2. Tutup semua akun Beban ke Ikhtisar L/R
              if (!empty($labaRugiData['beban'])) {
-                // Debit Ikhtisar L/R sebesar total Beban
                 $jurnalData['details'][] = ['kode_akun' => $akun_ikhtisar_lr, 'debit' => $totalBeban, 'kredit' => 0];
                 foreach($labaRugiData['beban'] as $akun) {
-                    // Kredit akun Beban untuk me-nol-kan saldo debitnya
                     $jurnalData['details'][] = ['kode_akun' => $akun['kode_akun'], 'debit' => 0, 'kredit' => $akun['total_1']];
                 }
             }
             
             // 3. Tutup Ikhtisar L/R ke Laba Ditahan
-            if ($labaBersih >= 0) { // Jika Laba
+            if ($labaBersih >= 0) {
                 $jurnalData['details'][] = ['kode_akun' => $akun_ikhtisar_lr, 'debit' => $labaBersih, 'kredit' => 0];
                 $jurnalData['details'][] = ['kode_akun' => $akun_laba_ditahan, 'debit' => 0, 'kredit' => $labaBersih];
-            } else { // Jika Rugi
+            } else {
                 $jurnalData['details'][] = ['kode_akun' => $akun_laba_ditahan, 'debit' => abs($labaBersih), 'kredit' => 0];
                 $jurnalData['details'][] = ['kode_akun' => $akun_ikhtisar_lr, 'debit' => 0, 'kredit' => abs($labaBersih)];
             }
             
-            $id_jurnal = $jurnalModel->simpanJurnal($jurnalData);
+            $id_jurnal = $jurnalModel->simpanJurnal($jurnalData, $tenant_id);
             if ($id_jurnal == 0) throw new Exception("Gagal menyimpan jurnal penutup.");
             
-            $this->db->query("UPDATE jurnal_umum SET is_locked = 1 WHERE id_jurnal = :id");
+            $this->db->query("UPDATE jurnal_umum SET is_locked = 1 WHERE id_jurnal = :id AND tenant_id = :tenant_id");
             $this->db->bind('id', $id_jurnal);
+            $this->db->bind('tenant_id', $tenant_id);
             $this->db->execute();
 
             // 4. Tandai periode sebagai 'Closed'
             if ($isTahunan) {
                 for ($bulan = 1; $bulan <= 12; $bulan++) {
-                    $this->db->query("INSERT INTO periode_akuntansi (tahun, bulan, status, tipe_proses, tanggal_tutup) VALUES (:tahun, :bulan, 'Closed', :tipe, NOW()) ON DUPLICATE KEY UPDATE status = 'Closed', tipe_proses = :tipe, tanggal_tutup = NOW()");
+                    $this->db->query("INSERT INTO periode_akuntansi (tenant_id, tahun, bulan, status, tipe_proses, tanggal_tutup) VALUES (:tenant_id, :tahun, :bulan, 'Closed', :tipe, NOW()) ON DUPLICATE KEY UPDATE status = 'Closed', tipe_proses = :tipe, tanggal_tutup = NOW()");
+                    $this->db->bind('tenant_id', $tenant_id);
                     $this->db->bind('tahun', $periode);
                     $this->db->bind('bulan', $bulan);
                     $this->db->bind('tipe', $tipe_proses);
@@ -110,7 +111,8 @@ class TutupBuku_model
             } else {
                 $tahun = date('Y', strtotime($tanggal_mulai));
                 $bulan = date('m', strtotime($tanggal_mulai));
-                $this->db->query("INSERT INTO periode_akuntansi (tahun, bulan, status, tipe_proses, tanggal_tutup) VALUES (:tahun, :bulan, 'Closed', :tipe, NOW()) ON DUPLICATE KEY UPDATE status = 'Closed', tipe_proses = :tipe, tanggal_tutup = NOW()");
+                $this->db->query("INSERT INTO periode_akuntansi (tenant_id, tahun, bulan, status, tipe_proses, tanggal_tutup) VALUES (:tenant_id, :tahun, :bulan, 'Closed', :tipe, NOW()) ON DUPLICATE KEY UPDATE status = 'Closed', tipe_proses = :tipe, tanggal_tutup = NOW()");
+                $this->db->bind('tenant_id', $tenant_id);
                 $this->db->bind('tahun', $tahun);
                 $this->db->bind('bulan', $bulan);
                 $this->db->bind('tipe', $tipe_proses);
@@ -120,23 +122,23 @@ class TutupBuku_model
             $this->db->commit();
             return true;
         } catch (Exception $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) $this->db->rollBack();
             Flash::setFlash($e->getMessage(), 'danger');
             return false;
         }
     }
     
-    public function isPeriodClosed($tanggal) {
+    public function isPeriodClosed($tanggal, $tenant_id) {
         $tahun = date('Y', strtotime($tanggal));
         $bulan = date('m', strtotime($tanggal));
 
-        $this->db->query("SELECT status FROM periode_akuntansi WHERE tahun = :tahun AND bulan = :bulan");
+        $this->db->query("SELECT status FROM periode_akuntansi WHERE tahun = :tahun AND bulan = :bulan AND tenant_id = :tenant_id");
         $this->db->bind('tahun', $tahun);
         $this->db->bind('bulan', $bulan);
+        $this->db->bind('tenant_id', $tenant_id);
         
         $result = $this->db->single();
         
         return ($result && $result['status'] === 'Closed');
     }
 }
-

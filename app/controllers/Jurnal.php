@@ -5,7 +5,7 @@ class Jurnal extends Controller {
     public function index()
     {
         $data['judul'] = 'Jurnal Umum';
-        $data['jurnal'] = $this->model('Jurnal')->getAllJurnal();
+        $data['jurnal'] = $this->model('Jurnal')->getAllJurnal($this->tenantId());
         
         $this->view('templates/header', $data);
         $this->view('jurnal/index', $data);
@@ -15,7 +15,8 @@ class Jurnal extends Controller {
     public function tambah()
     {
         $data['judul'] = 'Tambah Entri Jurnal';
-        $data['akun'] = $this->model('Akun')->getAllAkun();
+        $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
+        $data['no_transaksi'] = $this->model('Jurnal')->generateNoTransaksi($this->tenantId());
 
         $this->view('templates/header', $data);
         $this->view('jurnal/tambah', $data);
@@ -50,7 +51,7 @@ class Jurnal extends Controller {
             }
         }
 
-        if ($this->model('Jurnal')->simpanJurnal($formattedData) > 0) {
+        if ($this->model('Jurnal')->simpanJurnal($formattedData, $this->tenantId()) > 0) {
             Flash::setFlash('Entri jurnal berhasil disimpan.', 'success');
             header('Location: ' . BASEURL . '/jurnal');
             exit;
@@ -68,8 +69,8 @@ class Jurnal extends Controller {
     {
         $data['judul'] = 'Edit Entri Jurnal';
         $jurnal_model = $this->model('Jurnal');
-        $data['jurnal'] = $jurnal_model->getJurnalWithDetailsById($id);
-        $data['akun'] = $this->model('Akun')->getAllAkun();
+        $data['jurnal'] = $jurnal_model->getJurnalWithDetailsById($id, $this->tenantId());
+        $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
 
         // PERBAIKAN: Cek apakah jurnal ditemukan SEBELUM melanjutkan
         if ($data['jurnal'] === null) {
@@ -119,7 +120,7 @@ class Jurnal extends Controller {
             }
         }
 
-        $result = $this->model('Jurnal')->updateJurnal($formattedData);
+        $result = $this->model('Jurnal')->updateJurnal($formattedData, $this->tenantId());
 
         if ($result > 0) {
             Flash::setFlash('Entri jurnal berhasil diperbarui.', 'success');
@@ -134,7 +135,7 @@ class Jurnal extends Controller {
 
     public function hapus($id)
     {
-        if ($this->model('Jurnal')->hapusJurnal($id) > 0) {
+        if ($this->model('Jurnal')->hapusJurnal($id, $this->tenantId()) > 0) {
             Flash::setFlash('Entri jurnal berhasil dihapus.', 'success');
         } else {
             Flash::setFlash('Gagal menghapus entri jurnal. Kemungkinan jurnal ini terkunci.', 'danger');

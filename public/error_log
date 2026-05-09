@@ -1210,3 +1210,19 @@ Stack trace:
 [09-Nov-2025 12:41:28 UTC] PHP Warning:  foreach() argument must be of type array|object, null given in /home/simpleak/v3.simpleakunting.biz.id/app/views/pembayaran/tambah.php on line 10
 [09-Nov-2025 12:50:58 UTC] PHP Warning:  Undefined array key "akun_kas_bank" in /home/simpleak/v3.simpleakunting.biz.id/app/models/Penjualan_model.php on line 78
 [09-Nov-2025 12:50:58 UTC] PHP Warning:  Undefined array key "akun_kas_bank" in /home/simpleak/v3.simpleakunting.biz.id/app/models/Penjualan_model.php on line 115
+[08-Mar-2026 12:42:25 UTC] PHP Warning:  Undefined array key "nama_user" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 31
+[08-Mar-2026 12:42:25 UTC] PHP Warning:  Undefined array key "password" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 32
+[30-Mar-2026 10:00:33 UTC] PHP Warning:  Undefined array key "nama_user" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 31
+[30-Mar-2026 10:00:33 UTC] PHP Warning:  Undefined array key "password" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 32
+[06-Apr-2026 03:20:46 UTC] PHP Warning:  Undefined array key "nama_user" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 31
+[06-Apr-2026 03:20:46 UTC] PHP Warning:  Undefined array key "password" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 32
+[13-Apr-2026 13:57:16 UTC] PHP Warning:  Undefined array key "nama_user" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 31
+[13-Apr-2026 13:57:16 UTC] PHP Warning:  Undefined array key "password" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 32
+[20-Apr-2026 07:13:10 UTC] PHP Warning:  Undefined array key "nama_user" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 31
+[20-Apr-2026 07:13:10 UTC] PHP Warning:  Undefined array key "password" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 32
+[28-Apr-2026 00:10:59 UTC] PHP Warning:  Undefined array key "nama_user" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 31
+[28-Apr-2026 00:10:59 UTC] PHP Warning:  Undefined array key "password" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 32
+[04-May-2026 02:09:39 UTC] PHP Warning:  Undefined array key "nama_user" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 31
+[04-May-2026 02:09:39 UTC] PHP Warning:  Undefined array key "password" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 32
+[04-May-2026 21:34:05 UTC] PHP Warning:  Undefined array key "nama_user" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 31
+[04-May-2026 21:34:05 UTC] PHP Warning:  Undefined array key "password" in /home/simpleak/v3.simpleakunting.biz.id/app/controllers/Login.php on line 32

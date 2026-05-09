@@ -11,33 +11,37 @@ class Persediaan_model {
         $this->db = $db;
     }
 
-    public function getAllBarang() {
-        $this->db->query('SELECT * FROM ' . $this->table . ' ORDER BY nama_barang ASC');
+    public function getAllBarang($tenant_id) {
+        $this->db->query('SELECT * FROM ' . $this->table . ' WHERE tenant_id = :tenant_id ORDER BY nama_barang ASC');
+        $this->db->bind('tenant_id', $tenant_id);
         return $this->db->resultSet();
     }
     
-    public function getBarangById($id_barang) {
-        $this->db->query('SELECT * FROM ' . $this->table . ' WHERE id_barang = :id');
+    public function getBarangById($id_barang, $tenant_id) {
+        $this->db->query('SELECT * FROM ' . $this->table . ' WHERE id_barang = :id AND tenant_id = :tenant_id');
         $this->db->bind('id', $id_barang);
+        $this->db->bind('tenant_id', $tenant_id);
         return $this->db->single();
     }
     
-    public function isKodeBarangExists($kode_barang) {
-        $this->db->query('SELECT 1 FROM ' . $this->table . ' WHERE kode_barang = :kode');
+    public function isKodeBarangExists($kode_barang, $tenant_id) {
+        $this->db->query('SELECT 1 FROM ' . $this->table . ' WHERE kode_barang = :kode AND tenant_id = :tenant_id');
         $this->db->bind('kode', $kode_barang);
+        $this->db->bind('tenant_id', $tenant_id);
         $this->db->execute();
         return $this->db->rowCount() > 0;
     }
 
-    public function tambahDataBarang($data) {
+    public function tambahDataBarang($data, $tenant_id) {
         $query = "INSERT INTO {$this->table} 
-                    (kode_barang, nama_barang, satuan, stok_awal, stok_saat_ini, harga_beli, harga_jual, akun_persediaan, akun_hpp, akun_penjualan) 
+                    (tenant_id, kode_barang, nama_barang, satuan, stok_awal, stok_saat_ini, harga_beli, harga_jual, akun_persediaan, akun_hpp, akun_penjualan) 
                   VALUES 
-                    (:kode, :nama, :satuan, :stok_awal, :stok_saat_ini, :harga_beli, :harga_jual, :akun_persediaan, :akun_hpp, :akun_penjualan)";
+                    (:tenant_id, :kode, :nama, :satuan, :stok_awal, :stok_saat_ini, :harga_beli, :harga_jual, :akun_persediaan, :akun_hpp, :akun_penjualan)";
         
         $this->db->beginTransaction();
         try {
             $this->db->query($query);
+            $this->db->bind('tenant_id', $tenant_id);
             $this->db->bind('kode', $data['kode_barang']);
             $this->db->bind('nama', $data['nama_barang']);
             $this->db->bind('satuan', $data['satuan']);
@@ -63,15 +67,15 @@ class Persediaan_model {
             $this->db->commit();
             return $this->db->rowCount();
         } catch (\PDOException $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) $this->db->rollBack();
             return 0;
         }
     }
 
-    public function ubahDataBarang($data) {
+    public function ubahDataBarang($data, $tenant_id) {
         $this->db->beginTransaction();
         try {
-            $barangLama = $this->getBarangById($data['id_barang']);
+            $barangLama = $this->getBarangById($data['id_barang'], $tenant_id);
             if (!$barangLama) {
                 throw new Exception("Barang tidak ditemukan.");
             }
@@ -92,7 +96,7 @@ class Persediaan_model {
                         akun_persediaan = :akun_persediaan,
                         akun_hpp = :akun_hpp,
                         akun_penjualan = :akun_penjualan
-                      WHERE id_barang = :id";
+                      WHERE id_barang = :id AND tenant_id = :tenant_id";
             $this->db->query($query);
             $this->db->bind('kode', $data['kode_barang']);
             $this->db->bind('nama', $data['nama_barang']);
@@ -105,6 +109,7 @@ class Persediaan_model {
             $this->db->bind('akun_hpp', $data['akun_hpp']);
             $this->db->bind('akun_penjualan', $data['akun_penjualan']);
             $this->db->bind('id', $data['id_barang']);
+            $this->db->bind('tenant_id', $tenant_id);
             $this->db->execute();
             $rowCount = $this->db->rowCount();
 
@@ -121,37 +126,40 @@ class Persediaan_model {
             $this->db->commit();
             return $rowCount;
 
-        } catch (\PDOException $e) {
-            $this->db->rollBack();
+        } catch (\Exception $e) {
+            if ($this->db->inTransaction()) $this->db->rollBack();
             return 0;
         }
     }
 
-    public function hapusDataBarang($id) {
-        $query = "DELETE FROM {$this->table} WHERE id_barang = :id";
+    public function hapusDataBarang($id, $tenant_id) {
+        $query = "DELETE FROM {$this->table} WHERE id_barang = :id AND tenant_id = :tenant_id";
         $this->db->query($query);
         $this->db->bind('id', $id);
+        $this->db->bind('tenant_id', $tenant_id);
         $this->db->execute();
         return $this->db->rowCount();
     }
     
-    public function importFromExcel($data) {
-        // Karena import adalah operasi besar, kita pastikan foreign key checks aman
-        $this->db->query('SET FOREIGN_KEY_CHECKS=0;');
-        $this->db->execute();
-        $this->db->query('DELETE FROM ' . $this->table);
-        $this->db->execute();
+    public function importFromExcel($data, $tenant_id) {
+        $this->db->beginTransaction();
+        try {
+            $this->db->query('DELETE FROM ' . $this->table . ' WHERE tenant_id = :tenant_id');
+            $this->db->bind('tenant_id', $tenant_id);
+            $this->db->execute();
 
-        $rowCount = 0;
-        foreach ($data as $barang) {
-            if (!empty($barang['kode_barang'])) {
-                $this->tambahDataBarang($barang);
-                $rowCount++;
+            $rowCount = 0;
+            foreach ($data as $barang) {
+                if (!empty($barang['kode_barang'])) {
+                    $this->tambahDataBarang($barang, $tenant_id);
+                    $rowCount++;
+                }
             }
+            $this->db->commit();
+            return $rowCount;
+        } catch (\Exception $e) {
+            if ($this->db->inTransaction()) $this->db->rollBack();
+            return 0;
         }
-        
-        $this->db->query('SET FOREIGN_KEY_CHECKS=1;');
-        $this->db->execute();
-        return $rowCount;
     }
 }

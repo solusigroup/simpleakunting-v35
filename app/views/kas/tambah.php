@@ -8,18 +8,20 @@
             <div class="row">
                 <div class="col-md-3 mb-3">
                     <label>Tipe Transaksi</label>
-                    <select name="tipe_transaksi" class="form-select" required>
-                        <option value="Masuk">Kas Masuk</option>
-                        <option value="Keluar">Kas Keluar</option>
+                    <select class="form-select bg-light" disabled>
+                        <option value="Masuk" <?php echo ($data['tipe'] == 'Masuk') ? 'selected' : ''; ?>>Kas Masuk</option>
+                        <option value="Keluar" <?php echo ($data['tipe'] == 'Keluar') ? 'selected' : ''; ?>>Kas Keluar</option>
                     </select>
+                    <!-- Hidden input to ensure value is sent to server -->
+                    <input type="hidden" name="tipe_transaksi" value="<?php echo $data['tipe']; ?>">
                 </div>
                 <div class="col-md-3 mb-3">
                     <label>Tanggal</label>
                     <input type="date" name="tanggal" class="form-control" value="<?php echo date('Y-m-d'); ?>" required>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label>No. Bukti</label>
-                    <input type="text" name="no_bukti" class="form-control" required>
+                <div class="col-md-4 mb-3">
+                    <label for="no_bukti" class="form-label">No. Bukti / Voucher</label>
+                    <input type="text" class="form-control" id="no_bukti" name="no_bukti" value="<?php echo $data['no_bukti']; ?>" required>
                 </div>
             </div>
             <div class="row">

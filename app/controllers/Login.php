@@ -28,24 +28,66 @@ class Login extends Controller {
      * Memproses data yang dikirim dari form login.
      */
     public function process() {
+        $login_type = $_POST['login_type'] ?? 'tenant';
         $nama_user = $_POST['nama_user'];
         $password = $_POST['password'];
 
-        // Panggil model untuk mencari pengguna berdasarkan nama
+        // 1. Ambil data user
         $user = $this->model('User')->getUserByUsername($nama_user);
 
-        // Verifikasi: Apakah pengguna ditemukan DAN passwordnya cocok?
-        if ($user && password_verify($password, $user['password_hash'])) {
-            // Jika berhasil, atur sesi dan arahkan ke dashboard
-            Auth::setUser($user);
-            header('Location: ' . BASEURL . '/dashboard');
-            exit;
-        } else {
-            // Jika gagal, kembali ke halaman login dengan pesan error
+        // 2. Verifikasi Password
+        if (!$user || !password_verify($password, $user['password_hash'])) {
             Flash::setFlash('Nama pengguna atau sandi salah.', 'danger');
             header('Location: ' . BASEURL . '/login');
             exit;
         }
+
+        // 3. Verifikasi berdasarkan jenis login
+        if ($login_type === 'central') {
+            // Login Central harus role Superadmin
+            if ($user['role'] !== 'Superadmin') {
+                Flash::setFlash('Akses Ditolak! Akun Anda tidak memiliki otoritas Central.', 'danger');
+                header('Location: ' . BASEURL . '/login');
+                exit;
+            }
+            // Pastikan login central tidak membawa context tenant
+            $user['tenant_id'] = null;
+            $user['tenant_name'] = 'SYSTEM CENTRAL';
+            $user['database_type'] = 'dagang'; // Default dashboard type for central
+        } else {
+            // Login Tenant harus menyertakan kode bisnis yang benar
+            $tenant_code = $_POST['tenant_code'] ?? '';
+            $tenant = $this->model('Tenants')->getTenantByCode($tenant_code);
+
+            if (!$tenant) {
+                Flash::setFlash('Kode Bisnis tidak ditemukan atau tidak aktif.', 'danger');
+                header('Location: ' . BASEURL . '/login');
+                exit;
+            }
+
+            if ($user['tenant_id'] != $tenant['id']) {
+                Flash::setFlash('Pengguna tidak terdaftar di bisnis ' . $tenant['name'], 'danger');
+                header('Location: ' . BASEURL . '/login');
+                exit;
+            }
+            
+            // Simpan info tenant ke user session array
+            $user['tenant_name'] = $tenant['name'];
+            $user['database_type'] = $tenant['database_type'];
+        }
+
+        // 4. Ambil Izin Akses jika ada custom role
+        $permissions = [];
+        if (!empty($user['role_id'])) {
+            $roleModel = $this->model('Role');
+            $permissions = $roleModel->getRolePermissions($user['role_id']);
+        }
+
+        // Jika semua lolos, atur sesi
+        Auth::setUser($user, $permissions);
+        Logger::log('LOGIN', 'Authentication', 'User successfully logged in.');
+        header('Location: ' . BASEURL . '/dashboard');
+        exit;
     }
 
     /**

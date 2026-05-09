@@ -3,6 +3,7 @@
     <div class="btn-group">
         <a href="<?php echo BASEURL; ?>/akun/ekspor" class="btn btn-outline-success">Ekspor ke Excel</a>
         <?php if (Auth::isAdmin() || Auth::isManager()): // Tampilkan tombol hanya untuk Admin & Manajer ?>
+            <a href="<?php echo BASEURL; ?>/akun/generate_central" class="btn btn-outline-primary" onclick="return confirm('Tindakan ini akan MENGHAPUS seluruh akun yang ada dan menggantinya dengan akun standar dari Central. Lanjutkan?');">Gunakan Akun Standar (Central)</a>
             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#imporModal">Impor</button>
             <a href="<?php echo BASEURL; ?>/akun/tambah" class="btn btn-primary">Tambah Akun Baru</a>
         <?php endif; ?>

@@ -9,29 +9,30 @@ class Pembayaran_model {
         $this->db = $db;
     }
 
-    public function getAllPembayaran() {
+    public function getAllPembayaran($tenant_id) {
         $this->db->query("SELECT pp.*, p.nama_pemasok 
                          FROM pembayaran_pemasok pp
-                         JOIN pemasok p ON pp.id_pemasok = p.id_pemasok
+                         JOIN pemasok p ON pp.id_pemasok = p.id_pemasok AND p.tenant_id = pp.tenant_id
+                         WHERE pp.tenant_id = :tenant_id
                          ORDER BY pp.tanggal DESC");
+        $this->db->bind('tenant_id', $tenant_id);
         return $this->db->resultSet();
     }
     
-    /**
-     * FUNGSI YANG DIPERBARUI: Sekarang menyertakan sisa Saldo Awal sebagai "faktur virtual".
-     */
-    public function getFakturBelumLunasByPemasok($id_pemasok) {
+    public function getFakturBelumLunasByPemasok($id_pemasok, $tenant_id) {
         // 1. Ambil semua faktur pembelian nyata yang belum lunas
         $this->db->query("SELECT id_pembelian, no_faktur_pembelian, tanggal_faktur, sisa_tagihan 
                          FROM pembelian 
-                         WHERE id_pemasok = :id AND status_pembayaran != 'Lunas'
+                         WHERE id_pemasok = :id AND status_pembayaran != 'Lunas' AND tenant_id = :tenant_id
                          ORDER BY tanggal_faktur ASC");
         $this->db->bind('id', $id_pemasok);
+        $this->db->bind('tenant_id', $tenant_id);
         $fakturNyata = $this->db->resultSet();
 
         // 2. Ambil saldo terkini pemasok
-        $this->db->query("SELECT saldo_terkini_hutang FROM pemasok WHERE id_pemasok = :id");
+        $this->db->query("SELECT saldo_terkini_hutang FROM pemasok WHERE id_pemasok = :id AND tenant_id = :tenant_id");
         $this->db->bind('id', $id_pemasok);
+        $this->db->bind('tenant_id', $tenant_id);
         $pemasok = $this->db->single();
         $saldoTerkini = (float)($pemasok['saldo_terkini_hutang'] ?? 0);
 
@@ -45,30 +46,29 @@ class Pembayaran_model {
         $sisaSaldoAwal = $saldoTerkini - $totalSisaFaktur;
 
         // 5. Jika ada sisa Saldo Awal, buat "faktur virtual"
-        if ($sisaSaldoAwal > 0.01) { // Toleransi untuk presisi float
+        if ($sisaSaldoAwal > 0.01) {
             $fakturSaldoAwal = [
-                'id_pembelian' => 'SA-' . $id_pemasok, // ID khusus untuk Saldo Awal
+                'id_pembelian' => 'SA-' . $id_pemasok,
                 'no_faktur_pembelian' => 'SALDO AWAL',
                 'tanggal_faktur' => 'N/A',
                 'sisa_tagihan' => $sisaSaldoAwal
             ];
-            array_unshift($fakturNyata, $fakturSaldoAwal); // Tambahkan ke awal daftar
+            array_unshift($fakturNyata, $fakturSaldoAwal);
         }
 
         return $fakturNyata;
     }
 
-    /**
-     * FUNGSI YANG DIPERBARUI: Sekarang bisa memproses pembayaran untuk faktur nyata dan "faktur virtual".
-     */
-    public function simpanPembayaran($data) {
+    public function simpanPembayaran($data, $tenant_id) {
         $jurnalModel = new Jurnal_model($this->db);
         
         $this->db->beginTransaction();
         try {
             $totalDibayar = array_sum($data['details']['jumlah_bayar']);
-            $this->db->query("SELECT akun_utang_default FROM perusahaan WHERE id = 1");
-            $akun_utang_usaha = $this->db->single()['akun_utang_default'];
+            $this->db->query("SELECT akun_utang_default FROM perusahaan WHERE tenant_id = :tenant_id");
+            $this->db->bind('tenant_id', $tenant_id);
+            $perusahaan = $this->db->single();
+            $akun_utang_usaha = $perusahaan['akun_utang_default'] ?? null;
             if (empty($akun_utang_usaha)) throw new Exception("Akun Utang Usaha default belum diatur.");
 
             $jurnalData = [
@@ -79,14 +79,17 @@ class Pembayaran_model {
                     ['kode_akun' => $data['akun_kas_bank'], 'debit' => 0, 'kredit' => $totalDibayar]
                 ]
             ];
-            $id_jurnal = $jurnalModel->simpanJurnal($jurnalData);
+            $id_jurnal = $jurnalModel->simpanJurnal($jurnalData, $tenant_id);
             if ($id_jurnal == 0) throw new Exception("Gagal menyimpan jurnal pembayaran.");
-            $this->db->query("UPDATE jurnal_umum SET is_locked = 1 WHERE id_jurnal = :id");
+            
+            $this->db->query("UPDATE jurnal_umum SET is_locked = 1 WHERE id_jurnal = :id AND tenant_id = :tenant_id");
             $this->db->bind('id', $id_jurnal);
+            $this->db->bind('tenant_id', $tenant_id);
             $this->db->execute();
 
-            $queryHeader = "INSERT INTO pembayaran_pemasok (id_pemasok, id_jurnal, no_bukti, tanggal, akun_kas_bank, total_dibayar, keterangan) VALUES (:id_pemasok, :id_jurnal, :no_bukti, :tanggal, :akun_kas, :total, :ket)";
+            $queryHeader = "INSERT INTO pembayaran_pemasok (tenant_id, id_pemasok, id_jurnal, no_bukti, tanggal, akun_kas_bank, total_dibayar, keterangan) VALUES (:tenant_id, :id_pemasok, :id_jurnal, :no_bukti, :tanggal, :akun_kas, :total, :ket)";
             $this->db->query($queryHeader);
+            $this->db->bind('tenant_id', $tenant_id);
             $this->db->bind('id_pemasok', $data['id_pemasok']);
             $this->db->bind('id_jurnal', $id_jurnal);
             $this->db->bind('no_bukti', $data['no_bukti']);
@@ -100,7 +103,6 @@ class Pembayaran_model {
             foreach ($data['details']['id_pembelian'] as $index => $id_pembelian) {
                 $jumlah_bayar = (float)$data['details']['jumlah_bayar'][$index];
                 if ($jumlah_bayar > 0) {
-                    // Jika ini BUKAN pembayaran untuk Saldo Awal, catat detail dan update faktur
                     if (strpos($id_pembelian, 'SA-') !== 0) {
                         $queryDetail = "INSERT INTO pembayaran_pemasok_detail (id_pembayaran, id_pembelian, jumlah_bayar) VALUES (:id_pembayaran, :id_pembelian, :jumlah)";
                         $this->db->query($queryDetail);
@@ -109,54 +111,47 @@ class Pembayaran_model {
                         $this->db->bind('jumlah', $jumlah_bayar);
                         $this->db->execute();
 
-                        $queryUpdateFaktur = "UPDATE pembelian SET sisa_tagihan = sisa_tagihan - :jumlah, status_pembayaran = IF(sisa_tagihan <= 0.01, 'Lunas', 'Lunas Sebagian') WHERE id_pembelian = :id_pembelian";
+                        $queryUpdateFaktur = "UPDATE pembelian SET sisa_tagihan = sisa_tagihan - :jumlah, status_pembayaran = IF(sisa_tagihan <= 0.01, 'Lunas', 'Lunas Sebagian') WHERE id_pembelian = :id_pembelian AND tenant_id = :tenant_id";
                         $this->db->query($queryUpdateFaktur);
                         $this->db->bind('jumlah', $jumlah_bayar);
                         $this->db->bind('id_pembelian', $id_pembelian);
+                        $this->db->bind('tenant_id', $tenant_id);
                         $this->db->execute();
                     }
                 }
             }
 
-            // Update Saldo Terkini Pemasok (ini akan selalu benar, baik untuk faktur maupun saldo awal)
-            $this->db->query("UPDATE pemasok SET saldo_terkini_hutang = saldo_terkini_hutang - :total WHERE id_pemasok = :id");
+            $this->db->query("UPDATE pemasok SET saldo_terkini_hutang = saldo_terkini_hutang - :total WHERE id_pemasok = :id AND tenant_id = :tenant_id");
             $this->db->bind('total', $totalDibayar);
             $this->db->bind('id', $data['id_pemasok']);
+            $this->db->bind('tenant_id', $tenant_id);
             $this->db->execute();
 
             $this->db->commit();
             return true;
         } catch (Exception $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) $this->db->rollBack();
             Flash::setFlash($e->getMessage(), 'danger');
             return false;
         }
     }
 
-    /**
-     * Menghapus transaksi pembayaran pemasok dan membalik semua efeknya.
-     * @param int $id ID pembayaran yang akan dihapus
-     * @return bool
-     */
-    public function hapusPembayaran($id) {
+    public function hapusPembayaran($id, $tenant_id) {
         $jurnalModel = new Jurnal_model($this->db);
         
         $this->db->beginTransaction();
         try {
-            // 1. Ambil data header pembayaran
-            $this->db->query("SELECT * FROM pembayaran_pemasok WHERE id_pembayaran = :id");
+            $this->db->query("SELECT * FROM pembayaran_pemasok WHERE id_pembayaran = :id AND tenant_id = :tenant_id");
             $this->db->bind('id', $id);
+            $this->db->bind('tenant_id', $tenant_id);
             $pembayaran = $this->db->single();
             
-            if (!$pembayaran) {
-                throw new Exception("Data pembayaran tidak ditemukan.");
-            }
+            if (!$pembayaran) throw new Exception("Data pembayaran tidak ditemukan.");
             
             $id_pemasok = $pembayaran['id_pemasok'];
             $total_dibayar = (float)$pembayaran['total_dibayar'];
             $id_jurnal = $pembayaran['id_jurnal'];
             
-            // 2. Ambil detail pembayaran dan kembalikan sisa tagihan faktur
             $this->db->query("SELECT * FROM pembayaran_pemasok_detail WHERE id_pembayaran = :id");
             $this->db->bind('id', $id);
             $details = $this->db->resultSet();
@@ -165,82 +160,66 @@ class Pembayaran_model {
                 $id_pembelian = $detail['id_pembelian'];
                 $jumlah_bayar = (float)$detail['jumlah_bayar'];
                 
-                // Kembalikan sisa tagihan ke faktur pembelian
                 $this->db->query("UPDATE pembelian SET sisa_tagihan = sisa_tagihan + :jumlah, 
-                                  status_pembayaran = IF(sisa_tagihan + :jumlah2 >= total_tagihan, 'Belum Bayar', 
-                                                         IF(sisa_tagihan + :jumlah3 > 0, 'Lunas Sebagian', status_pembayaran))
-                                  WHERE id_pembelian = :id");
+                                  status_pembayaran = IF(sisa_tagihan + :jumlah2 >= total, 'Belum Bayar', 'Lunas Sebagian')
+                                  WHERE id_pembelian = :id AND tenant_id = :tenant_id");
                 $this->db->bind('jumlah', $jumlah_bayar);
                 $this->db->bind('jumlah2', $jumlah_bayar);
-                $this->db->bind('jumlah3', $jumlah_bayar);
                 $this->db->bind('id', $id_pembelian);
+                $this->db->bind('tenant_id', $tenant_id);
                 $this->db->execute();
             }
             
-            // 3. Hapus detail pembayaran
             $this->db->query("DELETE FROM pembayaran_pemasok_detail WHERE id_pembayaran = :id");
             $this->db->bind('id', $id);
             $this->db->execute();
             
-            // 4. Kembalikan saldo terkini pemasok
-            $this->db->query("UPDATE pemasok SET saldo_terkini_hutang = saldo_terkini_hutang + :total WHERE id_pemasok = :id");
+            $this->db->query("UPDATE pemasok SET saldo_terkini_hutang = saldo_terkini_hutang + :total WHERE id_pemasok = :id AND tenant_id = :tenant_id");
             $this->db->bind('total', $total_dibayar);
             $this->db->bind('id', $id_pemasok);
+            $this->db->bind('tenant_id', $tenant_id);
             $this->db->execute();
             
-            // 5. Hapus header pembayaran
-            $this->db->query("DELETE FROM pembayaran_pemasok WHERE id_pembayaran = :id");
+            $this->db->query("DELETE FROM pembayaran_pemasok WHERE id_pembayaran = :id AND tenant_id = :tenant_id");
             $this->db->bind('id', $id);
+            $this->db->bind('tenant_id', $tenant_id);
             $this->db->execute();
             
-            // 6. Hapus jurnal terkait (dengan force = true untuk melewati lock check)
             if ($id_jurnal) {
-                $jurnalModel->hapusJurnal($id_jurnal, true);
+                $jurnalModel->hapusJurnal($id_jurnal, $tenant_id, true);
             }
             
             $this->db->commit();
             return true;
         } catch (Exception $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) $this->db->rollBack();
             Flash::setFlash('Gagal menghapus pembayaran: ' . $e->getMessage(), 'danger');
             return false;
         }
     }
 
-    /**
-     * Mengambil data satu pembayaran lengkap dengan detailnya.
-     * @param int $id ID pembayaran
-     * @return array|false
-     */
-    public function getPembayaranByIdWithDetails($id) {
-        // 1. Ambil data header pembayaran
+    public function getPembayaranByIdWithDetails($id, $tenant_id) {
         $this->db->query("SELECT pp.*, pm.nama_pemasok, pm.alamat as alamat_pemasok, ak.nama_akun as nama_akun_kas
                          FROM pembayaran_pemasok pp
-                         JOIN pemasok pm ON pp.id_pemasok = pm.id_pemasok
-                         JOIN akun ak ON pp.akun_kas_bank = ak.kode_akun
-                         WHERE pp.id_pembayaran = :id");
+                         JOIN pemasok pm ON pp.id_pemasok = pm.id_pemasok AND pm.tenant_id = pp.tenant_id
+                         JOIN akun ak ON pp.akun_kas_bank = ak.kode_akun AND ak.tenant_id = pp.tenant_id
+                         WHERE pp.id_pembayaran = :id AND pp.tenant_id = :tenant_id");
         $this->db->bind('id', $id);
+        $this->db->bind('tenant_id', $tenant_id);
         $header = $this->db->single();
 
-        if (!$header) {
-            return false;
-        }
+        if (!$header) return false;
 
-        // 2. Ambil data detail (faktur yang dibayar)
         $this->db->query("SELECT ppd.*, pb.no_faktur_pembelian, pb.tanggal_faktur
                          FROM pembayaran_pemasok_detail ppd
-                         LEFT JOIN pembelian pb ON ppd.id_pembelian = pb.id_pembelian
+                         LEFT JOIN pembelian pb ON ppd.id_pembelian = pb.id_pembelian AND pb.tenant_id = :tenant_id
                          WHERE ppd.id_pembayaran = :id");
         $this->db->bind('id', $id);
+        $this->db->bind('tenant_id', $tenant_id);
         $details = $this->db->resultSet();
         
-        // Menangani pembayaran Saldo Awal yang tidak memiliki detail faktur
         if(empty($details)) {
-             $details[] = [
-                'no_faktur_pembelian' => 'SALDO AWAL',
-                'tanggal_faktur' => $header['tanggal'],
-                'jumlah_bayar' => $header['total_dibayar']
-             ];
+             $details[] = ['no_faktur_pembelian' => 'SALDO AWAL', 'tanggal_faktur' => $header['tanggal'], 'jumlah_bayar' => $header['total_dibayar']];
         }
 
         $header['details'] = $details;

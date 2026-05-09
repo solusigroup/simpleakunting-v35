@@ -31,3 +31,15 @@ uploads/
 
 # Archive folder (legacy files)
 _archive/
+
+# Debug & installer scripts (JANGAN push ke production)
+debug_*.php
+test_db.php
+clean_roles.php
+create_rbac.php
+seed_users.php
+update_users_table.php
+migrate_v3_5.php
+
+# Error logs
+public/error_log

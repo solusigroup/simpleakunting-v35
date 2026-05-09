@@ -2,109 +2,69 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Arus Kas</title>
+    <title>Arus Kas - <?php echo $data['perusahaan']['nama_perusahaan']; ?></title>
     <style>
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 12px; color: #333; }
-        .header { text-align: center; margin-bottom: 25px; }
-        h1, h2, p { margin: 0; padding: 0; }
-        h1 { font-size: 18px; }
-        h2 { font-size: 16px; margin-top: 5px; }
-        p { font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 6px 8px; text-align: left; }
+        body { font-family: 'Helvetica', sans-serif; font-size: 10pt; color: #333; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #444; padding-bottom: 10px; }
+        .header h2 { margin: 0; text-transform: uppercase; }
+        .report-title { text-align: center; margin-bottom: 20px; }
+        .report-title h3 { margin: 0; font-size: 14pt; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        td { border-bottom: 1px solid #eee; padding: 8px; }
         .text-end { text-align: right; }
-        .ps-4 { padding-left: 20px !important; }
         .fw-bold { font-weight: bold; }
-        .border-bottom { border-bottom: 1px solid #000; }
-        .table-dark { background-color: #e9ecef; border-top: 2px solid #000; border-bottom: 2px solid #000; }
-        .table-light { background-color: #f8f9fa; }
-        .signature-block { margin-top: 60px; page-break-inside: avoid; width: 100%; }
-        .signature-col { width: 45%; display: inline-block; text-align: center; }
+        .ps-4 { padding-left: 25px; }
+        .footer-table { border: none; margin-top: 40px; }
+        .footer-table td { border: none; text-align: center; width: 50%; }
+        .bg-light { background-color: #f9f9f9; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1><?php echo htmlspecialchars($data['perusahaan']['nama_perusahaan']); ?></h1>
-        <h2>Laporan Arus Kas</h2>
-        <p>Untuk Periode <?php echo htmlspecialchars($data['periode_1']); ?></p>
+        <h2><?php echo htmlspecialchars($data['perusahaan']['nama_perusahaan']); ?></h2>
+    </div>
+
+    <div class="report-title">
+        <h3>LAPORAN ARUS KAS (Metode <?php echo $data['laporan']['metode']; ?>)</h3>
+        <p>Periode: <?php echo $data['periode_1']; ?></p>
     </div>
 
     <table>
         <tbody>
-            <tr>
-                <td colspan="2"><strong>Arus Kas dari Aktivitas Operasi</strong></td>
-            </tr>
-            <tr>
-                <td class="ps-4">Laba Bersih</td>
-                <td class="text-end"><?php echo number_format($data['laporan']['laba_bersih'], 2, ',', '.'); ?></td>
-            </tr>
-            <tr>
-                <td colspan="2" class="ps-4"><em>Penyesuaian untuk merekonsiliasi laba bersih ke kas bersih:</em></td>
-            </tr>
-            <?php 
-                $kasDariOperasi = $data['laporan']['laba_bersih'];
-                foreach($data['laporan']['penyesuaian'] as $item): 
-                $kasDariOperasi += $item['jumlah'];
-            ?>
-            <tr>
-                <td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td>
-                <td class="text-end"><?php echo number_format($item['jumlah'], 2, ',', '.'); ?></td>
-            </tr>
-            <?php endforeach; ?>
-             <tr>
-                <td></td>
-                <td class="text-end border-bottom"></td>
-            </tr>
-            <tr class="fw-bold">
-                <td>Arus Kas Bersih dari Aktivitas Operasi</td>
-                <td class="text-end"><?php echo number_format($kasDariOperasi, 2, ',', '.'); ?></td>
-            </tr>
+            <tr><td colspan="2" class="fw-bold">Arus Kas dari Aktivitas Operasi</td></tr>
+            <?php if($data['laporan']['metode'] == 'Indirect'): ?>
+                <tr><td class="ps-4">Laba Bersih</td><td class="text-end"><?php echo number_format($data['laporan']['laba_bersih'], 2, ',', '.'); ?></td></tr>
+                <?php $totalOperasi = $data['laporan']['laba_bersih']; foreach($data['laporan']['penyesuaian'] as $item): $totalOperasi += $item['jumlah']; ?>
+                    <tr><td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td><td class="text-end"><?php echo number_format($item['jumlah'], 2, ',', '.'); ?></td></tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <?php $totalOperasi = 0; foreach($data['laporan']['arus_operasi'] as $item): $totalOperasi += $item['jumlah']; ?>
+                    <tr><td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td><td class="text-end"><?php echo number_format($item['jumlah'], 2, ',', '.'); ?></td></tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <tr class="fw-bold bg-light"><td>Arus Kas Bersih dari Aktivitas Operasi</td><td class="text-end"><?php echo number_format($totalOperasi, 2, ',', '.'); ?></td></tr>
             
-            <!-- Aktivitas Investasi & Pendanaan (Placeholder) -->
-            <tr><td colspan="2">&nbsp;</td></tr>
-            <tr><td colspan="2"><strong>Arus Kas dari Aktivitas Investasi</strong></td></tr>
-            <tr class="fw-bold"><td class="ps-4"><em>(Tidak ada aktivitas investasi)</em></td><td class="text-end border-bottom">0.00</td></tr>
-            <tr><td colspan="2">&nbsp;</td></tr>
-            <tr><td colspan="2"><strong>Arus Kas dari Aktivitas Pendanaan</strong></td></tr>
-            <tr class="fw-bold"><td class="ps-4"><em>(Tidak ada aktivitas pendanaan)</em></td><td class="text-end border-bottom">0.00</td></tr>
+            <tr><td colspan="2" class="fw-bold" style="padding-top: 15px;">Kenaikan/Penurunan Kas</td></tr>
+            <tr><td>Kas Awal Periode</td><td class="text-end"><?php echo number_format($data['laporan']['kas_awal'], 2, ',', '.'); ?></td></tr>
+            <tr><td>Kenaikan (Penurunan) Kas Bersih</td><td class="text-end"><?php echo number_format($data['laporan']['kas_akhir'] - $data['laporan']['kas_awal'], 2, ',', '.'); ?></td></tr>
+            <tr class="fw-bold bg-light" style="font-size: 11pt;"><td>KAS AKHIR PERIODE</td><td class="text-end"><?php echo number_format($data['laporan']['kas_akhir'], 2, ',', '.'); ?></td></tr>
         </tbody>
-        <tfoot class="table-light">
-            <tr class="fw-bold">
-                <td>Kenaikan (Penurunan) Bersih Kas dan Setara Kas</td>
-                <td class="text-end"><?php echo number_format($data['laporan']['kas_akhir'] - $data['laporan']['kas_awal'], 2, ',', '.'); ?></td>
-            </tr>
-            <tr>
-                <td>Kas dan Setara Kas di Awal Periode</td>
-                <td class="text-end"><?php echo number_format($data['laporan']['kas_awal'], 2, ',', '.'); ?></td>
-            </tr>
-            <tr class="table-dark fw-bold">
-                <td>KAS DAN SETARA KAS DI AKHIR PERIODE</td>
-                <td class="text-end"><?php echo number_format($data['laporan']['kas_akhir'], 2, ',', '.'); ?></td>
-            </tr>
-        </tfoot>
     </table>
 
-    <table class="signature-table">
-    <tbody>
+    <table class="footer-table">
         <tr>
             <td>
-                <p><?php echo htmlspecialchars($data['penandatangan_1']['jabatan'] ?? '(Jabatan 1)'); ?></p>
-                <br><br><br><br>
-                <p style="font-weight: bold; text-decoration: underline; margin: 0; padding: 0;">
-                    <?php echo htmlspecialchars($data['penandatangan_1']['nama_user'] ?? '(Nama Penandatangan 1)'); ?>
-                </p>
+                <p><?php echo htmlspecialchars($data['penandatangan_1']['jabatan']); ?></p>
+                <br><br><br>
+                <p class="fw-bold"><u><?php echo htmlspecialchars($data['penandatangan_1']['nama_user']); ?></u></p>
             </td>
             <td>
-                <p><?php echo htmlspecialchars($data['kota_laporan'] ?? 'Kota Anda'); ?>, <?php echo date('d F Y'); ?></p>
-                <p><?php echo htmlspecialchars($data['penandatangan_2']['jabatan'] ?? '(Jabatan 2)'); ?></p>
-                <br><br><br><br>
-                <p style="font-weight: bold; text-decoration: underline; margin: 0; padding: 0;">
-                    <?php echo htmlspecialchars($data['penandatangan_2']['nama_user'] ?? '(Nama Penandatangan 2)'); ?>
-                </p>
+                <p><?php echo htmlspecialchars($data['kota_laporan']); ?>, <?php echo date('d F Y'); ?></p>
+                <p><?php echo htmlspecialchars($data['penandatangan_2']['jabatan']); ?></p>
+                <br><br><br>
+                <p class="fw-bold"><u><?php echo htmlspecialchars($data['penandatangan_2']['nama_user']); ?></u></p>
             </td>
         </tr>
-    </tbody>
-</table>
-
+    </table>
 </body>
 </html>

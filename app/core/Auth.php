@@ -11,12 +11,57 @@ class Auth {
      * Menyimpan data pengguna ke dalam session setelah login berhasil.
      * Pastikan kita konsisten menggunakan 'user_name' sebagai kunci sesi.
      */
-    public static function setUser($user) {
+    public static function setUser($user, $permissions = []) {
         self::startSession();
         session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id_user'];
-        $_SESSION['user_name'] = $user['nama_user']; // Kunci 'user_name' digunakan di sini
+        $_SESSION['tenant_id'] = $user['tenant_id'] ?? null;
+        $_SESSION['tenant_name'] = $user['tenant_name'] ?? null;
+        $_SESSION['database_type'] = $user['database_type'] ?? 'dagang';
+        $_SESSION['user_name'] = $user['nama_user'];
         $_SESSION['user_role'] = $user['role'];
+        $_SESSION['user_permissions'] = $permissions;
+    }
+
+    /**
+     * Fitur Impersonation (Login sebagai user lain)
+     */
+    public static function impersonate($user, $permissions = []) {
+        self::startSession();
+        // Simpan identitas Superadmin asli agar bisa balik
+        if (!isset($_SESSION['original_user'])) {
+            $_SESSION['original_user'] = [
+                'id' => $_SESSION['user_id'],
+                'name' => $_SESSION['user_name'],
+                'role' => $_SESSION['user_role']
+            ];
+        }
+        
+        $_SESSION['user_id'] = $user['id_user'];
+        $_SESSION['tenant_id'] = $user['tenant_id'] ?? null;
+        $_SESSION['tenant_name'] = $user['tenant_name'] ?? null;
+        $_SESSION['database_type'] = $user['database_type'] ?? 'dagang';
+        $_SESSION['user_name'] = $user['nama_user'];
+        $_SESSION['user_role'] = $user['role'];
+        $_SESSION['user_permissions'] = $permissions;
+        $_SESSION['impersonating'] = true;
+    }
+
+    public static function stopImpersonating() {
+        self::startSession();
+        if (isset($_SESSION['original_user'])) {
+            $orig = $_SESSION['original_user'];
+            $_SESSION['user_id'] = $orig['id'];
+            $_SESSION['user_name'] = $orig['name'];
+            $_SESSION['user_role'] = $orig['role'];
+            $_SESSION['tenant_id'] = null; // Superadmin doesn't belong to a tenant
+            $_SESSION['database_type'] = 'dagang';
+            unset($_SESSION['original_user']);
+            unset($_SESSION['impersonating']);
+            unset($_SESSION['user_permissions']);
+            return true;
+        }
+        return false;
     }
 
     public static function isLoggedIn() {
@@ -46,8 +91,12 @@ class Auth {
         if (self::isLoggedIn()) {
             return [
                 'id' => $_SESSION['user_id'],
+                'tenant_id' => $_SESSION['tenant_id'] ?? null,
+                'tenant_name' => $_SESSION['tenant_name'] ?? null,
+                'database_type' => $_SESSION['database_type'] ?? 'dagang',
                 'name' => $_SESSION['user_name'], // Kunci 'user_name' dibaca di sini
-                'role' => $_SESSION['user_role']
+                'role' => $_SESSION['user_role'],
+                'impersonating' => $_SESSION['impersonating'] ?? false
             ];
         }
         return null;
@@ -65,8 +114,26 @@ class Auth {
         return self::hasRole('Manager');
     }
 
+    public static function isActuallySuperadmin() {
+        self::startSession();
+        if (self::hasRole('Superadmin')) return true;
+        if (isset($_SESSION['original_user']) && $_SESSION['original_user']['role'] === 'Superadmin') return true;
+        return false;
+    }
+
     public static function isStaff() {
         return self::hasRole('Staff');
+    }
+
+    public static function hasPermission($permission_key) {
+        self::startSession();
+        if (!self::isLoggedIn()) return false;
+        
+        // Hanya Superadmin yang membypass semua check (RBAC Global)
+        if (self::hasRole('Superadmin')) return true;
+
+        $permissions = $_SESSION['user_permissions'] ?? [];
+        return in_array($permission_key, $permissions);
     }
 }
 

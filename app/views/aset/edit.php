@@ -5,7 +5,7 @@
     </div>
     <div class="card-body">
         <form action="<?php echo BASEURL; ?>/aset/update" method="post">
-            <input type="hidden" name="id_aset" value="<?php echo $data['aset']['id_aset']; ?>">
+            <input type="hidden" name="id_aset" value="<?php echo $data['aset']['id']; ?>">
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label for="kode_aset" class="form-label">Kode Aset</label>
@@ -32,8 +32,8 @@
             </div>
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label for="masa_manfaat" class="form-label">Masa Manfaat (Tahun)</label>
-                    <input type="number" id="masa_manfaat" name="masa_manfaat" class="form-control" value="<?php echo htmlspecialchars($data['aset']['masa_manfaat']); ?>" required>
+                    <label for="masa_manfaat" class="form-label">Masa Manfaat (Bulan)</label>
+                    <input type="number" id="masa_manfaat" name="masa_manfaat" class="form-control" value="<?php echo htmlspecialchars($data['aset']['umur_ekonomis']); ?>" required>
                 </div>
             </div>
             <hr>
@@ -48,13 +48,13 @@
                 <div class="col-md-4 mb-3">
                     <label for="akun_akumulasi_depresiasi" class="form-label">Akun Akumulasi Depresiasi</label>
                     <select id="akun_akumulasi_depresiasi" name="akun_akumulasi_depresiasi" class="form-select" required>
-                        <?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header' && (str_contains($akun['nama_akun'], 'Akumulasi') || str_contains($akun['nama_akun'], 'Akum.'))){ $selected = ($akun['kode_akun'] == $data['aset']['akun_akumulasi_depresiasi']) ? 'selected' : ''; echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; } } ?>
+                        <?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header' && (str_contains($akun['nama_akun'], 'Akumulasi') || str_contains($akun['nama_akun'], 'Akum.'))){ $selected = ($akun['kode_akun'] == $data['aset']['akun_akumulasi']) ? 'selected' : ''; echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; } } ?>
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label for="akun_beban_depresiasi" class="form-label">Akun Beban Depresiasi</label>
                     <select id="akun_beban_depresiasi" name="akun_beban_depresiasi" class="form-select" required>
-                        <?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='6' && $akun['tipe_akun']!='Header'){ $selected = ($akun['kode_akun'] == $data['aset']['akun_beban_depresiasi']) ? 'selected' : ''; echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; } } ?>
+                        <?php foreach($data['akun'] as $akun){ if(substr($akun['kode_akun'],0,1)=='6' && $akun['tipe_akun']!='Header'){ $selected = ($akun['kode_akun'] == $data['aset']['akun_beban']) ? 'selected' : ''; echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; } } ?>
                     </select>
                 </div>
             </div>

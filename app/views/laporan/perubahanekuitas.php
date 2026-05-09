@@ -1,139 +1,125 @@
-<div class="card shadow-sm">
-    <div class="card-header">
-        <h3>Laporan Perubahan Ekuitas</h3>
-    </div>
-    <div class="card-body">
-        <form id="laporan-form" action="<?php echo BASEURL; ?>/laporan/perubahanEkuitas" method="post">
-            <div class="row g-3">
-                <div class="col-md-5 border-end">
-                    <h6>Periode Laporan Utama</h6>
-                    <div class="row">
-                        <div class="col-md-6"><label for="tanggal_mulai_1" class="form-label">Dari Tanggal</label><input type="date" name="tanggal_mulai_1" id="tanggal_mulai_1" class="form-control" value="<?php echo htmlspecialchars($data['tanggal_mulai_1'] ?? ''); ?>"></div>
-                        <div class="col-md-6"><label for="tanggal_selesai_1" class="form-label">Sampai Tanggal</label><input type="date" name="tanggal_selesai_1" id="tanggal_selesai_1" class="form-control" value="<?php echo htmlspecialchars($data['tanggal_selesai_1'] ?? ''); ?>"></div>
-                    </div>
-                </div>
-                <div class="col-md-5">
-                    <h6>Periode Pembanding (Kosongkan untuk periode tunggal)</h6>
-                     <div class="row">
-                        <div class="col-md-6"><label for="tanggal_mulai_2" class="form-label">Dari Tanggal</label><input type="date" name="tanggal_mulai_2" id="tanggal_mulai_2" class="form-control" value="<?php echo htmlspecialchars($data['tanggal_mulai_2'] ?? ''); ?>"></div>
-                        <div class="col-md-6"><label for="tanggal_selesai_2" class="form-label">Sampai Tanggal</label><input type="date" name="tanggal_selesai_2" id="tanggal_selesai_2" class="form-control" value="<?php echo htmlspecialchars($data['tanggal_selesai_2'] ?? ''); ?>"></div>
-                    </div>
-                </div>
-                <div class="col-md-2 align-self-end">
-                     <div class="d-flex">
-                        <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
-                        <div class="btn-group ms-2">
-                            <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Ekspor</button>
-                            <ul class="dropdown-menu">
-                                <li><button type="button" id="export-excel" class="dropdown-item">ke Excel</button></li>
-                                <li><button type="button" id="export-pdf" class="dropdown-item">ke PDF</button></li>
-                            </ul>
+<div class="row mb-4 no-print">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form action="<?php echo BASEURL; ?>/laporan/perubahanEkuitas" method="post" class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold small">Periode Utama</label>
+                        <div class="input-group">
+                            <input type="date" name="tanggal_mulai_1" class="form-control" value="<?php echo $data['tanggal_mulai_1']; ?>">
+                            <span class="input-group-text">s/d</span>
+                            <input type="date" name="tanggal_selesai_1" class="form-control" value="<?php echo $data['tanggal_selesai_1']; ?>">
                         </div>
                     </div>
-                </div>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="compareCheck" <?php echo !empty($data['tanggal_mulai_2']) ? 'checked' : ''; ?>>
+                            <label class="form-check-label small fw-bold" for="compareCheck">Bandingkan Periode</label>
+                        </div>
+                        <div id="compareInputs" class="<?php echo !empty($data['tanggal_mulai_2']) ? '' : 'd-none'; ?>">
+                            <div class="input-group">
+                                <input type="date" name="tanggal_mulai_2" class="form-control" value="<?php echo $data['tanggal_mulai_2']; ?>">
+                                <span class="input-group-text">s/d</span>
+                                <input type="date" name="tanggal_selesai_2" class="form-control" value="<?php echo $data['tanggal_selesai_2']; ?>">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill">
+                            <i class="bi bi-filter me-2"></i>Tampilkan
+                        </button>
+                    </div>
+                </form>
             </div>
-             <!-- Input tersembunyi untuk ekspor -->
-            <input type="hidden" name="tanggal_mulai_1_export" id="tanggal_mulai_1_export">
-            <input type="hidden" name="tanggal_selesai_1_export" id="tanggal_selesai_1_export">
-            <input type="hidden" name="tanggal_mulai_2_export" id="tanggal_mulai_2_export">
-            <input type="hidden" name="tanggal_selesai_2_export" id="tanggal_selesai_2_export">
-        </form>
+        </div>
     </div>
 </div>
 
-<?php if (isset($data['laporan']) && $data['laporan'] !== null): ?>
-<div class="card shadow-sm mt-4">
-    <div class="card-header text-center">
-        <h5 class="mb-0"><?php echo htmlspecialchars($data['perusahaan']['nama_perusahaan']); ?></h5>
-        <h6 class="mb-0">Laporan Perubahan Ekuitas <?php if(!empty($data['periode_2'])) echo "Komparatif"; ?></h6>
-        <p class="mb-0">Untuk Periode yang Dibandingkan</p>
-    </div>
-    <div class="card-body">
+<div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-body p-5">
+        <!-- Header Laporan -->
+        <div class="text-center mb-5">
+            <h4 class="fw-bold mb-0"><?php echo strtoupper($data['perusahaan']['nama_perusahaan']); ?></h4>
+            <h5 class="fw-bold mb-0">LAPORAN PERUBAHAN EKUITAS</h5>
+            <p class="text-muted small">Untuk periode yang berakhir pada <?php echo date('d F Y', strtotime($data['tanggal_selesai_1'])); ?></p>
+        </div>
+
         <div class="table-responsive">
-            <table class="table table-sm" style="max-width: 800px; margin: auto;">
-                <thead class="table-light">
+            <table class="table table-hover align-middle">
+                <thead class="bg-light">
                     <tr>
-                        <th>Keterangan</th>
+                        <th class="ps-4">Deskripsi</th>
                         <th class="text-end"><?php echo $data['periode_1']; ?></th>
-                        <?php if(!empty($data['periode_2'])): ?><th class="text-end"><?php echo $data['periode_2']; ?></th><?php endif; ?>
+                        <?php if(!empty($data['periode_2'])): ?>
+                            <th class="text-end pe-4"><?php echo $data['periode_2']; ?></th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
+                    <?php 
+                        $p1 = $data['laporan']['periode_1'];
+                        $p2 = $data['laporan']['periode_2'] ?? null;
+                    ?>
                     <tr>
-                        <td>Modal Awal Periode</td>
-                        <td class="text-end"><?php echo number_format($data['laporan']['periode_1']['modal_awal'] ?? 0, 2, ',', '.'); ?></td>
-                        <?php if(!empty($data['periode_2'])): ?><td class="text-end"><?php echo number_format($data['laporan']['periode_2']['modal_awal'] ?? 0, 2, ',', '.'); ?></td><?php endif; ?>
+                        <td class="ps-4">Saldo Modal Awal</td>
+                        <td class="text-end fw-bold"><?php echo number_format($p1['modal_awal'], 2); ?></td>
+                        <?php if($p2): ?>
+                            <td class="text-end pe-4 fw-bold"><?php echo number_format($p2['modal_awal'], 2); ?></td>
+                        <?php endif; ?>
                     </tr>
                     <tr>
-                        <td class="ps-4">Setoran (Penarikan) Modal</td>
-                        <td class="text-end"><?php echo number_format($data['laporan']['periode_1']['perubahan_modal_langsung'] ?? 0, 2, ',', '.'); ?></td>
-                         <?php if(!empty($data['periode_2'])): ?><td class="text-end"><?php echo number_format($data['laporan']['periode_2']['perubahan_modal_langsung'] ?? 0, 2, ',', '.'); ?></td><?php endif; ?>
+                        <td class="ps-4">Laba (Rugi) Bersih Periode Berjalan</td>
+                        <td class="text-end"><?php echo number_format($p1['laba_rugi_periode_berjalan'], 2); ?></td>
+                        <?php if($p2): ?>
+                            <td class="text-end pe-4"><?php echo number_format($p2['laba_rugi_periode_berjalan'], 2); ?></td>
+                        <?php endif; ?>
                     </tr>
                     <tr>
-                        <td class="ps-4">Laba (Rugi) Periode Berjalan</td>
-                        <td class="text-end border-bottom"><?php echo number_format($data['laporan']['periode_1']['laba_rugi_periode_berjalan'] ?? 0, 2, ',', '.'); ?></td>
-                        <?php if(!empty($data['periode_2'])): ?><td class="text-end border-bottom"><?php echo number_format($data['laporan']['periode_2']['laba_rugi_periode_berjalan'] ?? 0, 2, ',', '.'); ?></td><?php endif; ?>
+                        <td class="ps-4">Perubahan Modal Langsung / Prive</td>
+                        <td class="text-end"><?php echo number_format($p1['perubahan_modal_langsung'], 2); ?></td>
+                        <?php if($p2): ?>
+                            <td class="text-end pe-4"><?php echo number_format($p2['perubahan_modal_langsung'], 2); ?></td>
+                        <?php endif; ?>
+                    </tr>
+                    <tr class="table-light">
+                        <td class="ps-4 fw-bold">Saldo Modal Akhir</td>
+                        <td class="text-end fw-bold text-primary"><?php echo number_format($p1['modal_akhir'], 2); ?></td>
+                        <?php if($p2): ?>
+                            <td class="text-end pe-4 fw-bold text-primary"><?php echo number_format($p2['modal_akhir'], 2); ?></td>
+                        <?php endif; ?>
                     </tr>
                 </tbody>
-                <tfoot class="table-dark">
-                    <tr class="fw-bold fs-5">
-                        <td>MODAL AKHIR PERIODE</td>
-                        <td class="text-end"><?php echo number_format($data['laporan']['periode_1']['modal_akhir'] ?? 0, 2, ',', '.'); ?></td>
-                        <?php if(!empty($data['periode_2'])): ?><td class="text-end"><?php echo number_format($data['laporan']['periode_2']['modal_akhir'] ?? 0, 2, ',', '.'); ?></td><?php endif; ?>
-                    </tr>
-                </tfoot>
             </table>
         </div>
-        
-        <!-- Blok Tanda Tangan -->
-        <div class="row mt-5" style="page-break-inside: avoid;">
-            <div class="col-6 text-center">
-                <p><?php echo htmlspecialchars($data['penandatangan_1']['jabatan'] ?? ''); ?></p><br><br><br>
-                <p class="fw-bold mb-0"><u><?php echo htmlspecialchars($data['penandatangan_1']['nama_user'] ?? ''); ?></u></p>
+
+        <!-- Footer Tanda Tangan -->
+        <div class="row mt-5 pt-4 text-center">
+            <div class="col-4">
+                <p class="mb-5"><?php echo $data['kota_laporan']; ?>, <?php echo date('d F Y'); ?></p>
+                <p class="mb-0 fw-bold"><?php echo $data['penandatangan_1']['nama_user']; ?></p>
+                <p class="text-muted small"><?php echo $data['penandatangan_1']['jabatan']; ?></p>
             </div>
-            <div class="col-6 text-center">
-                <p><?php echo htmlspecialchars($data['kota_laporan'] ?? 'Kota Anda'); ?>, <?php echo date('d F Y'); ?></p>
-                <p><?php echo htmlspecialchars($data['penandatangan_2']['jabatan'] ?? ''); ?></p><br><br><br>
-                <p class="fw-bold mb-0"><u><?php echo htmlspecialchars($data['penandatangan_2']['nama_user'] ?? ''); ?></u></p>
+            <div class="col-4"></div>
+            <div class="col-4">
+                <p class="mb-5">&nbsp;</p>
+                <p class="mb-0 fw-bold"><?php echo $data['penandatangan_2']['nama_user']; ?></p>
+                <p class="text-muted small"><?php echo $data['penandatangan_2']['jabatan']; ?></p>
             </div>
         </div>
     </div>
 </div>
-<?php endif; ?>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('laporan-form');
-        const exportExcelBtn = document.getElementById('export-excel');
-        const exportPdfBtn = document.getElementById('export-pdf');
-
-        function prepareExportData() {
-            document.getElementById('tanggal_mulai_1_export').value = document.getElementById('tanggal_mulai_1').value;
-            document.getElementById('tanggal_selesai_1_export').value = document.getElementById('tanggal_selesai_1').value;
-            document.getElementById('tanggal_mulai_2_export').value = document.getElementById('tanggal_mulai_2').value;
-            document.getElementById('tanggal_selesai_2_export').value = document.getElementById('tanggal_selesai_2').value;
-        }
-        
-        if (exportExcelBtn) {
-            exportExcelBtn.addEventListener('click', function() {
-                prepareExportData();
-                form.action = "<?php echo BASEURL; ?>/laporan/eksporPerubahanEkuitas";
-                form.target = "_self";
-                form.submit();
-                form.action = "<?php echo BASEURL; ?>/laporan/perubahanEkuitas";
-            });
-        }
-
-        if (exportPdfBtn) {
-            exportPdfBtn.addEventListener('click', function() {
-                prepareExportData();
-                form.action = "<?php echo BASEURL; ?>/laporan/eksporPdfPerubahanEkuitas";
-                form.target = "_blank";
-                form.submit();
-                form.action = "<?php echo BASEURL; ?>/laporan/perubahanEkuitas";
-                form.target = "_self";
-            });
-        }
+    document.getElementById('compareCheck').addEventListener('change', function() {
+        document.getElementById('compareInputs').classList.toggle('d-none');
     });
 </script>
 
+<style>
+    @media print {
+        .no-print { display: none !important; }
+        .card { border: none !important; box-shadow: none !important; }
+        .main-wrapper { margin-left: 0 !important; padding: 0 !important; }
+        .p-5 { padding: 0 !important; }
+    }
+</style>

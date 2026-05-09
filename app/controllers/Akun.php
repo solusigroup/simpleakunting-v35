@@ -12,7 +12,7 @@ class Akun extends Controller {
     {
         $data['judul'] = 'Daftar Akun';
         $akun_model = $this->model('Akun');
-        $semuaAkun = $akun_model->getAllAkun();
+        $semuaAkun = $akun_model->getAllAkun($this->tenantId());
         $data['akun'] = $this->_calculateHeaderBalances($semuaAkun);
         $this->view('templates/header', $data);
         $this->view('akun/index', $data);
@@ -31,12 +31,12 @@ class Akun extends Controller {
     {
         $akun_model = $this->model('Akun');
         $kode_akun = $_POST['kode_akun'];
-        if ($akun_model->isKodeAkunExists($kode_akun)) {
+        if ($akun_model->isKodeAkunExists($kode_akun, $this->tenantId())) {
             Flash::setFlash("Gagal! Kode Akun <strong>{$kode_akun}</strong> sudah digunakan.", 'danger');
             header('Location: ' . BASEURL . '/akun');
             exit;
         }
-        if ($akun_model->tambahDataAkun($_POST) > 0) {
+        if ($akun_model->tambahDataAkun($_POST, $this->tenantId()) > 0) {
             Flash::setFlash('Data akun berhasil ditambahkan.', 'success');
         } else {
             Flash::setFlash('Gagal menambahkan data akun karena kesalahan teknis.', 'danger');
@@ -48,7 +48,7 @@ class Akun extends Controller {
     public function edit($kode)
     {
         $data['judul'] = 'Edit Data Akun';
-        $data['akun'] = $this->model('Akun')->getAkunByKode($kode);
+        $data['akun'] = $this->model('Akun')->getAkunByKode($kode, $this->tenantId());
         $this->view('templates/header', $data);
         $this->view('akun/edit', $data);
         $this->view('templates/footer');
@@ -56,7 +56,7 @@ class Akun extends Controller {
 
     public function update()
     {
-        if ($this->model('Akun')->ubahDataAkun($_POST) > 0) {
+        if ($this->model('Akun')->ubahDataAkun($_POST, $this->tenantId()) > 0) {
             Flash::setFlash('Data akun berhasil diubah.', 'success');
         } else {
             Flash::setFlash('Gagal mengubah data akun.', 'danger');
@@ -67,7 +67,7 @@ class Akun extends Controller {
 
     public function hapus($kode)
     {
-        if ($this->model('Akun')->hapusDataAkun($kode) > 0) {
+        if ($this->model('Akun')->hapusDataAkun($kode, $this->tenantId()) > 0) {
             Flash::setFlash('Data akun berhasil dihapus.', 'success');
         } else {
             Flash::setFlash('Gagal menghapus data akun.', 'danger');
@@ -106,7 +106,7 @@ class Akun extends Controller {
                     }
                 }
                 if (!empty($dataToInsert)) {
-                    $this->model('Akun')->importFromExcel($dataToInsert);
+                    $this->model('Akun')->importFromExcel($dataToInsert, $this->tenantId());
                     Flash::setFlash('Data akun berhasil diimpor.', 'success');
                 }
             } catch (Exception $e) {
@@ -117,10 +117,25 @@ class Akun extends Controller {
         exit;
     }
 
+    public function generate_central()
+    {
+        if (Auth::isAdmin() || Auth::isManager()) {
+            if ($this->model('Akun')->generateFromCentral($this->tenantId()) > 0) {
+                Flash::setFlash('Berhasil! Akun telah di-generate dari data Central.', 'success');
+            } else {
+                Flash::setFlash('Gagal men-generate akun. Data Central mungkin kosong.', 'danger');
+            }
+        } else {
+            Flash::setFlash('Akses ditolak.', 'danger');
+        }
+        header('Location: ' . BASEURL . '/akun');
+        exit;
+    }
+
     public function ekspor()
     {
         $akun_model = $this->model('Akun');
-        $semuaAkun = $akun_model->getAllAkun();
+        $semuaAkun = $akun_model->getAllAkun($this->tenantId());
         $dataAkun = $this->_calculateHeaderBalances($semuaAkun);
 
         $spreadsheet = new Spreadsheet();

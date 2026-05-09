@@ -9,7 +9,7 @@ class Penjualan extends Controller {
 
     public function index() {
         $data['judul'] = 'Jurnal Penjualan';
-        $data['penjualan'] = $this->model('Penjualan')->getAllPenjualan();
+        $data['penjualan'] = $this->model('Penjualan')->getAllPenjualan($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('penjualan/index', $data);
         $this->view('templates/footer');
@@ -17,9 +17,12 @@ class Penjualan extends Controller {
 
     public function tambah() {
         $data['judul'] = 'Tambah Penjualan Baru';
-        $data['pelanggan'] = $this->model('Pelanggan')->getAllPelanggan();
-        $data['barang'] = $this->model('Persediaan')->getAllBarang();
-        $data['akun_kas'] = $this->model('Akun')->getAllAkun();
+        $data['pelanggan'] = $this->model('Pelanggan')->getAllPelanggan($this->tenantId());
+        $data['barang'] = $this->model('Persediaan')->getAllBarang($this->tenantId());
+        $data['akun_kas'] = $this->model('Akun')->getAkunKasBank($this->tenantId());
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+        $data['no_faktur'] = $this->generateAutoNumber('PJ', 'penjualan', 'no_faktur', $this->tenantId());
+        
         $this->view('templates/header', $data);
         $this->view('penjualan/tambah', $data);
         $this->view('templates/footer');
@@ -29,10 +32,10 @@ class Penjualan extends Controller {
         // PERLINDUNGAN: Periksa tanggal transaksi sebelum menyimpan
         $this->checkPeriodLock($_POST['tanggal_faktur'], BASEURL . '/penjualan');
         
-        $pelanggan = $this->model('Pelanggan')->getPelangganById($_POST['id_pelanggan']);
+        $pelanggan = $this->model('Pelanggan')->getPelangganById($_POST['id_pelanggan'], $this->tenantId());
         $_POST['nama_pelanggan'] = $pelanggan['nama_pelanggan'];
 
-        if ($this->model('Penjualan')->simpanPenjualan($_POST)) {
+        if ($this->model('Penjualan')->simpanPenjualan($_POST, $this->tenantId())) {
             Flash::setFlash('Transaksi penjualan berhasil disimpan dan dijurnal.', 'success');
             header('Location: ' . BASEURL . '/penjualan');
         } else {
@@ -44,7 +47,7 @@ class Penjualan extends Controller {
 
     public function lihat($id) {
         $data['judul'] = 'Detail Faktur Penjualan';
-        $data['penjualan'] = $this->model('Penjualan')->getPenjualanByIdWithDetails($id);
+        $data['penjualan'] = $this->model('Penjualan')->getPenjualanByIdWithDetails($id, $this->tenantId());
         if (!$data['penjualan']) {
             Flash::setFlash('Faktur penjualan tidak ditemukan.', 'danger');
             header('Location: ' . BASEURL . '/penjualan');
@@ -63,12 +66,12 @@ class Penjualan extends Controller {
         }
         
         // PERLINDUNGAN: Ambil data penjualan untuk mendapatkan tanggalnya, lalu periksa
-        $penjualan = $this->model('Penjualan')->getPenjualanByIdWithDetails($id);
+        $penjualan = $this->model('Penjualan')->getPenjualanByIdWithDetails($id, $this->tenantId());
         if ($penjualan) {
             $this->checkPeriodLock($penjualan['tanggal_faktur'], BASEURL . '/penjualan');
         }
 
-        if ($this->model('Penjualan')->hapusPenjualan($id)) {
+        if ($this->model('Penjualan')->hapusPenjualan($id, $this->tenantId())) {
             Flash::setFlash('Transaksi penjualan berhasil dibatalkan.', 'success');
         }
         header('Location: ' . BASEURL . '/penjualan');

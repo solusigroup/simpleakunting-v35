@@ -8,7 +8,7 @@ use PhpOffice\PhpSpreadsheet\Reader\Exception as ReaderException;
 class Persediaan extends Controller {
     public function index() {
         $data['judul'] = 'Master Persediaan';
-        $data['barang'] = $this->model('Persediaan')->getAllBarang();
+        $data['barang'] = $this->model('Persediaan')->getAllBarang($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('persediaan/index', $data);
         $this->view('templates/footer');
@@ -16,20 +16,20 @@ class Persediaan extends Controller {
 
     public function tambah() {
         $data['judul'] = 'Tambah Barang Baru';
-        $data['akun'] = $this->model('Akun')->getAllAkun();
+        $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('persediaan/tambah', $data);
         $this->view('templates/footer');
     }
 
     public function simpan() {
-        if ($this->model('Persediaan')->isKodeBarangExists($_POST['kode_barang'])) {
+        if ($this->model('Persediaan')->isKodeBarangExists($_POST['kode_barang'], $this->tenantId())) {
             Flash::setFlash('Gagal! Kode barang sudah digunakan.', 'danger');
             header('Location: ' . BASEURL . '/persediaan/tambah');
             exit;
         }
 
-        if ($this->model('Persediaan')->tambahDataBarang($_POST) > 0) {
+        if ($this->model('Persediaan')->tambahDataBarang($_POST, $this->tenantId()) > 0) {
             Flash::setFlash('Data barang berhasil ditambahkan.', 'success');
         } else {
             Flash::setFlash('Gagal menambahkan data barang.', 'danger');
@@ -40,15 +40,15 @@ class Persediaan extends Controller {
 
     public function edit($id) {
         $data['judul'] = 'Edit Barang Persediaan';
-        $data['barang'] = $this->model('Persediaan')->getBarangById($id);
-        $data['akun'] = $this->model('Akun')->getAllAkun();
+        $data['barang'] = $this->model('Persediaan')->getBarangById($id, $this->tenantId());
+        $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('persediaan/edit', $data);
         $this->view('templates/footer');
     }
 
     public function update() {
-        if ($this->model('Persediaan')->ubahDataBarang($_POST) > 0) {
+        if ($this->model('Persediaan')->ubahDataBarang($_POST, $this->tenantId()) > 0) {
             Flash::setFlash('Data barang berhasil diubah.', 'success');
         } else {
             Flash::setFlash('Gagal mengubah data barang.', 'danger');
@@ -65,7 +65,7 @@ class Persediaan extends Controller {
             exit;
         }
         
-        if ($this->model('Persediaan')->hapusDataBarang($id) > 0) {
+        if ($this->model('Persediaan')->hapusDataBarang($id, $this->tenantId()) > 0) {
             Flash::setFlash('Data barang berhasil dihapus.', 'success');
         } else {
             Flash::setFlash('Gagal menghapus data barang.', 'danger');
@@ -103,7 +103,7 @@ class Persediaan extends Controller {
                     ];
                 }
                 if (!empty($dataToInsert)) {
-                    $this->model('Persediaan')->importFromExcel($dataToInsert);
+                    $this->model('Persediaan')->importFromExcel($dataToInsert, $this->tenantId());
                     Flash::setFlash('Data persediaan berhasil diimpor.', 'success');
                 }
             } catch (Exception $e) {
@@ -120,7 +120,7 @@ class Persediaan extends Controller {
      */
     public function ekspor()
     {
-        $dataBarang = $this->model('Persediaan')->getAllBarang();
+        $dataBarang = $this->model('Persediaan')->getAllBarang($this->tenantId());
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();

@@ -9,7 +9,7 @@ class Pembayaran extends Controller {
 
     public function index() {
         $data['judul'] = 'Pembayaran Pemasok';
-        $data['pembayaran'] = $this->model('Pembayaran')->getAllPembayaran();
+        $data['pembayaran'] = $this->model('Pembayaran')->getAllPembayaran($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('pembayaran/index', $data);
         $this->view('templates/footer');
@@ -17,10 +17,10 @@ class Pembayaran extends Controller {
 
     public function tambah() {
         $data['judul'] = 'Tambah Pembayaran Pemasok';
-        $data['pemasok'] = $this->model('Pemasok')->getAllPemasok();
+        $data['pemasok'] = $this->model('Pemasok')->getAllPemasok($this->tenantId());
         
         // Ambil semua akun
-        $all_accounts = $this->model('Akun')->getAllAkun();
+        $all_accounts = $this->model('Akun')->getAllAkun($this->tenantId());
         $data['akun_kas_list'] = [];
         
         // STANDARDISASI: Menggunakan sub_grup_akun untuk konsistensi dengan controller lain
@@ -39,16 +39,16 @@ class Pembayaran extends Controller {
 
     public function getFaktur($id_pemasok) {
         header('Content-Type: application/json');
-        $faktur = $this->model('Pembayaran')->getFakturBelumLunasByPemasok($id_pemasok);
+        $faktur = $this->model('Pembayaran')->getFakturBelumLunasByPemasok($id_pemasok, $this->tenantId());
         echo json_encode($faktur);
     }
 
     public function simpan() {
         $this->checkPeriodLock($_POST['tanggal'], BASEURL . '/pembayaran');
-        $pemasok = $this->model('Pemasok')->getPemasokById($_POST['id_pemasok']);
+        $pemasok = $this->model('Pemasok')->getPemasokById($_POST['id_pemasok'], $this->tenantId());
         $_POST['nama_pemasok'] = $pemasok['nama_pemasok'];
 
-        if ($this->model('Pembayaran')->simpanPembayaran($_POST)) {
+        if ($this->model('Pembayaran')->simpanPembayaran($_POST, $this->tenantId())) {
             Flash::setFlash('Pembayaran kepada pemasok berhasil disimpan.', 'success');
             header('Location: ' . BASEURL . '/pembayaran');
             exit;
@@ -60,7 +60,7 @@ class Pembayaran extends Controller {
 
     public function lihat($id) {
         $data['judul'] = 'Detail Pembayaran Pemasok';
-        $data['pembayaran'] = $this->model('Pembayaran')->getPembayaranByIdWithDetails($id);
+        $data['pembayaran'] = $this->model('Pembayaran')->getPembayaranByIdWithDetails($id, $this->tenantId());
         if (!$data['pembayaran']) {
             Flash::setFlash('Bukti pembayaran tidak ditemukan.', 'danger');
             header('Location: ' . BASEURL . '/pembayaran');
@@ -78,12 +78,12 @@ class Pembayaran extends Controller {
             exit;
         }
         
-        $pembayaran = $this->model('Pembayaran')->getPembayaranByIdWithDetails($id);
+        $pembayaran = $this->model('Pembayaran')->getPembayaranByIdWithDetails($id, $this->tenantId());
         if ($pembayaran) {
             $this->checkPeriodLock($pembayaran['tanggal'], BASEURL . '/pembayaran');
         }
         
-        if ($this->model('Pembayaran')->hapusPembayaran($id)) {
+        if ($this->model('Pembayaran')->hapusPembayaran($id, $this->tenantId())) {
             Flash::setFlash('Pembayaran berhasil dibatalkan.', 'success');
         } else {
             Flash::setFlash('Gagal membatalkan pembayaran.', 'danger');

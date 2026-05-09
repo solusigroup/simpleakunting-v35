@@ -2,129 +2,141 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Laporan Posisi Keuangan</title>
+    <title>Posisi Keuangan - <?php echo $data['perusahaan']['nama_perusahaan']; ?></title>
     <style>
-        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #333; }
-        .header { text-align: center; margin-bottom: 20px; }
-        h1, h2, p { margin: 0; padding: 0; }
-        h1 { font-size: 16px; }
-        h2 { font-size: 14px; margin-top: 4px; }
-        p { font-size: 11px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 5px; text-align: left; }
+        body { font-family: 'Helvetica', sans-serif; font-size: 10pt; color: #333; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #444; padding-bottom: 10px; }
+        .header h2 { margin: 0; text-transform: uppercase; }
+        .header p { margin: 2px 0; font-size: 9pt; color: #666; }
+        .report-title { text-align: center; margin-bottom: 20px; }
+        .report-title h3 { margin: 0; font-size: 14pt; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th { background-color: #f2f2f2; border: 1px solid #ccc; padding: 8px; text-align: left; font-weight: bold; }
+        td { border: 1px solid #ccc; padding: 6px 8px; }
         .text-end { text-align: right; }
-        .ps-4 { padding-left: 15px !important; }
         .fw-bold { font-weight: bold; }
-        .border-top { border-top: 1px solid #000; }
-        .border-bottom { border-bottom: 2px solid #000; }
-        .signature-table { width: 100%; margin-top: 60px; page-break-inside: avoid; }
-        .signature-table td { width: 50%; text-align: center; vertical-align: top; }
+        .ps-4 { padding-left: 25px; }
+        .footer-table { border: none; margin-top: 40px; }
+        .footer-table td { border: none; text-align: center; width: 50%; }
+        .bg-light { background-color: #f9f9f9; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1><?php echo htmlspecialchars($data['perusahaan']['nama_perusahaan'] ?? ''); ?></h1>
-        <h2>Laporan Posisi Keuangan</h2>
-        <p>Per <?php echo htmlspecialchars($data['periode_1'] ?? ''); ?></p>
+        <h2><?php echo htmlspecialchars($data['perusahaan']['nama_perusahaan']); ?></h2>
+        <p><?php echo htmlspecialchars($data['perusahaan']['alamat']); ?></p>
     </div>
 
-    <div style="width: 48%; float: left;">
-        <table>
-            <thead>
-                <tr>
-                    <th class="border-bottom">ASET</th>
-                    <th class="border-bottom text-end"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($data['laporan']['periode_1']['aset'])): ?>
-                    <?php foreach($data['laporan']['periode_1']['aset'] as $item): ?>
-                    <tr>
-                        <td class="ps-4"><?php echo htmlspecialchars($item['nama_akun']); ?></td>
-                        <td class="text-end"><?php echo number_format($item['total'], 2, ',', '.'); ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-            <tfoot style="border-top: 2px solid #000; border-bottom: 2px solid #000; background-color: #e9ecef;">
-                <tr class="fw-bold">
-                    <td>TOTAL ASET</td>
-                    <td class="text-end"><?php echo number_format($data['laporan']['periode_1']['total_aset'] ?? 0, 2, ',', '.'); ?></td>
-                </tr>
-            </tfoot>
-        </table>
+    <div class="report-title">
+        <h3>LAPORAN POSISI KEUANGAN (NERACA)</h3>
+        <p>Per Tanggal: <?php echo $data['periode_1']; ?> <?php if($data['periode_2']) echo " dan " . $data['periode_2']; ?></p>
     </div>
 
-    <div style="width: 48%; float: right;">
-        <table>
-            <thead>
-                <tr>
-                    <th class="border-bottom">KEWAJIBAN DAN EKUITAS</th>
-                    <th class="border-bottom text-end"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td colspan="2"><strong>Kewajiban</strong></td></tr>
-                <?php if (!empty($data['laporan']['periode_1']['kewajiban'])): ?>
-                    <?php foreach($data['laporan']['periode_1']['kewajiban'] as $item): ?>
-                    <tr>
-                        <td class="ps-4"><?php echo htmlspecialchars($item['nama_akun']); ?></td>
-                        <td class="text-end"><?php echo number_format($item['total'], 2, ',', '.'); ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-                <tr class="fw-bold">
-                    <td class="ps-4">Total Kewajiban</td>
-                    <td class="text-end border-top"><?php echo number_format($data['laporan']['periode_1']['total_kewajiban'] ?? 0, 2, ',', '.'); ?></td>
-                </tr>
-                
-                <tr><td colspan="2" style="padding-top: 10px;"><strong>Ekuitas</strong></td></tr>
-                <?php if (!empty($data['laporan']['periode_1']['modal'])): ?>
-                    <?php foreach($data['laporan']['periode_1']['modal'] as $item): ?>
-                    <tr>
-                        <td class="ps-4"><?php echo htmlspecialchars($item['nama_akun']); ?></td>
-                        <td class="text-end"><?php echo number_format($item['total'], 2, ',', '.'); ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-                <tr class="fw-bold">
-                    <td class="ps-4">Total Ekuitas</td>
-                    <td class="text-end border-top"><?php echo number_format($data['laporan']['periode_1']['total_modal'] ?? 0, 2, ',', '.'); ?></td>
-                </tr>
-            </tbody>
-            <tfoot style="border-top: 2px solid #000; border-bottom: 2px solid #000; background-color: #e9ecef;">
-                <tr class="fw-bold">
-                    <td>TOTAL KEWAJIBAN DAN EKUITAS</td>
-                    <td class="text-end"><?php echo number_format(($data['laporan']['periode_1']['total_kewajiban'] ?? 0) + ($data['laporan']['periode_1']['total_modal'] ?? 0), 2, ',', '.'); ?></td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-    
-    <div style="clear: both;"></div>
-
-    <!-- Blok Tanda Tangan -->
-    <table class="signature-table">
-        <tbody>
+    <table>
+        <thead>
             <tr>
-                <td>
-                    <p><?php echo htmlspecialchars($data['penandatangan_1']['jabatan'] ?? '(Jabatan 1)'); ?></p>
-                    <br><br><br><br>
-                    <p style="font-weight: bold; text-decoration: underline; margin: 0; padding: 0;">
-                        <?php echo htmlspecialchars($data['penandatangan_1']['nama_user'] ?? '(Nama Penandatangan 1)'); ?>
-                    </p>
-                </td>
-                <td>
-                    <p><?php echo htmlspecialchars($data['kota_laporan'] ?? 'Kota Anda'); ?>, <?php echo date('d F Y'); ?></p>
-                    <p><?php echo htmlspecialchars($data['penandatangan_2']['jabatan'] ?? '(Jabatan 2)'); ?></p>
-                    <br><br><br><br>
-                    <p style="font-weight: bold; text-decoration: underline; margin: 0; padding: 0;">
-                        <?php echo htmlspecialchars($data['penandatangan_2']['nama_user'] ?? '(Nama Penandatangan 2)'); ?>
-                    </p>
-                </td>
+                <th>Keterangan</th>
+                <th class="text-end"><?php echo $data['periode_1']; ?></th>
+                <?php if($data['periode_2']): ?>
+                    <th class="text-end"><?php echo $data['periode_2']; ?></th>
+                <?php endif; ?>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="bg-light fw-bold">
+                <td colspan="<?php echo $data['periode_2'] ? '3' : '2'; ?>">ASET</td>
+            </tr>
+            <?php foreach($data['laporan']['periode_1']['aset'] as $item): 
+                $key2 = array_search($item['kode_akun'], array_column($data['laporan']['periode_2']['aset'] ?? [], 'kode_akun'));
+                $total2 = ($key2 !== false) ? $data['laporan']['periode_2']['aset'][$key2]['total'] : 0;
+            ?>
+            <tr>
+                <td class="ps-4"><?php echo htmlspecialchars($item['nama_akun']); ?></td>
+                <td class="text-end"><?php echo number_format($item['total'], 2, ',', '.'); ?></td>
+                <?php if($data['periode_2']): ?>
+                    <td class="text-end"><?php echo number_format($total2, 2, ',', '.'); ?></td>
+                <?php endif; ?>
+            </tr>
+            <?php endforeach; ?>
+            <tr class="fw-bold">
+                <td>TOTAL ASET</td>
+                <td class="text-end"><?php echo number_format($data['laporan']['periode_1']['total_aset'], 2, ',', '.'); ?></td>
+                <?php if($data['periode_2']): ?>
+                    <td class="text-end"><?php echo number_format($data['laporan']['periode_2']['total_aset'], 2, ',', '.'); ?></td>
+                <?php endif; ?>
+            </tr>
+
+            <tr class="bg-light fw-bold">
+                <td colspan="<?php echo $data['periode_2'] ? '3' : '2'; ?>" style="padding-top: 15px;">KEWAJIBAN</td>
+            </tr>
+            <?php foreach($data['laporan']['periode_1']['kewajiban'] as $item): 
+                $key2 = array_search($item['kode_akun'], array_column($data['laporan']['periode_2']['kewajiban'] ?? [], 'kode_akun'));
+                $total2 = ($key2 !== false) ? $data['laporan']['periode_2']['kewajiban'][$key2]['total'] : 0;
+            ?>
+            <tr>
+                <td class="ps-4"><?php echo htmlspecialchars($item['nama_akun']); ?></td>
+                <td class="text-end"><?php echo number_format($item['total'], 2, ',', '.'); ?></td>
+                <?php if($data['periode_2']): ?>
+                    <td class="text-end"><?php echo number_format($total2, 2, ',', '.'); ?></td>
+                <?php endif; ?>
+            </tr>
+            <?php endforeach; ?>
+            <tr class="fw-bold">
+                <td>TOTAL KEWAJIBAN</td>
+                <td class="text-end"><?php echo number_format($data['laporan']['periode_1']['total_kewajiban'], 2, ',', '.'); ?></td>
+                <?php if($data['periode_2']): ?>
+                    <td class="text-end"><?php echo number_format($data['laporan']['periode_2']['total_kewajiban'], 2, ',', '.'); ?></td>
+                <?php endif; ?>
+            </tr>
+
+            <tr class="bg-light fw-bold">
+                <td colspan="<?php echo $data['periode_2'] ? '3' : '2'; ?>" style="padding-top: 15px;">EKUITAS</td>
+            </tr>
+            <?php foreach($data['laporan']['periode_1']['modal'] as $item): 
+                $key2 = array_search($item['kode_akun'], array_column($data['laporan']['periode_2']['modal'] ?? [], 'kode_akun'));
+                $total2 = ($key2 !== false) ? $data['laporan']['periode_2']['modal'][$key2]['total'] : 0;
+            ?>
+            <tr>
+                <td class="ps-4"><?php echo htmlspecialchars($item['nama_akun']); ?></td>
+                <td class="text-end"><?php echo number_format($item['total'], 2, ',', '.'); ?></td>
+                <?php if($data['periode_2']): ?>
+                    <td class="text-end"><?php echo number_format($total2, 2, ',', '.'); ?></td>
+                <?php endif; ?>
+            </tr>
+            <?php endforeach; ?>
+            <tr class="fw-bold">
+                <td>TOTAL EKUITAS</td>
+                <td class="text-end"><?php echo number_format($data['laporan']['periode_1']['total_modal'], 2, ',', '.'); ?></td>
+                <?php if($data['periode_2']): ?>
+                    <td class="text-end"><?php echo number_format($data['laporan']['periode_2']['total_modal'], 2, ',', '.'); ?></td>
+                <?php endif; ?>
             </tr>
         </tbody>
+        <tfoot>
+            <tr class="fw-bold" style="background-color: #333; color: white;">
+                <td style="border: none;">TOTAL KEWAJIBAN & EKUITAS</td>
+                <td class="text-end" style="border: none;"><?php echo number_format($data['laporan']['periode_1']['total_kewajiban'] + $data['laporan']['periode_1']['total_modal'], 2, ',', '.'); ?></td>
+                <?php if($data['periode_2']): ?>
+                    <td class="text-end" style="border: none;"><?php echo number_format($data['laporan']['periode_2']['total_kewajiban'] + $data['laporan']['periode_2']['total_modal'], 2, ',', '.'); ?></td>
+                <?php endif; ?>
+            </tr>
+        </tfoot>
+    </table>
+
+    <table class="footer-table">
+        <tr>
+            <td>
+                <p><?php echo htmlspecialchars($data['penandatangan_1']['jabatan']); ?></p>
+                <br><br><br>
+                <p class="fw-bold"><u><?php echo htmlspecialchars($data['penandatangan_1']['nama_user']); ?></u></p>
+            </td>
+            <td>
+                <p><?php echo htmlspecialchars($data['kota_laporan']); ?>, <?php echo date('d F Y'); ?></p>
+                <p><?php echo htmlspecialchars($data['penandatangan_2']['jabatan']); ?></p>
+                <br><br><br>
+                <p class="fw-bold"><u><?php echo htmlspecialchars($data['penandatangan_2']['nama_user']); ?></u></p>
+            </td>
+        </tr>
     </table>
 </body>
 </html>
-

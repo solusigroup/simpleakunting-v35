@@ -9,11 +9,11 @@ class Perusahaan extends Controller {
     public function index() {
         $data['judul'] = 'Pengaturan Perusahaan';
         // Ambil data perusahaan saat ini
-        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan();
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
         // Ambil SEMUA pengguna untuk mengisi pilihan penandatangan
-        $data['users'] = $this->model('User')->getAllUsers();
+        $data['users'] = $this->model('User')->getAllUsers($this->tenantId());
         // **PERUBAHAN: Ambil SEMUA akun untuk mengisi pilihan akun kontrol**
-        $data['akun'] = $this->model('Akun')->getAllAkun();
+        $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
         
         $this->view('templates/header', $data);
         $this->view('perusahaan/index', $data);
@@ -50,7 +50,7 @@ class Perusahaan extends Controller {
         }
 
         // Panggil model untuk memperbarui data di database
-        if ($this->model('Perusahaan')->updatePerusahaan($_POST, $logo_path) > 0) {
+        if ($this->model('Perusahaan')->updatePerusahaan($_POST, $logo_path, $this->tenantId()) > 0) {
             Flash::setFlash('Data perusahaan berhasil diperbarui.', 'success');
         } else {
             // Jika tidak ada baris yang terpengaruh, berarti tidak ada perubahan data

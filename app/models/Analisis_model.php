@@ -9,11 +9,11 @@ class Analisis_model {
         $this->db = $db;
     }
 
-    public function getRasioKeuangan($tanggal_mulai, $tanggal_selesai) {
+    public function getRasioKeuangan($tanggal_mulai, $tanggal_selesai, $tenant_id) {
         $jurnalModel = new Jurnal_model($this->db);
 
-        $labaRugi = $jurnalModel->getLabaRugi($tanggal_mulai, $tanggal_selesai);
-        $posisiKeuangan = $jurnalModel->getPosisiKeuangan($tanggal_selesai);
+        $labaRugi = $jurnalModel->getLabaRugi($tanggal_mulai, $tanggal_selesai, null, null, $tenant_id);
+        $posisiKeuangan = $jurnalModel->getPosisiKeuangan($tanggal_selesai, null, $tenant_id);
         
         $labaBersih = ($labaRugi['total_pendapatan_1'] ?? 0) - ($labaRugi['total_beban_1'] ?? 0);
         $totalPendapatan = $labaRugi['total_pendapatan_1'] ?? 0;
@@ -23,8 +23,9 @@ class Analisis_model {
             if(substr($akun['kode_akun'], 0, 3) == '1-1'){ // Aset Lancar
                 $asetLancar += $akun['total'];
             }
-            if($akun['kode_akun'] == '1-1200'){ // Akun Persediaan
-                $persediaan = $akun['total'];
+            // Mencoba mendeteksi akun persediaan (biasanya 1-12xxx)
+            if(substr($akun['kode_akun'], 0, 4) == '1-12'){ 
+                $persediaan += $akun['total'];
             }
         }
         
@@ -57,4 +58,3 @@ class Analisis_model {
         ];
     }
 }
-

@@ -12,7 +12,7 @@ class User extends Controller {
         parent::__construct();
 
         // Setelah itu, baru jalankan logika proteksi role.
-        if (!Auth::hasRole('Admin')) {
+        if (Auth::user()['role'] !== 'Admin' && Auth::user()['role'] !== 'Superadmin' && Auth::user()['role'] !== 'Manager') {
             Flash::setFlash('Anda tidak memiliki hak akses untuk halaman ini.', 'danger');
             header('Location: ' . BASEURL);
             exit;
@@ -24,7 +24,7 @@ class User extends Controller {
      */
     public function index() {
         $data['judul'] = 'Data Pengguna';
-        $data['users'] = $this->model('User')->getAllUsers();
+        $data['users'] = $this->model('User')->getAllUsers($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('user/index', $data);
         $this->view('templates/footer');
@@ -35,8 +35,9 @@ class User extends Controller {
      */
     public function tambah() {
         $data['judul'] = 'Tambah Pengguna Baru';
+        $data['roles'] = $this->model('Role')->getAllRoles($this->tenantId());
         $this->view('templates/header', $data);
-        $this->view('user/tambah');
+        $this->view('user/tambah', $data);
         $this->view('templates/footer');
     }
 
@@ -44,7 +45,7 @@ class User extends Controller {
      * Memproses data dari form tambah pengguna.
      */
     public function simpan() {
-        if ($this->model('User')->tambahDataUser($_POST) > 0) {
+        if ($this->model('User')->tambahDataUser($_POST, $this->tenantId()) > 0) {
             Flash::setFlash('Pengguna baru berhasil ditambahkan.', 'success');
         } else {
             Flash::setFlash('Gagal menambahkan pengguna baru.', 'danger');
@@ -59,6 +60,7 @@ class User extends Controller {
     public function edit($id) {
         $data['judul'] = 'Edit Data Pengguna';
         $data['user'] = $this->model('User')->getUserById($id);
+        $data['roles'] = $this->model('Role')->getAllRoles($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('user/edit', $data);
         $this->view('templates/footer');
@@ -68,7 +70,7 @@ class User extends Controller {
      * Memproses data dari form edit pengguna.
      */
     public function update() {
-        if ($this->model('User')->ubahDataUser($_POST) > 0) {
+        if ($this->model('User')->ubahDataUser($_POST, $this->tenantId()) > 0) {
             Flash::setFlash('Data pengguna berhasil diubah.', 'success');
         } else {
             Flash::setFlash('Gagal mengubah data pengguna.', 'danger');
@@ -81,7 +83,7 @@ class User extends Controller {
      * Menghapus data pengguna.
      */
     public function hapus($id) {
-        if ($this->model('User')->hapusDataUser($id) > 0) {
+        if ($this->model('User')->hapusDataUser($id, $this->tenantId()) > 0) {
             Flash::setFlash('Data pengguna berhasil dihapus.', 'success');
         } else {
             Flash::setFlash('Gagal menghapus data pengguna.', 'danger');

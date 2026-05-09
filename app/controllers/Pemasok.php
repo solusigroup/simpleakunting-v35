@@ -3,7 +3,7 @@
 class Pemasok extends Controller {
     public function index() {
         $data['judul'] = 'Data Pemasok';
-        $data['pemasok'] = $this->model('Pemasok')->getAllPemasok();
+        $data['pemasok'] = $this->model('Pemasok')->getAllPemasok($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('pemasok/index', $data);
         $this->view('templates/footer');
@@ -17,7 +17,7 @@ class Pemasok extends Controller {
     }
 
     public function simpan() {
-        if ($this->model('Pemasok')->tambahDataPemasok($_POST) > 0) {
+        if ($this->model('Pemasok')->tambahDataPemasok($_POST, $this->tenantId()) > 0) {
             Flash::setFlash('Data pemasok berhasil ditambahkan.', 'success');
         } else {
             Flash::setFlash('Gagal menambahkan data pemasok.', 'danger');
@@ -28,14 +28,14 @@ class Pemasok extends Controller {
 
     public function edit($id) {
         $data['judul'] = 'Edit Data Pemasok';
-        $data['pemasok'] = $this->model('Pemasok')->getPemasokById($id);
+        $data['pemasok'] = $this->model('Pemasok')->getPemasokById($id, $this->tenantId());
         $this->view('templates/header', $data);
         $this->view('pemasok/edit', $data);
         $this->view('templates/footer');
     }
 
     public function update() {
-        if ($this->model('Pemasok')->ubahDataPemasok($_POST) > 0) {
+        if ($this->model('Pemasok')->ubahDataPemasok($_POST, $this->tenantId()) > 0) {
             Flash::setFlash('Data pemasok berhasil diubah.', 'success');
         } else {
             Flash::setFlash('Gagal mengubah data pemasok.', 'danger');
@@ -45,14 +45,13 @@ class Pemasok extends Controller {
     }
 
     public function hapus($id) {
-        // STANDARISASI: Hanya Admin atau Manager yang boleh menghapus
         if (!Auth::isAdmin() && !Auth::isManager()) {
             Flash::setFlash('Anda tidak memiliki hak akses untuk tindakan ini.', 'danger');
             header('Location: ' . BASEURL . '/pemasok');
             exit;
         }
         
-        if ($this->model('Pemasok')->hapusDataPemasok($id) > 0) {
+        if ($this->model('Pemasok')->hapusDataPemasok($id, $this->tenantId()) > 0) {
             Flash::setFlash('Data pemasok berhasil dihapus.', 'success');
         } else {
             Flash::setFlash('Gagal menghapus data pemasok.', 'danger');
