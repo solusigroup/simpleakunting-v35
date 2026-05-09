@@ -8,6 +8,39 @@
         </div>
     </footer>
 
+    <nav class="mobile-bottom-nav">
+        <div class="nav-item">
+            <a href="<?php echo BASEURL; ?>/dashboard" class="nav-link <?php echo ($current_controller == 'dashboard') ? 'active' : ''; ?>">
+                <i class="bi bi-grid-1x2-fill"></i>
+                <span>Beranda</span>
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="<?php echo BASEURL; ?>/penjualan" class="nav-link <?php echo ($current_controller == 'penjualan') ? 'active' : ''; ?>">
+                <i class="bi bi-cart-check"></i>
+                <span>Jual</span>
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="<?php echo BASEURL; ?>/kas" class="nav-link <?php echo ($current_controller == 'kas') ? 'active' : ''; ?>">
+                <i class="bi bi-bank"></i>
+                <span>Kas</span>
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="<?php echo BASEURL; ?>/laporan" class="nav-link <?php echo ($current_controller == 'laporan') ? 'active' : ''; ?>">
+                <i class="bi bi-pie-chart-fill"></i>
+                <span>Laporan</span>
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="#" class="nav-link" id="mobile-menu-toggle">
+                <i class="bi bi-list"></i>
+                <span>Menu</span>
+            </a>
+        </div>
+    </nav>
+
 </div> <!-- Penutup .main-wrapper -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -64,6 +97,24 @@
                     }
                 });
             });
+
+            // Mobile Menu Toggle from bottom nav
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    body.classList.toggle('sidebar-open');
+                });
+            }
+
+            // PWA Service Worker Registration
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('<?php echo BASEURL; ?>/sw.js')
+                        .then(reg => console.log('SW Registered', reg))
+                        .catch(err => console.log('SW registration failed', err));
+                });
+            }
         });
     </script>
 </body>

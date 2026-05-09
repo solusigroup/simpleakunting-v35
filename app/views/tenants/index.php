@@ -2,7 +2,7 @@
     <div class="row mb-4">
         <div class="col-md-6">
             <h1 class="h3 mb-0 text-gray-800">Manajemen Tenant</h1>
-            <p class="text-muted">Kelola entitas bisnis dalam satu database tunggal.</p>
+            <p class="text-muted">Kelola entitas bisnis dalam database terpadu terintegrasi.</p>
         </div>
         <div class="col-md-6 text-end">
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahTenantModal">

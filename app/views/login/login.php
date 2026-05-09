@@ -172,8 +172,8 @@
             <!-- Sisi Form Login -->
             <div class="col-12 col-lg-6 login-form-side">
                 <div class="text-center mb-5">
-                    <img src="<?php echo BASEURL; ?>/img/logo_pasuruan.png" alt="Logo Kabupaten Pasuruan" class="mx-auto mb-3"
-                        style="max-height: 120px;">
+                    <img src="<?php echo BASEURL; ?>/img/logo_pasuruan.png" alt="Logo Kabupaten Pasuruan"
+                        class="mx-auto mb-3" style="max-height: 120px;">
                     <h3 class="fw-bold mb-1" style="color: var(--pasuruan-green);">SIMPLE AKUNTING</h3>
                     <div class="badge bg-pasuruan rounded-pill px-3 py-2 mt-2">
                         <i class="bi bi-flower1 me-1"></i>
@@ -274,21 +274,17 @@
             </div>
         </div>
 
-        <!-- Scripts needed for Bootstrap Tabs -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Footer Section -->
+        <div class="login-footer text-center mt-4">
+            <p class="mb-1">&copy; 2025 - SIMPLE AKUNTING created by <a
+                    href="https://simpleakunting.my.id/riwayathidupku.html#home" target="_blank"
+                    class="text-decoration-none">Kurniawan @Simple Akunting</a></p>
+            <p class="mb-0">&copy; <?php echo date('Y'); ?> - supported by <a
+                    href="https://www.instagram.com/inbisfunvitaindonesia/" target="_blank"
+                    class="text-decoration-none">PT Funvita Indonesia Investama</a></p>
+        </div>
     </div>
-
-    <!-- **PERUBAHAN: Footer ditambahkan di sini** -->
-    <footer class="login-footer">
-        &copy; <?php echo date('Y'); ?> - SIMPLE AKUNTING created by <a
-            href="https://solusiconsulting.simpleakunting.biz.id" target="_blank">Kurniawan @Simple Akunting</a>
-    </footer>
-    <footer class="login-footer">
-        &copy; <?php echo date('Y'); ?> - supported by <a
-            href="https://simpleakunting.biz.id/Kurniawan_Profile_Infographic.html" target="_blank">PT Mentari Commsindo
-            Jaya </a>
-    </footer>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

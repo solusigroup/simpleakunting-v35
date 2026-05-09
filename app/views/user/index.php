@@ -59,9 +59,15 @@
                                 </td>
                                 <td class="pe-4 text-center">
                                     <div class="btn-group">
-                                        <a href="<?php echo BASEURL; ?>/user/edit/<?php echo $user['id_user']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
-                                            <i class="bi bi-pencil me-1"></i> Edit
-                                        </a>
+                                         <?php if ($user['nama_user'] !== 'superadmin'): ?>
+                                         <a href="<?php echo BASEURL; ?>/user/edit/<?php echo $user['id_user']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                             <i class="bi bi-pencil me-1"></i> Edit
+                                         </a>
+                                         <?php else: ?>
+                                         <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 me-2" disabled>
+                                             <i class="bi bi-pencil me-1"></i> Edit
+                                         </button>
+                                         <?php endif; ?>
                                         <?php if ($user['id_user'] != Auth::user()['id']): ?>
                                         <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="if(confirm('Hapus pengguna ini?')){ window.location.href='<?php echo BASEURL; ?>/user/hapus/<?php echo $user['id_user']; ?>'; }">
                                             <i class="bi bi-trash"></i>

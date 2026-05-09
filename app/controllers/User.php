@@ -60,6 +60,13 @@ class User extends Controller {
     public function edit($id) {
         $data['judul'] = 'Edit Data Pengguna';
         $data['user'] = $this->model('User')->getUserById($id);
+
+        if ($data['user']['nama_user'] === 'superadmin') {
+            Flash::setFlash('User Superadmin tidak dapat diubah.', 'danger');
+            header('Location: ' . BASEURL . '/user');
+            exit;
+        }
+
         $data['roles'] = $this->model('Role')->getAllRoles($this->tenantId());
         $this->view('templates/header', $data);
         $this->view('user/edit', $data);
@@ -70,6 +77,13 @@ class User extends Controller {
      * Memproses data dari form edit pengguna.
      */
     public function update() {
+        $user = $this->model('User')->getUserById($_POST['id_user']);
+        if ($user['nama_user'] === 'superadmin') {
+            Flash::setFlash('User Superadmin tidak dapat diubah.', 'danger');
+            header('Location: ' . BASEURL . '/user');
+            exit;
+        }
+
         if ($this->model('User')->ubahDataUser($_POST, $this->tenantId()) > 0) {
             Flash::setFlash('Data pengguna berhasil diubah.', 'success');
         } else {
