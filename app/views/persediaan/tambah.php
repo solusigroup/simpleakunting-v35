@@ -10,9 +10,19 @@
                     <label for="kode_barang" class="form-label">Kode Barang</label>
                     <input type="text" id="kode_barang" name="kode_barang" class="form-control" required autofocus>
                 </div>
-                <div class="col-md-8 mb-3">
+                <div class="col-md-5 mb-3">
                     <label for="nama_barang" class="form-label">Nama Barang</label>
                     <input type="text" id="nama_barang" name="nama_barang" class="form-control" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="kategori" class="form-label">Kategori</label>
+                    <select id="kategori" name="kategori" class="form-select" required>
+                        <option value="">Pilih Kategori...</option>
+                        <option value="Persediaan Bahan Baku">Bahan Baku</option>
+                        <option value="Persediaan Bahan Penolong">Bahan Penolong</option>
+                        <option value="Persediaan WIP">WIP (Setengah Jadi)</option>
+                        <option value="Persediaan Barang Jadi/Barang Dagangan">Barang Jadi / Dagangan</option>
+                    </select>
                 </div>
             </div>
             <div class="row">

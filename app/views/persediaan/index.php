@@ -14,6 +14,7 @@
                     <tr>
                         <th>Kode</th>
                         <th>Nama Barang</th>
+                        <th>Kategori</th>
                         <th class="text-end">Stok Awal</th>
                         <th class="text-end">Stok Terkini</th>
                         <th class="text-end">Harga Beli</th>
@@ -27,7 +28,7 @@
                         $totalNilaiPersediaan = 0;
                         if (empty($data['barang'])): 
                     ?>
-                        <tr><td colspan="7" class="text-center">Belum ada data barang persediaan.</td></tr>
+                        <tr><td colspan="8" class="text-center">Belum ada data barang persediaan.</td></tr>
                     <?php else: ?>
                         <?php 
                             foreach ($data['barang'] as $brg): 
@@ -38,6 +39,7 @@
                         <tr>
                             <td><?php echo htmlspecialchars($brg['kode_barang'] ?? ''); ?></td>
                             <td><?php echo htmlspecialchars($brg['nama_barang'] ?? ''); ?></td>
+                            <td><span class="badge bg-secondary"><?php echo htmlspecialchars($brg['kategori'] ?? 'Persediaan Bahan Baku'); ?></span></td>
                             <td class="text-end"><?php echo number_format($brg['stok_awal'] ?? 0, 2, ',', '.'); ?> <?php echo htmlspecialchars($brg['satuan'] ?? ''); ?></td>
                             <td class="text-end fw-bold"><?php echo number_format($brg['stok_saat_ini'] ?? 0, 2, ',', '.'); ?> <?php echo htmlspecialchars($brg['satuan'] ?? ''); ?></td>
                             <td class="text-end"><?php echo number_format($brg['harga_beli'] ?? 0, 2, ',', '.'); ?></td>
@@ -52,7 +54,7 @@
                 </tbody>
                 <tfoot class="table-light">
                     <tr class="fw-bold">
-                        <td colspan="5" class="text-end">Total Nilai Persediaan</td>
+                        <td colspan="6" class="text-end">Total Nilai Persediaan</td>
                         <td class="text-end"><?php echo number_format($totalNilaiPersediaan, 2, ',', '.'); ?></td>
                         <td></td>
                     </tr>

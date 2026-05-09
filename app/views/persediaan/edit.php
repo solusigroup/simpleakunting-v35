@@ -11,9 +11,19 @@
                     <label for="kode_barang" class="form-label">Kode Barang</label>
                     <input type="text" id="kode_barang" name="kode_barang" class="form-control" value="<?php echo htmlspecialchars($data['barang']['kode_barang']); ?>" required>
                 </div>
-                <div class="col-md-8 mb-3">
+                <div class="col-md-5 mb-3">
                     <label for="nama_barang" class="form-label">Nama Barang</label>
                     <input type="text" id="nama_barang" name="nama_barang" class="form-control" value="<?php echo htmlspecialchars($data['barang']['nama_barang']); ?>" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label for="kategori" class="form-label">Kategori</label>
+                    <select id="kategori" name="kategori" class="form-select" required>
+                        <option value="">Pilih Kategori...</option>
+                        <option value="Persediaan Bahan Baku" <?php echo ($data['barang']['kategori'] == 'Persediaan Bahan Baku') ? 'selected' : ''; ?>>Bahan Baku</option>
+                        <option value="Persediaan Bahan Penolong" <?php echo ($data['barang']['kategori'] == 'Persediaan Bahan Penolong') ? 'selected' : ''; ?>>Bahan Penolong</option>
+                        <option value="Persediaan WIP" <?php echo ($data['barang']['kategori'] == 'Persediaan WIP') ? 'selected' : ''; ?>>WIP (Setengah Jadi)</option>
+                        <option value="Persediaan Barang Jadi/Barang Dagangan" <?php echo ($data['barang']['kategori'] == 'Persediaan Barang Jadi/Barang Dagangan') ? 'selected' : ''; ?>>Barang Jadi / Dagangan</option>
+                    </select>
                 </div>
             </div>
             <div class="row">

@@ -34,9 +34,9 @@ class Persediaan_model {
 
     public function tambahDataBarang($data, $tenant_id) {
         $query = "INSERT INTO {$this->table} 
-                    (tenant_id, kode_barang, nama_barang, satuan, stok_awal, stok_saat_ini, harga_beli, harga_jual, akun_persediaan, akun_hpp, akun_penjualan) 
+                    (tenant_id, kode_barang, nama_barang, kategori, satuan, stok_awal, stok_saat_ini, harga_beli, harga_jual, akun_persediaan, akun_hpp, akun_penjualan) 
                   VALUES 
-                    (:tenant_id, :kode, :nama, :satuan, :stok_awal, :stok_saat_ini, :harga_beli, :harga_jual, :akun_persediaan, :akun_hpp, :akun_penjualan)";
+                    (:tenant_id, :kode, :nama, :kategori, :satuan, :stok_awal, :stok_saat_ini, :harga_beli, :harga_jual, :akun_persediaan, :akun_hpp, :akun_penjualan)";
         
         $this->db->beginTransaction();
         try {
@@ -44,6 +44,7 @@ class Persediaan_model {
             $this->db->bind('tenant_id', $tenant_id);
             $this->db->bind('kode', $data['kode_barang']);
             $this->db->bind('nama', $data['nama_barang']);
+            $this->db->bind('kategori', $data['kategori']);
             $this->db->bind('satuan', $data['satuan']);
             $this->db->bind('stok_awal', $data['stok_awal']);
             $this->db->bind('stok_saat_ini', $data['stok_awal']);
@@ -88,6 +89,7 @@ class Persediaan_model {
             $query = "UPDATE {$this->table} SET 
                         kode_barang = :kode,
                         nama_barang = :nama,
+                        kategori = :kategori,
                         satuan = :satuan,
                         stok_awal = :stok_awal,
                         stok_saat_ini = :stok_terkini,
@@ -100,6 +102,7 @@ class Persediaan_model {
             $this->db->query($query);
             $this->db->bind('kode', $data['kode_barang']);
             $this->db->bind('nama', $data['nama_barang']);
+            $this->db->bind('kategori', $data['kategori']);
             $this->db->bind('satuan', $data['satuan']);
             $this->db->bind('stok_awal', $stokAwalBaru);
             $this->db->bind('stok_terkini', $stokTerkiniBaru);
