@@ -3,6 +3,7 @@
 require_once 'Jurnal_model.php';
 require_once 'Persediaan_model.php';
 require_once 'Bom_model.php';
+require_once 'Perusahaan_model.php';
 
 class Produksi_model {
     private $table = 'produksi';
