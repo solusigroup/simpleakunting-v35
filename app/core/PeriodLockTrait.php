@@ -17,7 +17,7 @@ trait PeriodLockTrait {
      */
     protected function checkPeriodLock($tanggal, $redirectUrl = null) {
         $tutupBukuModel = $this->model('TutupBuku');
-        if ($tutupBukuModel->isPeriodClosed($tanggal)) {
+        if ($tutupBukuModel->isPeriodClosed($tanggal, $this->tenantId())) {
             Flash::setFlash('Gagal! Periode untuk tanggal transaksi ini sudah ditutup dan tidak bisa diubah atau dihapus.', 'danger');
             $redirect = $redirectUrl ?? ($_SERVER['HTTP_REFERER'] ?? BASEURL . '/dashboard');
             header('Location: ' . $redirect);
