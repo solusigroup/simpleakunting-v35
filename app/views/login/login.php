@@ -11,6 +11,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- PWA Support -->
+    <link rel="manifest" href="<?php echo BASEURL; ?>/manifest.json">
+    <meta name="theme-color" content="#065f46">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SimpleAkunting">
+    <link rel="apple-touch-icon" href="<?php echo BASEURL; ?>/img/icon-512.png">
+    <link rel="icon" type="image/png" href="<?php echo BASEURL; ?>/img/icon-512.png">
+
     <style>
         :root {
             --pasuruan-green: #065f46;
@@ -325,7 +336,17 @@
                 }
             });
         });
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('<?php echo BASEURL; ?>/sw.js')
+                    .then(reg => console.log('SW Registered', reg))
+                    .catch(err => console.log('SW registration failed', err));
+            });
+        }
     </script>
+
 </body>
 
 </html>
