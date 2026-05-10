@@ -10,7 +10,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="manifest" href="<?php echo BASEURL; ?>/manifest.json">
     <meta name="theme-color" content="#059669">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SimpleAkunting">
     <link rel="apple-touch-icon" href="<?php echo BASEURL; ?>/img/icon-512.png">
+    <link rel="icon" type="image/png" href="<?php echo BASEURL; ?>/img/icon-512.png">
+
+
 
     <style>
         :root {

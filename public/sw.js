@@ -1,20 +1,28 @@
-const CACHE_NAME = 'simpleakunting-v3-5-v1';
+const CACHE_NAME = 'simpleakunting-v3-5-v2'; // Increment version
 const assets = [
-  './',
-  './index.php',
+  './dashboard',
+  './login',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+  './img/logo_pasuruan.png',
+  './img/icon-512.png'
 ];
 
 // Install service worker
 self.addEventListener('install', evt => {
   evt.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('Caching shell assets');
-      cache.addAll(assets);
+      console.log('Caching assets');
+      // Use try-catch or individually add to prevent one failure from stopping all
+      return Promise.allSettled(
+        assets.map(asset => {
+          return cache.add(asset).catch(err => console.log('Failed to cache:', asset, err));
+        })
+      );
     })
   );
+  self.skipWaiting();
 });
 
 // Activate event
@@ -31,9 +39,22 @@ self.addEventListener('activate', evt => {
 
 // Fetch event
 self.addEventListener('fetch', evt => {
+  // Skip cross-origin requests unless they are in our assets list
+  if (evt.request.method !== 'GET') return;
+
   evt.respondWith(
     caches.match(evt.request).then(cacheRes => {
-      return cacheRes || fetch(evt.request);
+      return cacheRes || fetch(evt.request).then(fetchRes => {
+        // Optional: Cache new requests on the fly
+        // return caches.open(CACHE_NAME).then(cache => {
+        //   cache.put(evt.request.url, fetchRes.clone());
+        //   return fetchRes;
+        // });
+        return fetchRes;
+      }).catch(() => {
+        // Offline fallback if needed
+      });
     })
   );
 });
+

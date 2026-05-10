@@ -3,7 +3,11 @@
 // URL Dasar Aplikasi (Otomatis mendeteksi localhost atau production)
 $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
-define('BASEURL', $protocol . "://" . $host);
+$script_name = $_SERVER['SCRIPT_NAME'] ?? '';
+$base_dir = str_replace('\\', '/', dirname($script_name));
+if ($base_dir === DIRECTORY_SEPARATOR || $base_dir === '.') $base_dir = '';
+define('BASEURL', $protocol . "://" . $host . $base_dir);
+
 
 // Path Absolut Aplikasi
 define('APPROOT', dirname(dirname(__FILE__)));

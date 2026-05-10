@@ -1,9 +1,12 @@
 Options -Multiviews
 RewriteEngine On
 
-# Aturan untuk memaksa koneksi aman (HTTPS)
+# Aturan untuk memaksa koneksi aman (HTTPS), kecuali di localhost
 RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} !^localhost(:\d+)?$
+RewriteCond %{HTTP_HOST} !^127\.0\.0\.1(:\d+)?$
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
 
 # Karena domain sudah menunjuk ke folder public, RewriteBase cukup '/'
 RewriteBase /
