@@ -24,9 +24,9 @@
                 </div>
             </div>
             <div class="row">
-                 <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3">
                     <label>Akun Kas / Bank</label>
-                    <select name="akun_kas_bank" class="form-select" required>
+                    <select name="akun_kas_bank" class="form-select searchable-select" required>
                         <?php foreach($data['akun_kas_list'] as $akun): ?>
                             <option value="<?php echo $akun['kode_akun']; ?>" <?php echo ($akun['kode_akun'] == $data['transaksi']['akun_kas_bank']) ? 'selected' : ''; ?>>
                                 <?php echo $akun['nama_akun']; ?>
@@ -36,7 +36,7 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label>Akun Lawan</label>
-                    <select name="akun_lawan" class="form-select" required>
+                    <select name="akun_lawan" class="form-select searchable-select" required>
                         <?php foreach($data['akun_lawan_list'] as $grup => $akuns): ?>
                             <optgroup label="<?php echo htmlspecialchars($grup); ?>">
                                 <?php foreach($akuns as $akun): ?>
@@ -67,4 +67,18 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.searchable-select').forEach(el => {
+        new TomSelect(el, {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            }
+        });
+    });
+});
+</script>
 
