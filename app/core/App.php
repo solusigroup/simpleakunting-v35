@@ -66,6 +66,29 @@ class App {
             $this->params = array_values($url);
         }
 
+        // --- PROTEKSI IMPERSONATION (READ-ONLY MODE) ---
+        // Mencegah Superadmin yang sedang impersonasi untuk mengubah data di modul tenant.
+        $user = Auth::user();
+        if ($user && ($user['impersonating'] ?? false)) {
+            // Dapatkan nama class controller (tanpa namespace/path)
+            $controllerName = get_class($this->controller);
+            
+            // Kecuali modul Central dan Login, semua modul tenant diproteksi
+            if ($controllerName !== 'Central' && $controllerName !== 'Login') {
+                $writeMethods = ['simpan', 'update', 'hapus', 'delete', 'proses', 'tambah_data', 'ubah', 'set_active', 'import', 'export_save'];
+                $currentMethod = strtolower($this->method);
+                
+                if (in_array($currentMethod, $writeMethods) || $_SERVER['REQUEST_METHOD'] === 'POST') {
+                    Flash::setFlash('Akses Terbatas', 'Dalam mode Impersonation, Anda hanya diperbolehkan melihat data (Read-Only).', 'warning');
+                    
+                    // Redirect kembali ke halaman sebelumnya atau ke dashboard
+                    $redirect = $_SERVER['HTTP_REFERER'] ?? BASEURL . '/dashboard';
+                    header('Location: ' . $redirect);
+                    exit;
+                }
+            }
+        }
+
         // --- Jalankan Semuanya! ---
         call_user_func_array([$this->controller, $this->method], $this->params);
     }
