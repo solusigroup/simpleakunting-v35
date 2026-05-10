@@ -1,10 +1,11 @@
-const CACHE_NAME = 'simpleakunting-v3-5-v4'; // Increment version
+const CACHE_NAME = 'simpleakunting-v3-5-v5'; // Increment version
 const assets = [
   './login',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
-  './img/icon-512.png'
+  './img/icon-pwa-512.png'
 ];
+
 
 
 
