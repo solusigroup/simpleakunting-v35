@@ -642,4 +642,37 @@
         </nav>
 
         <main class="p-4">
+            <!-- Global Quick Access Bar -->
+            <div class="quick-access-bar mb-4 d-none d-md-flex align-items-center gap-2 p-2 bg-white rounded-pill shadow-sm border" style="width: max-content;">
+                <div class="px-3 border-end me-1">
+                    <small class="fw-bold text-muted text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.05em;">Akses Cepat</small>
+                </div>
+                <a href="<?php echo BASEURL; ?>/kas" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
+                    <i class="bi bi-bank text-primary"></i> <span class="small fw-medium">Kas</span>
+                </a>
+                <a href="<?php echo BASEURL; ?>/penjualan" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
+                    <i class="bi bi-cart-check text-success"></i> <span class="small fw-medium">Penjualan</span>
+                </a>
+                <a href="<?php echo BASEURL; ?>/pembelian" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
+                    <i class="bi bi-bag-plus text-danger"></i> <span class="small fw-medium">Pembelian</span>
+                </a>
+                <a href="<?php echo BASEURL; ?>/laporan" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
+                    <i class="bi bi-pie-chart-fill text-info"></i> <span class="small fw-medium">Laporan</span>
+                </a>
+            </div>
+
+            <style>
+                .quick-access-bar .btn-light {
+                    background-color: transparent;
+                    transition: all 0.2s;
+                }
+                .quick-access-bar .btn-light:hover {
+                    background-color: #f8f9fa;
+                    transform: translateY(-1px);
+                }
+                .quick-access-bar .btn-light i {
+                    font-size: 1rem;
+                }
+            </style>
+            
             <?php Flash::flash(); ?>
