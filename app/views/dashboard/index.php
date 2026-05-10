@@ -73,33 +73,33 @@
             </div>
             <div class="card-body pt-0">
                 <div class="list-group list-group-flush rounded-3 overflow-hidden border">
-                    <a href="<?php echo BASEURL; ?>/produksi/tambah" class="list-group-item list-group-item-action d-flex align-items-center p-3">
+                    <a href="<?php echo BASEURL; ?>/kas" class="list-group-item list-group-item-action d-flex align-items-center p-3">
                         <div class="bg-primary-soft text-primary rounded p-2 me-3">
-                            <i class="bi bi-plus-circle"></i>
+                            <i class="bi bi-bank"></i>
                         </div>
                         <div>
-                            <div class="fw-bold small">Mulai Produksi</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">Buat perintah kerja baru</div>
+                            <div class="fw-bold small">Kas & Bank</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Kelola mutasi saldo kas</div>
                         </div>
                         <i class="bi bi-chevron-right ms-auto text-muted"></i>
                     </a>
-                    <a href="<?php echo BASEURL; ?>/penerimaan/tambah" class="list-group-item list-group-item-action d-flex align-items-center p-3">
+                    <a href="<?php echo BASEURL; ?>/penjualan" class="list-group-item list-group-item-action d-flex align-items-center p-3">
                         <div class="bg-success-soft text-success rounded p-2 me-3">
-                            <i class="bi bi-cash-coin"></i>
+                            <i class="bi bi-cart-check"></i>
                         </div>
                         <div>
-                            <div class="fw-bold small">Terima Piutang</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">Input pelunasan pelanggan</div>
+                            <div class="fw-bold small">Penjualan</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Input transaksi penjualan</div>
                         </div>
                         <i class="bi bi-chevron-right ms-auto text-muted"></i>
                     </a>
-                    <a href="<?php echo BASEURL; ?>/pembayaran/tambah" class="list-group-item list-group-item-action d-flex align-items-center p-3">
+                    <a href="<?php echo BASEURL; ?>/pembelian" class="list-group-item list-group-item-action d-flex align-items-center p-3">
                         <div class="bg-danger-soft text-danger rounded p-2 me-3">
-                            <i class="bi bi-wallet2"></i>
+                            <i class="bi bi-bag-plus"></i>
                         </div>
                         <div>
-                            <div class="fw-bold small">Bayar Pemasok</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">Selesaikan tagihan pembelian</div>
+                            <div class="fw-bold small">Pembelian</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Input transaksi pembelian</div>
                         </div>
                         <i class="bi bi-chevron-right ms-auto text-muted"></i>
                     </a>
@@ -108,8 +108,8 @@
                             <i class="bi bi-pie-chart-fill"></i>
                         </div>
                         <div>
-                            <div class="fw-bold small">Report Center</div>
-                            <div class="text-muted" style="font-size: 0.75rem;">Akses semua laporan baru</div>
+                            <div class="fw-bold small">Laporan</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Akses laporan keuangan</div>
                         </div>
                         <i class="bi bi-chevron-right ms-auto text-muted"></i>
                     </a>
