@@ -118,23 +118,27 @@
                                     </a>
                                     <?php endif; ?>
                                     
-                                    <button class="btn btn-sm btn-light rounded-circle edit-user me-2" 
-                                        data-id="<?php echo $user['id_user']; ?>"
-                                        data-nama="<?php echo $user['nama_user']; ?>"
-                                        data-role="<?php echo $user['role']; ?>"
-                                        data-jabatan="<?php echo $user['jabatan']; ?>"
-                                        data-tenant="<?php echo $user['tenant_id']; ?>"
-                                        data-bs-toggle="modal" data-bs-target="#editUserModal">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    
-                                    <?php if ($user['id_user'] != Auth::user()['id']): ?>
-                                    <a href="<?php echo BASEURL; ?>/central/user_hapus/<?php echo $user['id_user']; ?>" 
-                                       class="btn btn-sm btn-light rounded-circle text-danger" 
-                                       onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                    <?php endif; ?>
+                                    <?php if ($user['role'] != 'Superadmin'): ?>
+                                        <button class="btn btn-sm btn-light rounded-circle edit-user me-2" 
+                                            data-id="<?php echo $user['id_user']; ?>"
+                                            data-nama="<?php echo $user['nama_user']; ?>"
+                                            data-role="<?php echo $user['role']; ?>"
+                                            data-jabatan="<?php echo $user['jabatan']; ?>"
+                                            data-tenant="<?php echo $user['tenant_id']; ?>"
+                                            data-bs-toggle="modal" data-bs-target="#editUserModal">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        
+                                        <?php if ($user['id_user'] != Auth::user()['id']): ?>
+                                        <a href="<?php echo BASEURL; ?>/central/user_hapus/<?php echo $user['id_user']; ?>" 
+                                           class="btn btn-sm btn-light rounded-circle text-danger" 
+                                           onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
+                                             <i class="bi bi-trash"></i>
+                                         </a>
+                                         <?php endif; ?>
+                                     <?php else: ?>
+                                         <span class="badge bg-light text-muted rounded-pill px-2">Protected</span>
+                                     <?php endif; ?>
                                 </div>
                             </td>
                         </tr>

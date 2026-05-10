@@ -312,7 +312,7 @@
 <body data-theme="light">
 
     <?php
-    $url_parts = explode('/', $_GET['url'] ?? 'home');
+    $url_parts = explode('/', trim($_GET['url'] ?? 'home', '/'));
     $current_controller = strtolower($url_parts[0]);
 
     $master_controllers = ['akun', 'pelanggan', 'pemasok', 'persediaan', 'aset'];

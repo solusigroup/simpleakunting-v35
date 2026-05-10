@@ -39,6 +39,14 @@ class Central extends Controller {
     }
 
     public function user_update() {
+        // Keamanan: Jangan izinkan edit user Superadmin
+        $user = $this->model('User')->getUserById($_POST['id_user']);
+        if ($user && $user['role'] == 'Superadmin') {
+            Flash::setFlash('Akses Ditolak', 'User Superadmin tidak dapat diubah demi keamanan sistem.', 'danger');
+            header('Location: ' . BASEURL . '/central/users');
+            exit;
+        }
+
         if ($this->model('User')->ubahDataUser($_POST, $_POST['tenant_id']) > 0) {
             Flash::setFlash('Berhasil', 'Data user berhasil diperbarui', 'success');
         } else {
@@ -56,8 +64,16 @@ class Central extends Controller {
             exit;
         }
 
-        // Cari user dulu untuk dapat tenant_id-nya
+        // Cari user dulu
         $user = $this->model('User')->getUserById($id);
+        
+        // Keamanan: Jangan hapus Superadmin
+        if ($user && $user['role'] == 'Superadmin') {
+            Flash::setFlash('Akses Ditolak', 'User Superadmin tidak dapat dihapus.', 'danger');
+            header('Location: ' . BASEURL . '/central/users');
+            exit;
+        }
+
         if ($this->model('User')->hapusDataUser($id, $user['tenant_id']) > 0) {
             Flash::setFlash('Berhasil', 'User telah dihapus dari sistem', 'success');
         } else {
