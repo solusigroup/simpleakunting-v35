@@ -51,7 +51,7 @@
                             
                             <div class="mb-3">
                                 <label class="form-label fw-bold small text-uppercase text-muted">Pemasok / Vendor</label>
-                                <select name="id_pemasok" class="form-select bg-light border-0" required>
+                                <select name="id_pemasok" class="form-select bg-light border-0 searchable-select" required>
                                     <option value="">Pilih Pemasok...</option>
                                     <?php foreach($data['pemasok'] as $ps): ?>
                                         <option value="<?php echo $ps['id_pemasok']; ?>"><?php echo htmlspecialchars($ps['nama_pemasok']); ?></option>
@@ -81,7 +81,7 @@
 
                             <div id="akun_kas_container" class="mb-3">
                                 <label class="form-label fw-bold small text-uppercase text-muted">Bayar Dari Akun</label>
-                                <select name="akun_kas_bank" id="akun_kas_bank" class="form-select bg-light border-0">
+                                <select name="akun_kas_bank" id="akun_kas_bank" class="form-select bg-light border-0 searchable-select">
                                     <?php foreach($data['akun_kas'] as $akun): ?>
                                         <option value="<?php echo $akun['kode_akun']; ?>"><?php echo $akun['nama_akun']; ?></option>
                                     <?php endforeach; ?>
@@ -134,7 +134,7 @@
 <template id="detail-row-template">
     <tr>
         <td>
-            <select name="details[id_barang][]" class="form-select border-0 bg-light item-select" required>
+            <select name="details[id_barang][]" class="form-select border-0 bg-light item-select searchable-select" required>
                 <option value="">Pilih Item...</option>
                 <?php foreach($data['barang'] as $brg): ?>
                     <option value="<?php echo $brg['id_barang']; ?>" 
@@ -211,9 +211,29 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateTotal();
     }
 
+    function initTomSelect(el) {
+        new TomSelect(el, {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            controlInput: null
+        });
+    }
+
+    // Inisialisasi awal untuk elemen non-dinamis
+    document.querySelectorAll('.card-body .searchable-select').forEach(el => initTomSelect(el));
+
     function addRow() {
         const clone = template.content.cloneNode(true);
+        const newRow = clone.querySelector('tr');
         tbody.appendChild(clone);
+        
+        const selectEl = newRow.querySelector('.searchable-select');
+        if (selectEl) {
+            initTomSelect(selectEl);
+        }
     }
 
     document.getElementById('add-item').addEventListener('click', addRow);
@@ -236,7 +256,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     tbody.addEventListener('click', e => {
         if (e.target.closest('.remove-item')) {
-            e.target.closest('tr').remove();
+            const row = e.target.closest('tr');
+            const selectEl = row.querySelector('.searchable-select');
+            if (selectEl && selectEl.tomselect) {
+                selectEl.tomselect.destroy();
+            }
+            row.remove();
             calculateTotal();
         }
     });
