@@ -37,7 +37,7 @@
                     <?php foreach($data['jurnal']['details'] as $detail): ?>
                     <tr>
                         <td>
-                            <select name="details[kode_akun][]" class="form-select" required>
+                            <select name="details[kode_akun][]" class="form-select searchable-select" required>
                                 <option value="">Pilih Akun...</option>
                                 <?php foreach($data['akun'] as $akun): ?>
                                     <?php if($akun['tipe_akun'] != 'Header'): ?>
@@ -77,7 +77,7 @@
 <template id="jurnal-row-template">
     <tr>
         <td>
-            <select name="details[kode_akun][]" class="form-select" required>
+            <select name="details[kode_akun][]" class="form-select searchable-select" required>
                 <option value="">Pilih Akun...</option>
                 <?php
                 // PERBAIKAN: Menambahkan pengecekan untuk memastikan $data['akun'] ada dan merupakan array
@@ -98,8 +98,6 @@
 </template>
 
 <script>
-    // Script ini tidak perlu diubah, karena logikanya sudah benar.
-    // Masalahnya ada pada pembuatan template oleh PHP.
     document.addEventListener('DOMContentLoaded', function() {
         const tbody = document.getElementById('jurnal-details-body');
         const template = document.getElementById('jurnal-row-template');
@@ -109,9 +107,30 @@
         const totalKreditEl = document.getElementById('total-kredit');
         const balanceStatusEl = document.getElementById('balance-status');
 
+        function initTomSelect(el) {
+            new TomSelect(el, {
+                create: false,
+                sortField: {
+                    field: "text",
+                    direction: "asc"
+                }
+            });
+        }
+
+        // Inisialisasi baris yang sudah ada
+        document.querySelectorAll('.searchable-select').forEach(el => initTomSelect(el));
+
         function addRow() {
-            const clone = template.content.cloneNode(true);
-            tbody.appendChild(clone);
+            if (template.content) {
+                const clone = template.content.cloneNode(true);
+                const newRow = clone.querySelector('tr');
+                tbody.appendChild(clone);
+                
+                const selectEl = newRow.querySelector('.searchable-select');
+                if (selectEl) {
+                    initTomSelect(selectEl);
+                }
+            }
         }
 
         function calculateTotals() {
@@ -136,7 +155,12 @@
         
         tbody.addEventListener('click', function(e) {
             if (e.target.classList.contains('remove-row')) {
-                e.target.closest('tr').remove();
+                const row = e.target.closest('tr');
+                const selectEl = row.querySelector('.searchable-select');
+                if (selectEl && selectEl.tomselect) {
+                    selectEl.tomselect.destroy();
+                }
+                row.remove();
                 calculateTotals();
             }
         });

@@ -58,7 +58,7 @@
 <template id="jurnal-row-template">
     <tr>
         <td>
-            <select name="details[kode_akun][]" class="form-select" required>
+            <select name="details[kode_akun][]" class="form-select searchable-select" required>
                 <option value="">Pilih Akun...</option>
                 <?php
                 // PERBAIKAN: Menambahkan pengecekan untuk memastikan $data['akun'] ada dan merupakan array
@@ -89,10 +89,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const balanceStatusEl = document.getElementById('balance-status');
 
     function addRow() {
-        // Pengecekan krusial, pastikan template ada isinya sebelum di-clone
         if (template.content) {
             const clone = template.content.cloneNode(true);
+            const newRow = clone.querySelector('tr');
             tbody.appendChild(clone);
+            
+            // Inisialisasi TomSelect untuk baris baru
+            const selectEl = newRow.querySelector('.searchable-select');
+            if (selectEl) {
+                new TomSelect(selectEl, {
+                    create: false,
+                    sortField: {
+                        field: "text",
+                        direction: "asc"
+                    }
+                });
+            }
         }
     }
 
@@ -118,7 +130,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     tbody.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-row')) {
-            e.target.closest('tr').remove();
+            const row = e.target.closest('tr');
+            // Hancurkan instance TomSelect sebelum hapus baris
+            const selectEl = row.querySelector('.searchable-select');
+            if (selectEl && selectEl.tomselect) {
+                selectEl.tomselect.destroy();
+            }
+            row.remove();
             calculateTotals();
         }
     });
