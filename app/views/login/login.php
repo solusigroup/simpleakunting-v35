@@ -13,7 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     
     <!-- PWA Support -->
-    <link rel="manifest" href="<?php echo BASEURL; ?>/manifest.json">
+    <link rel="manifest" href="<?php echo BASEURL; ?>/manifest.json?v=2">
+
     <meta name="theme-color" content="#065f46">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
