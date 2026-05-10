@@ -1,13 +1,10 @@
-const CACHE_NAME = 'simpleakunting-v3-5-v2'; // Increment version
+const CACHE_NAME = 'simpleakunting-v3-5-v3'; // Increment version
 const assets = [
-  './dashboard',
-  './login',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
-  './img/logo_pasuruan.png',
   './img/icon-512.png'
 ];
+
 
 // Install service worker
 self.addEventListener('install', evt => {
