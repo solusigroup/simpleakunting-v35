@@ -113,7 +113,8 @@
                 sortField: {
                     field: "text",
                     direction: "asc"
-                }
+                },
+                dropdownParent: 'body'
             });
         }
 

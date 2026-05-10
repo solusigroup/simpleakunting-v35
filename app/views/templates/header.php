@@ -9,6 +9,44 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        /* Custom Tom Select Styling to match Premium UI */
+        .ts-control {
+            border: none !important;
+            background-color: #f8f9fa !important;
+            border-radius: 0.75rem !important;
+            padding: 0.6rem 1rem !important;
+            box-shadow: none !important;
+            transition: all 0.2s ease;
+        }
+        .ts-wrapper.focus .ts-control {
+            background-color: #fff !important;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+            border: 1px solid rgba(79, 70, 229, 0.2) !important;
+        }
+        .ts-dropdown {
+            border: none !important;
+            border-radius: 0.75rem !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            margin-top: 5px !important;
+            padding: 0.5rem !important;
+            z-index: 2000 !important;
+        }
+        .ts-dropdown .active {
+            background-color: #4f46e5 !important;
+            color: #fff !important;
+            border-radius: 0.5rem !important;
+        }
+        .ts-dropdown .option {
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.5rem !important;
+            margin-bottom: 2px;
+        }
+        /* Fix for table overflow */
+        .table-responsive {
+            overflow: visible !important;
+        }
+    </style>
     <link rel="manifest" href="<?php echo BASEURL; ?>/manifest.json?v=2">
     <meta name="theme-color" content="#059669">
     <meta name="mobile-web-app-capable" content="yes">

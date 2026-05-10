@@ -102,7 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     sortField: {
                         field: "text",
                         direction: "asc"
-                    }
+                    },
+                    dropdownParent: 'body'
                 });
             }
         }

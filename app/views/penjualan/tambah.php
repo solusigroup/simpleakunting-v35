@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 field: "text",
                 direction: "asc"
             },
-            controlInput: null
+            dropdownParent: 'body'
         });
     }
 
