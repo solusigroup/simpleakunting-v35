@@ -43,3 +43,4 @@ migrate_v3_5.php
 
 # Error logs
 public/error_log
+app/config.php  

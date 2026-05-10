@@ -13,7 +13,7 @@ $db = new Database();
 
 $id_user = 7;
 $nama_user = 'penyelia';
-$new_password = '548412Yaa';
+$new_password = 'Gaspol2026!@#$%';
 
 // 1. Cek apakah user ada
 $db->query("SELECT * FROM users WHERE id_user = :id AND nama_user = :nama");
