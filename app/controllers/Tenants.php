@@ -24,8 +24,12 @@ class Tenants extends Controller
 
     public function tambah()
     {
-        if ($this->model('Tenants')->tambahTenant($_POST) > 0) {
-            Flash::setFlash('Berhasil', 'Tenant baru telah ditambahkan', 'success');
+        $tenant_id = $this->model('Tenants')->tambahTenant($_POST);
+        if ($tenant_id > 0) {
+            // Auto-generate COA from Central Template
+            $this->model('Akun_model')->generateFromCentral($tenant_id);
+            
+            Flash::setFlash('Berhasil', 'Tenant baru telah ditambahkan dan COA telah diinisialisasi.', 'success');
         } else {
             Flash::setFlash('Gagal', 'Terjadi kesalahan saat menambah tenant', 'danger');
         }

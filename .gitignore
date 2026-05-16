@@ -40,7 +40,7 @@ create_rbac.php
 seed_users.php
 update_users_table.php
 migrate_v3_5.php
+app/config.php  
 
 # Error logs
 public/error_log
-app/config.php  

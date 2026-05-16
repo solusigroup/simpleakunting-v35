@@ -26,7 +26,7 @@ class Tenants_model {
         $this->db->bind('type', $data['database_type'] ?? 'single');
         $this->db->bind('status', 'active');
         $this->db->execute();
-        return $this->db->rowCount();
+        return $this->db->lastInsertId();
     }
     public function ubahTenant($data) {
         $query = "UPDATE " . $this->table . " SET 

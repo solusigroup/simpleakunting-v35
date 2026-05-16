@@ -46,6 +46,17 @@ class User_model {
 
     public function tambahDataUser($data, $tenant_id) {
         $role_id = !empty($data['role_id']) ? $data['role_id'] : null;
+
+        // Auto-map role name to role_id if role_id is empty (for Central Admin creation)
+        if (empty($role_id) && !empty($data['role'])) {
+            $this->db->query("SELECT id FROM roles WHERE role_name = :role_name");
+            $this->db->bind('role_name', $data['role']);
+            $role_row = $this->db->single();
+            if ($role_row) {
+                $role_id = $role_row['id'];
+            }
+        }
+
         $query = "INSERT INTO {$this->table} (tenant_id, nama_user, nama_lengkap, password_hash, role, role_id, jabatan) 
                   VALUES (:tenant_id, :nama, :nama_lengkap, :password, :role, :role_id, :jabatan)";
         $this->db->query($query);
@@ -71,6 +82,17 @@ class User_model {
 
     public function ubahDataUser($data, $tenant_id) {
         $role_id = !empty($data['role_id']) ? $data['role_id'] : null;
+
+        // Auto-map role name to role_id if role_id is empty
+        if (empty($role_id) && !empty($data['role'])) {
+            $this->db->query("SELECT id FROM roles WHERE role_name = :role_name");
+            $this->db->bind('role_name', $data['role']);
+            $role_row = $this->db->single();
+            if ($role_row) {
+                $role_id = $role_row['id'];
+            }
+        }
+
         if (!empty($data['password'])) {
             $query = "UPDATE {$this->table} SET 
                         nama_user = :nama,
