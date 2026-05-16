@@ -27,7 +27,7 @@ class Tenants extends Controller
         $tenant_id = $this->model('Tenants')->tambahTenant($_POST);
         if ($tenant_id > 0) {
             // Auto-generate COA from Central Template
-            $this->model('Akun_model')->generateFromCentral($tenant_id);
+            $this->model('Akun')->generateFromCentral($tenant_id);
             
             Flash::setFlash('Berhasil', 'Tenant baru telah ditambahkan dan COA telah diinisialisasi.', 'success');
         } else {
