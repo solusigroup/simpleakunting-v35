@@ -7,7 +7,8 @@ class Perusahaan extends Controller {
         parent::__construct();
         $user = Auth::user();
         if ($user && $user['role'] === 'Superadmin') {
-            // Tampilkan halaman kosong (white page) dan exit
+            Flash::setFlash('Superadmin tidak melakukan setting perusahaan', 'warning');
+            header('Location: ' . BASEURL . '/dashboard');
             exit;
         }
     }
