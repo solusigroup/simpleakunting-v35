@@ -2,6 +2,16 @@
 
 class Perusahaan extends Controller {
 
+    public function __construct()
+    {
+        parent::__construct();
+        $user = Auth::user();
+        if ($user && $user['role'] === 'Superadmin') {
+            // Tampilkan halaman kosong (white page) dan exit
+            exit;
+        }
+    }
+
     /**
      * Menampilkan halaman utama Pengaturan Perusahaan.
      * Versi ini juga mengambil daftar pengguna dan daftar akun untuk dropdown.
