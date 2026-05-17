@@ -22,11 +22,15 @@ class App {
 
         // --- VALIDASI CSRF SECARA GLOBAL ---
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $csrf_token = $_POST['csrf_token'] ?? '';
-            if (empty($csrf_token) || !hash_equals($_SESSION['csrf_token'] ?? '', $csrf_token)) {
-                Flash::setFlash('Akses Ditolak! Permintaan diblokir karena token keamanan (CSRF) tidak valid atau kedaluwarsa.', 'danger');
-                header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? BASEURL));
-                exit;
+            // Bypass CSRF check untuk controller login (misal /login/process)
+            $isLoginRoute = (!empty($url) && strtolower($url[0]) === 'login');
+            if (!$isLoginRoute) {
+                $csrf_token = $_POST['csrf_token'] ?? '';
+                if (empty($csrf_token) || !hash_equals($_SESSION['csrf_token'] ?? '', $csrf_token)) {
+                    Flash::setFlash('Akses Ditolak! Permintaan diblokir karena token keamanan (CSRF) tidak valid atau kedaluwarsa.', 'danger');
+                    header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? BASEURL));
+                    exit;
+                }
             }
         }
 

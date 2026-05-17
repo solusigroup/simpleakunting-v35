@@ -21,6 +21,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 // 2. Memuat file inisialisasi aplikasi kita (setelah library siap)
 require_once '../app/init.php';
 
+// Pastikan CSRF token diinisialisasi dalam session pada alur eksekusi utama
+Auth::getCsrfToken();
+
 // --- OUTPUT BUFFERING UNTUK INJEKSI CSRF TOKEN SECARA OTOMATIS ---
 ob_start(function($buffer) {
     // Hanya proses jika buffer berisi form HTML
