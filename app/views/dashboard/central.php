@@ -4,6 +4,27 @@
     </div>
 </div>
 
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm bg-light-subtle" style="border-left: 4px solid #059669 !important;">
+            <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3 py-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-success-subtle text-success p-2 rounded-3 fs-4">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1 fw-bold text-dark">Pusat Panduan Penyelia (Superadmin)</h6>
+                        <small class="text-muted">Pelajari tata cara mendaftarkan Tenant (BUMDesa/UMKM) baru dan menambahkan user dengan aman.</small>
+                    </div>
+                </div>
+                <a href="<?php echo BASEURL; ?>/panduan_superadmin.html" target="_blank" class="btn btn-success btn-sm rounded-pill px-4 fw-medium">
+                    <i class="bi bi-book me-1"></i> Buka Panduan
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4 mb-5">
     <div class="col-md-3">
         <div class="card bg-primary text-white h-100 shadow-sm border-0">

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Penyelia (Superadmin) - SimpleAkunting v3.5</title>
+    <!-- Google Fonts & Bootstrap Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-light: #ecfdf5;
+            --secondary: #4f46e5;
+            --secondary-light: #e0e7ff;
+            --accent: #d97706;
+            --accent-light: #fef3c7;
+            --dark: #0f172a;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --white: #ffffff;
+            --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Gradient Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%);
+            color: var(--white);
+            padding: 5rem 2rem;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 80% 20%, rgba(79, 70, 229, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            color: #34d399;
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+            line-height: 1.15;
+        }
+
+        .hero-desc {
+            font-size: 1.25rem;
+            color: #d1fae5;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            opacity: 0.95;
+        }
+
+        /* Container & Grid Setup */
+        .container {
+            max-width: 1200px;
+            margin: -3rem auto 5rem;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 992px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+        }
+
+        /* Sidebar Navigation Sticky */
+        .sidebar {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .nav-card {
+            background: var(--white);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-premium);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--slate-600);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .nav-list {
+            list-style: none;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--slate-600);
+            text-decoration: none;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-item a:hover, .nav-item.active a {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item.active a {
+            border-left: 4px solid var(--primary);
+            border-top-left-radius: 0.25rem;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+        /* Main Content Cards */
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .guide-card {
+            background: var(--white);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            box-shadow: var(--shadow-premium);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: var(--transition);
+        }
+
+        .guide-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--slate-100);
+            padding-bottom: 1.25rem;
+        }
+
+        .card-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+        }
+
+        .bg-emerald-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: var(--white);
+        }
+
+        .bg-indigo-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: var(--white);
+        }
+
+        .card-title-group h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--dark);
+            letter-spacing: -0.02em;
+        }
+
+        .card-title-group p {
+            color: var(--slate-600);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Step by Step list */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .step-item {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1.5rem;
+        }
+
+        .step-number {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            background-color: var(--slate-100);
+            color: var(--slate-600);
+            border: 2px solid var(--white);
+            box-shadow: 0 0 0 2px var(--slate-100);
+        }
+
+        .step-item:hover .step-number {
+            background-color: var(--secondary);
+            color: var(--white);
+            box-shadow: 0 0 0 2px var(--secondary-light);
+        }
+
+        .step-body {
+            background-color: var(--slate-100);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: var(--transition);
+        }
+
+        .step-body:hover {
+            background-color: #f8fafc;
+            border-color: rgba(79, 70, 229, 0.15);
+        }
+
+        .step-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-desc {
+            color: var(--slate-600);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Key Highlights / Badges */
+        .highlight-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-success { background-color: #d1fae5; color: #065f46; }
+        .badge-warning { background-color: #fef3c7; color: #92400e; }
+        .badge-info { background-color: #e0e7ff; color: #3730a3; }
+
+        /* Elegant Mockup Illustrations */
+        .mockup-container {
+            margin-top: 1.5rem;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            background-color: var(--white);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .mockup-header {
+            background-color: #f8fafc;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mockup-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .mockup-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .mockup-dot-r { background-color: #ef4444; }
+        .mockup-dot-y { background-color: #eab308; }
+        .mockup-dot-g { background-color: #22c55e; }
+
+        .mockup-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .mockup-body {
+            padding: 1.5rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Mockup Form Elements */
+        .mockup-form-group {
+            margin-bottom: 1rem;
+        }
+
+        .mockup-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.35rem;
+        }
+
+        .mockup-input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 0.5rem;
+            border: 1.5px solid #cbd5e1;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        .mockup-input.focused {
+            border-color: var(--secondary);
+            background-color: var(--white);
+            box-shadow: 0 0 0 3px var(--secondary-light);
+            outline: none;
+        }
+
+        .mockup-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .mockup-btn {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .mockup-btn-blue {
+            background-color: var(--secondary);
+        }
+
+        /* Info & Alert Banner */
+        .banner {
+            background-color: var(--accent-light);
+            border-left: 4px solid var(--accent);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .banner-icon {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .banner-content h5 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #78350f;
+            margin-bottom: 0.25rem;
+        }
+
+        .banner-content p {
+            font-size: 0.875rem;
+            color: #92400e;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--slate-600);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--slate-100);
+            margin-top: 5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Hero -->
+    <header class="hero">
+        <div class="hero-badge">
+            <i class="bi bi-shield-check"></i> MODUL PENYELIA (SUPERADMIN)
+        </div>
+        <h1 class="hero-title">Panduan Onboarding Tenant</h1>
+        <p class="hero-desc">Panduan praktis bagi Penyelia / Superadmin dalam melakukan instalasi, pendaftaran, dan konfigurasi awal BUMDesa atau UMKM baru.</p>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="container">
+        <div class="grid-layout">
+            
+            <!-- Sticky Sidebar -->
+            <aside class="sidebar">
+                <div class="nav-card">
+                    <h3 class="nav-title">Menu Panduan</h3>
+                    <ul class="nav-list">
+                        <li class="nav-item active">
+                            <a href="#buat-tenant">
+                                <i class="bi bi-buildings"></i> 1. Membuat Tenant
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#tambah-user">
+                                <i class="bi bi-person-plus"></i> 2. Mendaftarkan User
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#init-coa">
+                                <i class="bi bi-journal-check"></i> 3. Inisialisasi CoA
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Main Contents -->
+            <main class="content">
+
+                <!-- SECTION 1: MEMBUAT TENANT -->
+                <section id="buat-tenant" class="guide-card">
+                    <div class="card-header">
+                        <div class="card-icon bg-emerald-gradient">
+                            <i class="bi bi-buildings-fill"></i>
+                        </div>
+                        <div class="card-title-group">
+                            <h2>Langkah A: Membuat Profil Tenant (BUMDesa / UMKM)</h2>
+                            <p>Proses inisialisasi entitas bisnis baru pada server SimpleAkunting.</p>
+                        </div>
+                    </div>
+
+                    <div class="steps">
+                        <!-- Step 1 -->
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-body">
+                                <h3 class="step-title">
+                                    Navigasi ke Menu Tenants
+                                    <span class="highlight-badge badge-info">Menu Utama</span>
+                                </h3>
+                                <p class="step-desc">Masuk ke dashboard utama Superadmin, arahkan kursor ke sidebar kiri lalu klik menu dropdown <strong>Central Admin</strong> dan pilih menu <strong>Tenants</strong>.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-body">
+                                <h3 class="step-title">
+                                    Klik Tombol Tambah Tenant
+                                    <span class="highlight-badge badge-success">Aksi</span>
+                                </h3>
+                                <p class="step-desc">Di pojok kanan atas halaman daftar Tenant, klik tombol hijau bertuliskan <strong><i class="bi bi-plus-circle"></i> Tambah Tenant</strong>. Form isian modal akan muncul secara interaktif.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-body">
+                                <h3 class="step-title">
+                                    Isi Detail Bisnis Baru
+                                    <span class="highlight-badge badge-warning">Form Isian</span>
+                                </h3>
+                                <p class="step-desc">Lengkapi formulir dengan ketentuan data sebagai berikut:</p>
+                                <ul>
+                                    <li><strong>Nama Bisnis:</strong> Nama resmi BUMDesa atau UMKM (contoh: <em>BUMDesa Sampah Jaya</em>).</li>
+                                    <li><strong>Kode Unik:</strong> Kode unik subdomain tanpa spasi (contoh: <em>sampahjaya</em>). Kode ini akan menjadi URL akses mereka.</li>
+                                    <li><strong>Tipe Bisnis:</strong> Pilih di antara tiga jenis tipe database sesuai jenis usaha:
+                                        <ul>
+                                            <li><i class="bi bi-circle text-primary"></i> <strong>Jasa</strong> (Tanpa kontrol stok barang)</li>
+                                            <li><i class="bi bi-circle text-success"></i> <strong>Perdagangan</strong> (Dengan modul stok produk jadi)</li>
+                                            <li><i class="bi bi-circle text-danger"></i> <strong>Manufaktur</strong> (Dengan modul BoM, bahan baku, dan produksi)</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+
+                                <!-- Mockup Form Ilustrasi -->
+                                <div class="mockup-container">
+                                    <div class="mockup-header">
+                                        <div class="mockup-dots">
+                                            <div class="mockup-dot mockup-dot-r"></div>
+                                            <div class="mockup-dot mockup-dot-y"></div>
+                                            <div class="mockup-dot mockup-dot-g"></div>
+                                        </div>
+                                        <div class="mockup-title">Form Tambah Tenant Baru</div>
+                                        <div style="width: 30px;"></div>
+                                    </div>
+                                    <div class="mockup-body">
+                                        <div class="mockup-form-group">
+                                            <label class="mockup-label">Nama Bisnis / Perusahaan</label>
+                                            <input type="text" class="mockup-input" value="BUMDesa Sampah Jaya" readonly>
+                                        </div>
+                                        <div class="mockup-row">
+                                            <div class="mockup-form-group">
+                                                <label class="mockup-label">Kode Unik (Subdomain)</label>
+                                                <input type="text" class="mockup-input" value="sampahjaya" readonly>
+                                            </div>
+                                            <div class="mockup-form-group">
+                                                <label class="mockup-label">Tipe Bisnis</label>
+                                                <input type="text" class="mockup-input" value="Perdagangan" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <button class="mockup-btn" disabled><i class="bi bi-check-circle"></i> Simpan Tenant</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="banner">
+                                    <div class="banner-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                                    <div class="banner-content">
+                                        <h5>Perhatian Penting!</h5>
+                                        <p>Kode unik tenant harus ditulis menggunakan huruf kecil semua, tanpa spasi, dan tanpa karakter spesial untuk mencegah error pada konfigurasi domain web server.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 2: MENAMBAHKAN USER -->
+                <section id="tambah-user" class="guide-card">
+                    <div class="card-header">
+                        <div class="card-icon bg-indigo-gradient">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </div>
+                        <div class="card-title-group">
+                            <h2>Langkah B: Menambahkan User untuk Tenant Baru</h2>
+                            <p>Membuat kredensial akses pimpinan / pemilik tenant agar bisa mengelola akun akuntansinya sendiri.</p>
+                        </div>
+                    </div>
+
+                    <div class="steps">
+                        <!-- Step 1 -->
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-body">
+                                <h3 class="step-title">
+                                    Masuk ke Menu Users Global
+                                    <span class="highlight-badge badge-info">Menu Utama</span>
+                                </h3>
+                                <p class="step-desc">Di bawah menu dropdown <strong>Central Admin</strong> pada sidebar kiri, klik menu <strong>Users Global</strong>.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-body">
+                                <h3 class="step-title">
+                                    Klik Tombol Tambah User
+                                    <span class="highlight-badge badge-success">Aksi</span>
+                                </h3>
+                                <p class="step-desc">Klik tombol biru <strong><i class="bi bi-person-plus"></i> Tambah User Global</strong> yang terletak di pojok kanan atas halaman daftar user global.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-body">
+                                <h3 class="step-title">
+                                    Isi Formulir User Baru
+                                    <span class="highlight-badge badge-warning">Form Isian</span>
+                                </h3>
+                                <p class="step-desc">Isilah data kredensial direktur atau pemilik bisnis dengan panduan kolom berikut:</p>
+                                
+                                <ul>
+                                    <li><strong>Nama Lengkap:</strong> Nama pemilik atau direktur penanggung jawab tenant.</li>
+                                    <li><strong>Nama Pengguna (Username):</strong> Buat nama pengguna unik tanpa spasi (contoh: <em>direktursampahjaya</em>). <strong>Catatan:</strong> Username ini tidak boleh sama dengan username yang telah terdaftar sebelumnya di sistem global.</li>
+                                    <li><strong>Kata Sandi (Password):</strong> Buat kata sandi awal yang mudah diingat oleh pengguna. Infokan kata sandi tersebut ke user bersangkutan, karena nantinya <strong>user dapat menggantinya sendiri</strong> secara mandiri via profil pengaturan akun mereka.</li>
+                                    <li><strong>Hak Akses (Role):</strong> Pilih <strong>Admin (Tenant)</strong>. Ini adalah role level tertinggi untuk entitas bisnis individu (mempunyai akses penuh ke data master, transaksi keuangan, dan laporan internal).</li>
+                                    <li><strong>Jabatan:</strong> Tulis <strong>Direktur / Owner</strong> atau setara.</li>
+                                    <li><strong>Penugasan Tenant:</strong> Cari dan pilih nama tenant yang baru saja Anda buat di Langkah A (contoh: <em>BUMDesa Sampah Jaya</em>). Ini akan mengunci basis data pengguna tersebut ke database tenant yang terisolasi secara aman.</li>
+                                </ul>
+
+                                <!-- Mockup Form Ilustrasi User -->
+                                <div class="mockup-container">
+                                    <div class="mockup-header">
+                                        <div class="mockup-dots">
+                                            <div class="mockup-dot mockup-dot-r"></div>
+                                            <div class="mockup-dot mockup-dot-y"></div>
+                                            <div class="mockup-dot mockup-dot-g"></div>
+                                        </div>
+                                        <div class="mockup-title">Form Tambah User Global</div>
+                                        <div style="width: 30px;"></div>
+                                    </div>
+                                    <div class="mockup-body">
+                                        <div class="mockup-row">
+                                            <div class="mockup-form-group">
+                                                <label class="mockup-label">Nama Lengkap</label>
+                                                <input type="text" class="mockup-input" value="Samsul Wisnu" readonly>
+                                            </div>
+                                            <div class="mockup-form-group">
+                                                <label class="mockup-label">Nama Pengguna (Username)</label>
+                                                <input type="text" class="mockup-input" value="direktursampahjaya" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="mockup-row">
+                                            <div class="mockup-form-group">
+                                                <label class="mockup-label">Kata Sandi</label>
+                                                <input type="text" class="mockup-input" value="sandirahasia123" readonly>
+                                            </div>
+                                            <div class="mockup-form-group">
+                                                <label class="mockup-label">Hak Akses (Role)</label>
+                                                <input type="text" class="mockup-input" value="Admin (Tenant)" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="mockup-row">
+                                            <div class="mockup-form-group">
+                                                <label class="mockup-label">Jabatan</label>
+                                                <input type="text" class="mockup-input" value="Direktur / Owner" readonly>
+                                            </div>
+                                            <div class="mockup-form-group">
+                                                <label class="mockup-label">Penugasan Tenant</label>
+                                                <input type="text" class="mockup-input" value="BUMDesa Sampah Jaya" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <button class="mockup-btn mockup-btn-blue" disabled><i class="bi bi-person-check"></i> Tambah User Global</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 3: AUTOMATIC COA -->
+                <section id="init-coa" class="guide-card">
+                    <div class="card-header">
+                        <div class="card-icon bg-emerald-gradient" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                            <i class="bi bi-magic"></i>
+                        </div>
+                        <div class="card-title-group">
+                            <h2>Inisialisasi Otomatis Bagan Akun (Chart of Accounts)</h2>
+                            <p>Kabar gembira untuk kenyamanan administrasi Anda!</p>
+                        </div>
+                    </div>
+                    <div class="step-body" style="background-color: var(--white); padding: 0;">
+                        <p class="step-desc" style="font-size: 1.05rem;">Pada sistem SimpleAkunting v3.5, <strong>Bagan Akun (Chart of Accounts / CoA)</strong> untuk tenant baru kini <strong>otomatis dibuat dan diinisialisasi</strong> secara otomatis saat Anda pertama kali menyimpan Tenant.</p>
+                        <p class="step-desc">Template default yang sesuai dengan standar akuntansi dinas koperasi akan langsung dikloning ke database tenant baru. Hal ini memastikan user tenant dapat langsung mencatat transaksi kas, penjualan, atau pembelian pertamanya **tanpa perlu melakukan pembuatan akun kas/modal manual dari nol**.</p>
+                        
+                        <div class="banner" style="background-color: #ecfdf5; border-left-color: #10b981;">
+                            <div class="banner-icon" style="color: #10b981;"><i class="bi bi-check-circle-fill"></i></div>
+                            <div class="banner-content">
+                                <h5 style="color: #065f46;">Proses Siap Pakai!</h5>
+                                <p style="color: #047857;">User baru Anda dapat langsung mengunduh/membuat faktur dan mencatat pengeluaran kas begitu akun mereka selesai Anda daftarkan di menu Penyelia.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Dinas Koperasi Kabupaten Pasuruan & Solusi Consulting Group. Seluruh Hak Cipta Dilindungi.</p>
+        <p class="text-muted" style="font-size: 0.75rem; margin-top: 0.5rem;">Sistem Akuntansi Multi-Tenant Terintegrasi v3.5 - Edisi Premium</p>
+    </footer>
+
+</body>
+</html>

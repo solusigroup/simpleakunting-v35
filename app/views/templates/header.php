@@ -406,6 +406,10 @@
                             href="<?php echo BASEURL; ?>/central/agregat">
                             <i class="bi bi-bar-chart-steps"></i> Laporan Agregat
                         </a>
+                        <a class="nav-link ms-4 py-1 text-info"
+                            href="<?php echo BASEURL; ?>/panduan_superadmin.html" target="_blank">
+                            <i class="bi bi-journal-check"></i> Panduan Penyelia
+                        </a>
                     </div>
                 </li>
             <?php endif; ?>
