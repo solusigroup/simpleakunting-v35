@@ -14,8 +14,17 @@ define('BASEURL', $protocol . "://" . $host . $base_dir);
 // Path Absolut Aplikasi
 define('APPROOT', dirname(dirname(__FILE__)));
 
-// Konfigurasi Database (pastikan ini sesuai dengan database di hosting Anda)
-define('DB_HOST', '127.0.0.1');
-define('DB_USER', 'root');
-define('DB_PASS', 'root');
-define('DB_NAME', 'simpleak_v35');
+// Konfigurasi Database (Otomatis mendeteksi localhost atau production server)
+$isLocalhost = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']) || $host === 'localhost' || strpos($host, 'localhost:') === 0;
+
+if ($isLocalhost) {
+    define('DB_HOST', '127.0.0.1');
+    define('DB_USER', 'root');
+    define('DB_PASS', 'root');
+    define('DB_NAME', 'simpleak_v35');
+} else {
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'simpleak_user_simple');
+    define('DB_PASS', '#5@8@12Yaa');
+    define('DB_NAME', 'simpleak_db_akunting');
+}
