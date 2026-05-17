@@ -12,7 +12,8 @@ class User extends Controller {
         parent::__construct();
 
         // Setelah itu, baru jalankan logika proteksi role.
-        if (Auth::user()['role'] !== 'Admin' && Auth::user()['role'] !== 'Superadmin' && Auth::user()['role'] !== 'Manager') {
+        $user = Auth::user();
+        if (!$user || !in_array($user['role'], ['Admin', 'Superadmin', 'Manager'])) {
             Flash::setFlash('Anda tidak memiliki hak akses untuk halaman ini.', 'danger');
             header('Location: ' . BASEURL);
             exit;

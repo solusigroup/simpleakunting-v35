@@ -4,7 +4,8 @@ class Role extends Controller {
     public function __construct() {
         parent::__construct();
         // Hanya Admin/Manager tenant yang bisa melihat Role
-        if (Auth::user()['role'] !== 'Admin' && Auth::user()['role'] !== 'Superadmin' && Auth::user()['role'] !== 'Manager') {
+        $user = Auth::user();
+        if (!$user || !in_array($user['role'], ['Admin', 'Superadmin', 'Manager'])) {
             Flash::setFlash('Akses Ditolak', 'Hanya administrator atau manajer yang dapat melihat hak akses.', 'danger');
             header('Location: ' . BASEURL . '/dashboard');
             exit;

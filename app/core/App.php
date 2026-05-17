@@ -20,6 +20,16 @@ class App {
     {
         $url = $this->parseURL();
 
+        // --- VALIDASI CSRF SECARA GLOBAL ---
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $csrf_token = $_POST['csrf_token'] ?? '';
+            if (empty($csrf_token) || !hash_equals($_SESSION['csrf_token'] ?? '', $csrf_token)) {
+                Flash::setFlash('Akses Ditolak! Permintaan diblokir karena token keamanan (CSRF) tidak valid atau kedaluwarsa.', 'danger');
+                header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? BASEURL));
+                exit;
+            }
+        }
+
         // --- GERBANG KEAMANAN YANG DIPERBARUI ---
 
         // Cek apakah controller yang dituju adalah 'login'.

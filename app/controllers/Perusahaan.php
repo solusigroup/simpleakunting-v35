@@ -29,10 +29,29 @@ class Perusahaan extends Controller {
         // Cek apakah ada file logo baru yang diunggah dan valid
         if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
             $file = $_FILES['logo'];
-            $target_dir = "img/logos/"; // Pastikan folder public/img/logos ada
             
-            // Buat nama file yang unik untuk menghindari penimpaan file
-            $target_file = $target_dir . uniqid() . '_' . basename($file["name"]);
+            // 1. Validasi Ekstensi Gambar
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'svg'];
+            $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            
+            // 2. Validasi MIME Type Gambar Asli (MIME Sniffing)
+            $allowed_mimes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime_type = finfo_file($finfo, $file['tmp_name']);
+            finfo_close($finfo);
+            
+            if (!in_array($file_ext, $allowed_extensions) || !in_array($mime_type, $allowed_mimes)) {
+                Flash::setFlash('Gagal! Format file logo tidak didukung. Hanya gambar (JPG, PNG, GIF, SVG) yang diperbolehkan.', 'danger');
+                header('Location: ' . BASEURL . '/perusahaan');
+                exit;
+            }
+            
+            // 3. Gunakan Path Absolut Berbasis APPROOT agar stabil di semua environment
+            $target_dir = APPROOT . "/public/img/logos/";
+            // Bersihkan nama file dari karakter berbahaya
+            $clean_filename = preg_replace('/[^a-zA-Z0-9_.-]/', '_', basename($file["name"]));
+            $unique_name = uniqid() . '_' . $clean_filename;
+            $target_file = $target_dir . $unique_name;
 
             // Pastikan direktori tujuan ada, jika tidak, buat
             if (!is_dir($target_dir)) {
@@ -41,9 +60,10 @@ class Perusahaan extends Controller {
             
             // Pindahkan file yang diunggah ke direktori tujuan
             if (move_uploaded_file($file["tmp_name"], $target_file)) {
-                $logo_path = $target_file;
+                // Simpan path relatif ke public web root agar sesuai dengan database dan view
+                $logo_path = "img/logos/" . $unique_name;
             } else {
-                Flash::setFlash('Gagal mengunggah file logo.', 'danger');
+                Flash::setFlash('Gagal memindahkan file logo ke direktori penyimpanan.', 'danger');
                 header('Location: ' . BASEURL . '/perusahaan');
                 exit;
             }
