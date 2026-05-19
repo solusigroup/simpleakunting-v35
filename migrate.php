@@ -74,6 +74,10 @@ CREATE TABLE IF NOT EXISTS kartu_stok (
 
 -- 5. Tambah Kolom Kategori di Master Persediaan
 ALTER TABLE master_persediaan ADD COLUMN IF NOT EXISTS kategori ENUM('Persediaan Bahan Baku','Persediaan Bahan Penolong','Persediaan WIP','Persediaan Barang Jadi/Barang Dagangan') NOT NULL DEFAULT 'Persediaan Bahan Baku' AFTER nama_barang;
+
+-- 6. Ubah Unique Key master_persediaan agar Unik per Tenant
+ALTER TABLE master_persediaan DROP INDEX kode_barang;
+ALTER TABLE master_persediaan ADD UNIQUE KEY kode_barang (tenant_id, kode_barang);
 ";
 
 try {
