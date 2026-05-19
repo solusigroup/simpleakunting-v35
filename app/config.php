@@ -31,6 +31,6 @@ if ($isLocalhost) {
 } else {
     define('DB_HOST', 'localhost');
     define('DB_USER', 'simkopde_umkm');
-    define('DB_PASS', '#5@8@12Yaa');
+    define('DB_PASS', '5@8@12Yaa');
     define('DB_NAME', 'simkopde_umkm35');
 }
