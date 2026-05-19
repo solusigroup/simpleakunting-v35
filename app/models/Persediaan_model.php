@@ -70,7 +70,7 @@ class Persediaan_model {
         } catch (\PDOException $e) {
             if ($this->db->inTransaction()) $this->db->rollBack();
             error_log("Error tambahDataBarang: " . $e->getMessage());
-            return 0;
+            throw $e;
         }
     }
 

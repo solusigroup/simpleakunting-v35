@@ -29,10 +29,14 @@ class Persediaan extends Controller {
             exit;
         }
 
-        if ($this->model('Persediaan')->tambahDataBarang($_POST, $this->tenantId()) > 0) {
-            Flash::setFlash('Data barang berhasil ditambahkan.', 'success');
-        } else {
-            Flash::setFlash('Gagal menambahkan data barang.', 'danger');
+        try {
+            if ($this->model('Persediaan')->tambahDataBarang($_POST, $this->tenantId()) > 0) {
+                Flash::setFlash('Data barang berhasil ditambahkan.', 'success');
+            } else {
+                Flash::setFlash('Gagal menambahkan data barang.', 'danger');
+            }
+        } catch (Exception $e) {
+            Flash::setFlash('Gagal menambahkan data barang. Detail Error: ' . $e->getMessage(), 'danger');
         }
         header('Location: ' . BASEURL . '/persediaan');
         exit;
