@@ -61,6 +61,19 @@ CREATE TABLE IF NOT EXISTS pembayaran_pemasok_detail (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_pembayaran) REFERENCES pembayaran_pemasok(id_pembayaran) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- 4. Tabel Kartu Stok
+CREATE TABLE IF NOT EXISTS kartu_stok (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_barang BIGINT UNSIGNED NOT NULL,
+    tipe_transaksi ENUM('IN','OUT') NOT NULL,
+    kuantitas DECIMAL(10,2) NOT NULL,
+    keterangan VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 5. Tambah Kolom Kategori di Master Persediaan
+ALTER TABLE master_persediaan ADD COLUMN IF NOT EXISTS kategori ENUM('Persediaan Bahan Baku','Persediaan Bahan Penolong','Persediaan WIP','Persediaan Barang Jadi/Barang Dagangan') NOT NULL DEFAULT 'Persediaan Bahan Baku' AFTER nama_barang;
 ";
 
 try {
