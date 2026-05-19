@@ -75,10 +75,10 @@ CREATE TABLE IF NOT EXISTS `akun` (
 
 -- Membuang data untuk tabel simpleak_v35.akun: ~106 rows (lebih kurang)
 INSERT INTO `akun` (`kode_akun`, `tenant_id`, `nama_akun`, `tipe_akun`, `saldo_normal`, `saldo_awal`, `posisi_saldo_normal`, `created_at`, `updated_at`) VALUES
-	('1-0000', 2, 'AKTIVA', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
-	('1-0000', 3, 'AKTIVA', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
-	('1-1000', 2, 'AKTIVA LANCAR', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
-	('1-1000', 3, 'AKTIVA LANCAR', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
+	('1-0000', 2, 'Aset', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
+	('1-0000', 3, 'Aset', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
+	('1-1000', 2, 'Aset LANCAR', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
+	('1-1000', 3, 'Aset LANCAR', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
 	('1-10001', 1, 'Kas Kecil', 'Kas & Bank', 'Debit', 0.00, 'Debit', NULL, NULL),
 	('1-10002', 1, 'Bank BCA', 'Kas & Bank', 'Debit', 0.00, 'Debit', NULL, NULL),
 	('1-10003', 1, 'Bank Mandiri', 'Kas & Bank', 'Debit', 0.00, 'Debit', NULL, NULL),
@@ -98,8 +98,8 @@ INSERT INTO `akun` (`kode_akun`, `tenant_id`, `nama_akun`, `tipe_akun`, `saldo_n
 	('1-1300', 3, 'Persediaan Barang', 'Detail', 'Debit', 0.00, 'Debit', NULL, NULL),
 	('1-1400', 2, 'Pajak Dibayar Dimuka (PPN)', 'Detail', 'Debit', 0.00, 'Debit', NULL, NULL),
 	('1-1400', 3, 'Pajak Dibayar Dimuka (PPN)', 'Detail', 'Debit', 0.00, 'Debit', NULL, NULL),
-	('1-2000', 2, 'AKTIVA TETAP', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
-	('1-2000', 3, 'AKTIVA TETAP', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
+	('1-2000', 2, 'Aset TETAP', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
+	('1-2000', 3, 'Aset TETAP', 'Header', 'Debit', 0.00, 'Debit', NULL, NULL),
 	('1-20100', 1, 'Peralatan Kantor', 'Aset Tetap', 'Debit', 0.00, 'Debit', NULL, NULL),
 	('1-20101', 1, 'Akum. Peny. Peralatan', 'Aset Tetap', 'Kredit', 0.00, 'Kredit', NULL, NULL),
 	('1-20200', 1, 'Kendaraan', 'Aset Tetap', 'Debit', 0.00, 'Debit', NULL, NULL),
@@ -241,15 +241,15 @@ CREATE TABLE IF NOT EXISTS `central_akun` (
 
 -- Membuang data untuk tabel simpleak_v35.central_akun: ~37 rows (lebih kurang)
 INSERT INTO `central_akun` (`id`, `kode_akun`, `nama_akun`, `tipe_akun`, `posisi_saldo_normal`) VALUES
-	(1, '1-0000', 'AKTIVA', 'Header', 'Debit'),
-	(2, '1-1000', 'AKTIVA LANCAR', 'Header', 'Debit'),
+	(1, '1-0000', 'Aset', 'Header', 'Debit'),
+	(2, '1-1000', 'Aset LANCAR', 'Header', 'Debit'),
 	(3, '1-1100', 'Kas & Bank', 'Detail', 'Debit'),
 	(4, '1-1101', 'Kas Kecil', 'Detail', 'Debit'),
 	(5, '1-1102', 'Bank BCA', 'Detail', 'Debit'),
 	(6, '1-1200', 'Piutang Usaha', 'Detail', 'Debit'),
 	(7, '1-1300', 'Persediaan Barang', 'Detail', 'Debit'),
 	(8, '1-1400', 'Pajak Dibayar Dimuka (PPN)', 'Detail', 'Debit'),
-	(9, '1-2000', 'AKTIVA TETAP', 'Header', 'Debit'),
+	(9, '1-2000', 'Aset TETAP', 'Header', 'Debit'),
 	(10, '1-2100', 'Tanah', 'Detail', 'Debit'),
 	(11, '1-2200', 'Bangunan', 'Detail', 'Debit'),
 	(12, '1-2201', 'Akum. Penyusutan Bangunan', 'Detail', 'Kredit'),
