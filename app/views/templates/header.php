@@ -355,9 +355,33 @@
     $current_controller = strtolower($url_parts[0]);
 
     $master_controllers = ['akun', 'pelanggan', 'pemasok', 'persediaan', 'aset'];
-    $transaksi_controllers = ['penjualan', 'pembelian', 'penerimaan', 'pembayaran', 'kas', 'penyesuaian', 'jurnal', 'tutupbuku', 'produksi', 'bom'];
+    $transaksi_controllers = ['penjualan', 'pembelian', 'penerimaan', 'pembayaran', 'kas', 'penyesuaian', 'jurnal', 'tutupbuku', 'produksi', 'bom', 'pos'];
     $laporan_controllers = ['laporan', 'analisis'];
     $user = Auth::user();
+
+    // --- Permission flags untuk visibilitas section ---
+    $canPelanggan = Auth::hasPermission('master_pelanggan');
+    $canPemasok = Auth::hasPermission('master_pemasok');
+    $canAkun = Auth::hasPermission('master_akun');
+    $canPersediaan = ($user['database_type'] !== 'jasa') && Auth::hasPermission('master_persediaan');
+    $canAset = Auth::hasPermission('master_aset');
+    $showMasterSection = $canPelanggan || $canPemasok || $canAkun || $canPersediaan || $canAset;
+
+    $canPenjualan = Auth::hasPermission('trx_penjualan');
+    $canPenerimaan = Auth::hasPermission('trx_penerimaan');
+    $canPembelian = Auth::hasPermission('trx_pembelian');
+    $canPembayaran = Auth::hasPermission('trx_pembayaran');
+    $canPos = Auth::hasPermission('trx_pos');
+    $canBom = Auth::hasPermission('trx_bom');
+    $canProduksi = Auth::hasPermission('trx_produksi');
+    $showTradeMenu = $canPenjualan || $canPenerimaan || $canPembelian || $canPembayaran;
+    $showManufMenu = ($user['database_type'] === 'manufaktur') && ($canBom || $canProduksi);
+    $showOperasionalSection = $showTradeMenu || $showManufMenu || $canPos;
+
+    $canKas = Auth::hasPermission('trx_kas');
+    $canJurnal = Auth::hasPermission('fin_jurnal');
+    $canLaporan = Auth::hasPermission('fin_laporan');
+    $showKeuanganSection = $canKas || $canJurnal || $canLaporan;
     ?>
 
     <!-- Sidebar -->
@@ -415,24 +439,30 @@
             <?php endif; ?>
 
             <?php if ($user['tenant_id'] !== null): ?>
+
+                <?php if ($showMasterSection): ?>
                 <li class="nav-item mt-3">
                     <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Data Master</small>
                 </li>
 
+                <?php if ($canPelanggan): ?>
                 <li class="nav-item">
                     <a class="nav-link <?php echo ($current_controller == 'pelanggan') ? 'active' : ''; ?>"
                         href="<?php echo BASEURL; ?>/pelanggan">
                         <i class="bi bi-people"></i> Pelanggan
                     </a>
                 </li>
+                <?php endif; ?>
+                <?php if ($canPemasok): ?>
                 <li class="nav-item">
                     <a class="nav-link <?php echo ($current_controller == 'pemasok') ? 'active' : ''; ?>"
                         href="<?php echo BASEURL; ?>/pemasok">
                         <i class="bi bi-truck"></i> Pemasok
                     </a>
                 </li>
+                <?php endif; ?>
 
-                <?php if (Auth::hasPermission('master_akun')): ?>
+                <?php if ($canAkun): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($current_controller == 'akun') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/akun">
@@ -440,7 +470,7 @@
                         </a>
                     </li>
                 <?php endif; ?>
-                <?php if ($user['database_type'] !== 'jasa' && Auth::hasPermission('master_persediaan')): ?>
+                <?php if ($canPersediaan): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($current_controller == 'persediaan') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/persediaan">
@@ -448,7 +478,7 @@
                         </a>
                     </li>
                 <?php endif; ?>
-                <?php if (Auth::hasPermission('master_aset')): ?>
+                <?php if ($canAset): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($current_controller == 'aset') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/aset">
@@ -456,18 +486,31 @@
                         </a>
                     </li>
                 <?php endif; ?>
+                <?php endif; /* end showMasterSection */ ?>
 
+                <?php if ($showOperasionalSection): ?>
                 <li class="nav-item mt-3">
                     <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Operasional</small>
                 </li>
+
+                <?php if ($canPos): ?>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo (in_array($current_controller, ['penjualan', 'penerimaan', 'pembelian', 'pembayaran'])) ? 'active' : ''; ?>"
+                    <a class="nav-link <?php echo ($current_controller == 'pos') ? 'active' : ''; ?>"
+                        href="<?php echo BASEURL; ?>/pos">
+                        <i class="bi bi-upc-scan"></i> Point of Sales
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <?php if ($showTradeMenu): ?>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo (in_array($current_controller, ['penjualan', 'penerimaan', 'pembelian', 'pembayaran', 'penawaran', 'rfq'])) ? 'active' : ''; ?>"
                         data-bs-toggle="collapse" href="#tradeCollapse">
                         <i class="bi bi-cart-check"></i> Perdagangan <i class="bi bi-chevron-down ms-auto"></i>
                     </a>
                     <div class="collapse <?php echo (in_array($current_controller, ['penjualan', 'penerimaan', 'pembelian', 'pembayaran', 'penawaran', 'rfq'])) ? 'show' : ''; ?>"
                         id="tradeCollapse">
-                        <?php if (Auth::hasPermission('trx_penjualan')): ?>
+                        <?php if ($canPenjualan): ?>
                             <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'penawaran') ? 'fw-bold text-white' : ''; ?>"
                                 href="<?php echo BASEURL; ?>/penawaran">
                                 <i class="bi bi-file-earmark-text"></i> Penawaran Harga
@@ -477,7 +520,7 @@
                                 <i class="bi bi-receipt"></i> Penjualan (Faktur)
                             </a>
                         <?php endif; ?>
-                        <?php if (Auth::hasPermission('trx_penerimaan')): ?>
+                        <?php if ($canPenerimaan): ?>
                             <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'penerimaan') ? 'fw-bold text-white' : ''; ?>"
                                 href="<?php echo BASEURL; ?>/penerimaan">
                                 <i class="bi bi-cash-stack"></i> Penerimaan Piutang
@@ -485,8 +528,10 @@
                         <?php endif; ?>
 
                         <?php if ($user['database_type'] !== 'jasa'): ?>
+                            <?php if ($canPembelian || $canPembayaran): ?>
                             <hr class="dropdown-divider bg-white opacity-25 mx-4">
-                            <?php if (Auth::hasPermission('trx_pembelian')): ?>
+                            <?php endif; ?>
+                            <?php if ($canPembelian): ?>
                                 <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'rfq') ? 'fw-bold text-white' : ''; ?>"
                                     href="<?php echo BASEURL; ?>/rfq">
                                     <i class="bi bi-envelope-paper"></i> Request for Quotation
@@ -496,7 +541,7 @@
                                     <i class="bi bi-bag-check"></i> Pembelian (Faktur)
                                 </a>
                             <?php endif; ?>
-                            <?php if (Auth::hasPermission('trx_pembayaran')): ?>
+                            <?php if ($canPembayaran): ?>
                                 <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'pembayaran') ? 'fw-bold text-white' : ''; ?>"
                                     href="<?php echo BASEURL; ?>/pembayaran">
                                     <i class="bi bi-wallet2"></i> Pembayaran Pemasok
@@ -505,8 +550,9 @@
                         <?php endif; ?>
                     </div>
                 </li>
+                <?php endif; /* end showTradeMenu */ ?>
 
-                <?php if ($user['database_type'] === 'manufaktur'): ?>
+                <?php if ($showManufMenu): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo (in_array($current_controller, ['bom', 'produksi'])) ? 'active' : ''; ?>"
                             data-bs-toggle="collapse" href="#manufCollapse">
@@ -514,13 +560,13 @@
                         </a>
                         <div class="collapse <?php echo (in_array($current_controller, ['bom', 'produksi'])) ? 'show' : ''; ?>"
                             id="manufCollapse">
-                            <?php if (Auth::hasPermission('trx_bom')): ?>
+                            <?php if ($canBom): ?>
                                 <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'bom') ? 'fw-bold text-white' : ''; ?>"
                                     href="<?php echo BASEURL; ?>/bom">
                                     <i class="bi bi-receipt-cutoff"></i> Bill of Materials
                                 </a>
                             <?php endif; ?>
-                            <?php if (Auth::hasPermission('trx_produksi')): ?>
+                            <?php if ($canProduksi): ?>
                                 <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'produksi') ? 'fw-bold text-white' : ''; ?>"
                                     href="<?php echo BASEURL; ?>/produksi">
                                     <i class="bi bi-gear-wide-connected"></i> Perintah Produksi
@@ -528,12 +574,14 @@
                             <?php endif; ?>
                         </div>
                     </li>
-                <?php endif; ?>
+                <?php endif; /* end showManufMenu */ ?>
+                <?php endif; /* end showOperasionalSection */ ?>
 
+                <?php if ($showKeuanganSection): ?>
                 <li class="nav-item mt-3">
                     <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Keuangan</small>
                 </li>
-                <?php if (Auth::hasPermission('trx_kas')): ?>
+                <?php if ($canKas): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($current_controller == 'kas') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/kas">
@@ -541,7 +589,7 @@
                         </a>
                     </li>
                 <?php endif; ?>
-                <?php if (Auth::hasPermission('fin_jurnal')): ?>
+                <?php if ($canJurnal): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($current_controller == 'jurnal') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/jurnal">
@@ -549,7 +597,7 @@
                         </a>
                     </li>
                 <?php endif; ?>
-                <?php if (Auth::hasPermission('fin_laporan')): ?>
+                <?php if ($canLaporan): ?>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($current_controller == 'laporan') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/laporan">
@@ -557,6 +605,8 @@
                         </a>
                     </li>
                 <?php endif; ?>
+                <?php endif; /* end showKeuanganSection */ ?>
+
             <?php endif; ?>
 
             <!-- Menu Bantuan & Edukasi (Selalu Tampil) -->
@@ -646,24 +696,39 @@
         </nav>
 
         <main class="p-4">
-            <!-- Global Quick Access Bar -->
+            <!-- Global Quick Access Bar (Permission-Gated) -->
+            <?php if ($user['tenant_id'] !== null): ?>
             <div class="quick-access-bar mb-4 d-none d-md-flex align-items-center gap-2 p-2 bg-white rounded-pill shadow-sm border" style="width: max-content;">
                 <div class="px-3 border-end me-1">
                     <small class="fw-bold text-muted text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.05em;">Akses Cepat</small>
                 </div>
+                <?php if ($canPos): ?>
+                <a href="<?php echo BASEURL; ?>/pos" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
+                    <i class="bi bi-upc-scan text-indigo"></i> <span class="small fw-medium">POS</span>
+                </a>
+                <?php endif; ?>
+                <?php if ($canKas): ?>
                 <a href="<?php echo BASEURL; ?>/kas" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
                     <i class="bi bi-bank text-primary"></i> <span class="small fw-medium">Kas</span>
                 </a>
+                <?php endif; ?>
+                <?php if ($canPenjualan): ?>
                 <a href="<?php echo BASEURL; ?>/penjualan" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
                     <i class="bi bi-cart-check text-success"></i> <span class="small fw-medium">Penjualan</span>
                 </a>
+                <?php endif; ?>
+                <?php if ($canPembelian): ?>
                 <a href="<?php echo BASEURL; ?>/pembelian" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
                     <i class="bi bi-bag-plus text-danger"></i> <span class="small fw-medium">Pembelian</span>
                 </a>
+                <?php endif; ?>
+                <?php if ($canLaporan): ?>
                 <a href="<?php echo BASEURL; ?>/laporan" class="btn btn-sm btn-light rounded-pill px-3 d-flex align-items-center gap-2 border-0">
                     <i class="bi bi-pie-chart-fill text-info"></i> <span class="small fw-medium">Laporan</span>
                 </a>
+                <?php endif; ?>
             </div>
+            <?php endif; ?>
 
             <style>
                 .quick-access-bar .btn-light {

@@ -15,24 +15,37 @@
                 <span>Beranda</span>
             </a>
         </div>
+        <?php if (Auth::hasPermission('trx_penjualan') || Auth::hasPermission('trx_pos')): ?>
         <div class="nav-item">
-            <a href="<?php echo BASEURL; ?>/penjualan" class="nav-link <?php echo ($current_controller == 'penjualan') ? 'active' : ''; ?>">
-                <i class="bi bi-cart-check"></i>
-                <span>Jual</span>
-            </a>
+            <?php if (Auth::hasPermission('trx_pos') && !Auth::hasPermission('trx_penjualan')): ?>
+                <a href="<?php echo BASEURL; ?>/pos" class="nav-link <?php echo ($current_controller == 'pos') ? 'active' : ''; ?>">
+                    <i class="bi bi-upc-scan"></i>
+                    <span>Kasir POS</span>
+                </a>
+            <?php else: ?>
+                <a href="<?php echo BASEURL; ?>/penjualan" class="nav-link <?php echo ($current_controller == 'penjualan') ? 'active' : ''; ?>">
+                    <i class="bi bi-cart-check"></i>
+                    <span>Jual</span>
+                </a>
+            <?php endif; ?>
         </div>
+        <?php endif; ?>
+        <?php if (Auth::hasPermission('trx_kas')): ?>
         <div class="nav-item">
             <a href="<?php echo BASEURL; ?>/kas" class="nav-link <?php echo ($current_controller == 'kas') ? 'active' : ''; ?>">
                 <i class="bi bi-bank"></i>
                 <span>Kas</span>
             </a>
         </div>
+        <?php endif; ?>
+        <?php if (Auth::hasPermission('fin_laporan')): ?>
         <div class="nav-item">
             <a href="<?php echo BASEURL; ?>/laporan" class="nav-link <?php echo ($current_controller == 'laporan') ? 'active' : ''; ?>">
                 <i class="bi bi-pie-chart-fill"></i>
                 <span>Laporan</span>
             </a>
         </div>
+        <?php endif; ?>
         <div class="nav-item">
             <a href="#" class="nav-link" id="mobile-menu-toggle">
                 <i class="bi bi-list"></i>
