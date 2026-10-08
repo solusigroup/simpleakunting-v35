@@ -52,7 +52,7 @@
         <div class="card-header bg-white py-3 border-0">
             <div class="input-group bg-light rounded-pill px-3">
                 <span class="input-group-text bg-transparent border-0"><i class="bi bi-search"></i></span>
-                <input type="text" id="userSearch" class="form-control bg-transparent border-0" placeholder="Cari nama, role, atau tenant...">
+                <input type="text" id="userSearch" class="form-control bg-transparent border-0" placeholder="Cari nama, role, tenant, atau kluster...">
             </div>
         </div>
         <div class="card-body p-0">
@@ -63,6 +63,7 @@
                             <th class="ps-4 py-3">Pengguna</th>
                             <th class="py-3">Akses & Jabatan</th>
                             <th class="py-3">Tenant / Entitas Bisnis</th>
+                            <th class="py-3">Kluster Wilayah</th>
                             <th class="text-end pe-4 py-3">Aksi Strategis</th>
                         </tr>
                     </thead>
@@ -71,7 +72,7 @@
                         <tr class="user-row">
                             <td class="ps-4">
                                 <div class="d-flex align-items-center">
-                                    <div class="avatar-circle me-3 <?php echo $user['role'] == 'Superadmin' ? 'bg-danger-subtle text-danger' : 'bg-primary-subtle text-primary'; ?>">
+                                    <div class="avatar-circle me-3 <?php echo ($user['role'] == 'Superadmin' || $user['role'] == 'Penyelia Wilayah') ? 'bg-danger-subtle text-danger' : 'bg-primary-subtle text-primary'; ?>">
                                         <?php echo strtoupper(substr($user['nama_user'], 0, 1)); ?>
                                     </div>
                                     <div>
@@ -84,7 +85,8 @@
                                 <div>
                                     <span class="badge rounded-pill px-3 py-1 user-role <?php 
                                         echo $user['role'] == 'Superadmin' ? 'bg-danger' : 
-                                            ($user['role'] == 'Admin' ? 'bg-primary' : 'bg-info'); 
+                                            ($user['role'] == 'Penyelia Wilayah' ? 'bg-warning text-dark' :
+                                            ($user['role'] == 'Admin' ? 'bg-primary' : 'bg-info')); 
                                     ?>">
                                         <?php echo $user['role']; ?>
                                     </span>
@@ -95,6 +97,8 @@
                                 <?php 
                                     if ($user['role'] == 'Superadmin') {
                                         echo '<span class="badge bg-dark rounded-pill px-3 py-1 user-tenant"><i class="bi bi-globe me-1"></i> Seluruh Sistem</span>';
+                                    } elseif ($user['role'] == 'Penyelia Wilayah') {
+                                        echo '<span class="badge bg-warning text-dark rounded-pill px-3 py-1 user-tenant"><i class="bi bi-geo-alt me-1"></i> Wilayah</span>';
                                     } else {
                                         $found = false;
                                         foreach($data['tenants'] as $tenant) {
@@ -106,6 +110,20 @@
                                             }
                                         }
                                         if (!$found) echo '<span class="text-muted italic user-tenant">Tenant Tidak Ditemukan</span>';
+                                    }
+                                ?>
+                            </td>
+                            <td>
+                                <?php 
+                                    if (!empty($user['kluster_wilayah_id'])) {
+                                        foreach ($data['klusters'] as $kw) {
+                                            if ($kw['id'] == $user['kluster_wilayah_id']) {
+                                                echo '<span class="badge bg-info-subtle text-info border border-info-subtle user-kluster"><i class="bi bi-geo-alt me-1"></i>' . htmlspecialchars($kw['nama_kabupaten']) . '</span>';
+                                                break;
+                                            }
+                                        }
+                                    } else {
+                                        echo '<span class="text-muted user-kluster">-</span>';
                                     }
                                 ?>
                             </td>
@@ -122,9 +140,11 @@
                                         <button class="btn btn-sm btn-light rounded-circle edit-user me-2" 
                                             data-id="<?php echo $user['id_user']; ?>"
                                             data-nama="<?php echo $user['nama_user']; ?>"
+                                            data-nama_lengkap="<?php echo $user['nama_lengkap']; ?>"
                                             data-role="<?php echo $user['role']; ?>"
                                             data-jabatan="<?php echo $user['jabatan']; ?>"
                                             data-tenant="<?php echo $user['tenant_id']; ?>"
+                                            data-kluster="<?php echo $user['kluster_wilayah_id'] ?? ''; ?>"
                                             data-bs-toggle="modal" data-bs-target="#editUserModal">
                                             <i class="bi bi-pencil"></i>
                                         </button>
@@ -165,6 +185,10 @@
                         <input type="text" name="nama_user" class="form-control border-0 bg-light py-2" placeholder="Masukkan username..." required>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">NAMA LENGKAP</label>
+                        <input type="text" name="nama_lengkap" class="form-control border-0 bg-light py-2" placeholder="Masukkan nama lengkap..." required>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label fw-bold small text-muted">PASSWORD</label>
                         <input type="password" name="password" class="form-control border-0 bg-light py-2" placeholder="Masukkan password minimal 6 karakter..." required>
                     </div>
@@ -175,12 +199,27 @@
                                 <option value="Staff">Staff</option>
                                 <option value="Manager">Manager</option>
                                 <option value="Admin">Admin (Tenant)</option>
+                                <option value="Penyelia Wilayah">Penyelia Wilayah</option>
+                                <?php if (Auth::hasRole('Superadmin')): ?>
                                 <option value="Superadmin">Superadmin (Global)</option>
+                                <?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small text-muted">JABATAN</label>
                             <input type="text" name="jabatan" class="form-control border-0 bg-light py-2" placeholder="Contoh: Akuntan">
+                        </div>
+                    </div>
+                    <div class="mb-3" id="kluster_select_container" style="display:none;">
+                        <label class="form-label fw-bold small text-muted">KLUSTER WILAYAH (KABUPATEN)</label>
+                        <select name="kluster_wilayah_id" id="kluster_select" class="form-select border-0 bg-light py-2">
+                            <option value="">-- Pilih Kabupaten --</option>
+                            <?php foreach($data['klusters'] as $kluster): ?>
+                            <option value="<?php echo $kluster['id']; ?>"><?php echo $kluster['nama_kabupaten']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="form-text text-info small mt-2">
+                            <i class="bi bi-info-circle me-1"></i> Penyelia Wilayah hanya bisa mengakses tenant di kabupaten ini.
                         </div>
                     </div>
                     <div class="mb-0" id="tenant_select_container">
@@ -191,7 +230,7 @@
                             <?php endforeach; ?>
                         </select>
                         <div class="form-text text-info small mt-2">
-                            <i class="bi bi-info-circle me-1"></i> Tenant akan diabaikan jika role adalah Superadmin.
+                            <i class="bi bi-info-circle me-1"></i> Tenant akan diabaikan jika role adalah Superadmin atau Penyelia Wilayah.
                         </div>
                     </div>
                 </div>
@@ -220,6 +259,10 @@
                         <input type="text" name="nama_user" id="edit_nama" class="form-control border-0 bg-light py-2" required>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">NAMA LENGKAP</label>
+                        <input type="text" name="nama_lengkap" id="edit_nama_lengkap" class="form-control border-0 bg-light py-2" required>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label fw-bold small text-muted">PASSWORD BARU (OPSIONAL)</label>
                         <input type="password" name="password" class="form-control border-0 bg-light py-2" placeholder="Kosongkan jika tidak ingin mengubah password">
                     </div>
@@ -230,13 +273,25 @@
                                 <option value="Staff">Staff</option>
                                 <option value="Manager">Manager</option>
                                 <option value="Admin">Admin (Tenant)</option>
+                                <option value="Penyelia Wilayah">Penyelia Wilayah</option>
+                                <?php if (Auth::hasRole('Superadmin')): ?>
                                 <option value="Superadmin">Superadmin (Global)</option>
+                                <?php endif; ?>
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold small text-muted">JABATAN</label>
                             <input type="text" name="jabatan" id="edit_jabatan" class="form-control border-0 bg-light py-2">
                         </div>
+                    </div>
+                    <div class="mb-3" id="edit_kluster_container" style="display:none;">
+                        <label class="form-label fw-bold small text-muted">KLUSTER WILAYAH</label>
+                        <select name="kluster_wilayah_id" id="edit_kluster" class="form-select border-0 bg-light py-2">
+                            <option value="">-- Pilih Kabupaten --</option>
+                            <?php foreach($data['klusters'] as $kluster): ?>
+                            <option value="<?php echo $kluster['id']; ?>"><?php echo $kluster['nama_kabupaten']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                     <div class="mb-0" id="edit_tenant_container">
                         <label class="form-label fw-bold small text-muted">TENANT</label>
@@ -269,8 +324,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const role = row.querySelector('.user-role').textContent.toLowerCase();
             const tenant = row.querySelector('.user-tenant').textContent.toLowerCase();
             const jabatan = row.querySelector('.user-jabatan').textContent.toLowerCase();
+            const kluster = row.querySelector('.user-kluster') ? row.querySelector('.user-kluster').textContent.toLowerCase() : '';
             
-            if (name.includes(query) || role.includes(query) || tenant.includes(query) || jabatan.includes(query)) {
+            if (name.includes(query) || role.includes(query) || tenant.includes(query) || jabatan.includes(query) || kluster.includes(query)) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
@@ -278,28 +334,43 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Show/Hide fields based on Role
+    function toggleRoleFields(roleSelectId, tenantContainerId, klusterContainerId) {
+        const role = document.getElementById(roleSelectId).value;
+        const tenantContainer = document.getElementById(tenantContainerId);
+        const klusterContainer = document.getElementById(klusterContainerId);
+        
+        if (role === 'Superadmin') {
+            tenantContainer.style.display = 'none';
+            klusterContainer.style.display = 'none';
+        } else if (role === 'Penyelia Wilayah') {
+            tenantContainer.style.display = 'none';
+            klusterContainer.style.display = 'block';
+        } else {
+            tenantContainer.style.display = 'block';
+            klusterContainer.style.display = 'none';
+        }
+    }
+
+    document.getElementById('role_select').addEventListener('change', () => 
+        toggleRoleFields('role_select', 'tenant_select_container', 'kluster_select_container'));
+    document.getElementById('edit_role').addEventListener('change', () => 
+        toggleRoleFields('edit_role', 'edit_tenant_container', 'edit_kluster_container'));
+
     // Populate Edit Modal
     document.querySelectorAll('.edit-user').forEach(btn => {
         btn.addEventListener('click', function() {
             document.getElementById('edit_id').value = this.dataset.id;
             document.getElementById('edit_nama').value = this.dataset.nama;
+            document.getElementById('edit_nama_lengkap').value = this.dataset.nama_lengkap;
             document.getElementById('edit_role').value = this.dataset.role;
             document.getElementById('edit_jabatan').value = this.dataset.jabatan;
             document.getElementById('edit_tenant').value = this.dataset.tenant;
+            document.getElementById('edit_kluster').value = this.dataset.kluster || '';
             
-            toggleTenantSelect('edit_role', 'edit_tenant_container');
+            toggleRoleFields('edit_role', 'edit_tenant_container', 'edit_kluster_container');
         });
     });
-
-    // Show/Hide Tenant Select based on Role
-    function toggleTenantSelect(roleSelectId, containerId) {
-        const role = document.getElementById(roleSelectId).value;
-        const container = document.getElementById(containerId);
-        container.style.display = (role === 'Superadmin') ? 'none' : 'block';
-    }
-
-    document.getElementById('role_select').addEventListener('change', () => toggleTenantSelect('role_select', 'tenant_select_container'));
-    document.getElementById('edit_role').addEventListener('change', () => toggleTenantSelect('edit_role', 'edit_tenant_container'));
 });
 </script>
 
@@ -316,6 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     .bg-primary-subtle { background-color: #e0e7ff; }
     .bg-danger-subtle { background-color: #fee2e2; }
+    .bg-info-subtle { background-color: #e0f2fe; }
     .table-hover tbody tr:hover { background-color: #f9fafb; cursor: default; }
     .form-control:focus, .form-select:focus {
         box-shadow: none;

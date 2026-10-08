@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panduan Pengguna - SIMPLE AKUNTING v3.5</title>
+    <title>Panduan Pengguna - SIMPLE AKUNTING v3.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -82,10 +82,10 @@
         </div>
         <div class="container mx-auto relative z-10 text-center">
             <div class="inline-block bg-teal-800 rounded-full px-4 py-1.5 text-sm font-semibold tracking-wider mb-6 text-teal-200 uppercase shadow-inner border border-teal-600">
-                Edisi Dinas Koperasi Kab. Pasuruan
+                Edisi DPMD Jatim
             </div>
             <h1 class="text-4xl md:text-5xl font-black mb-4 tracking-tight">Pusat Bantuan SimpleAkunting</h1>
-            <p class="text-xl text-teal-100 max-w-2xl mx-auto">Dokumentasi interaktif untuk memaksimalkan penggunaan sistem akuntansi *multi-tenant* bagi UMKM binaan.</p>
+            <p class="text-xl text-teal-100 max-w-2xl mx-auto">Dokumentasi interaktif untuk memaksimalkan penggunaan sistem akuntansi *multi-tenant* bagi BUMDesa binaan.</p>
         </div>
     </div>
 
@@ -97,9 +97,10 @@
                 <nav class="sticky top-8 space-y-1 sticky-nav bg-white rounded-xl shadow-sm p-4 border border-slate-200">
                     <h4 class="px-4 text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Daftar Isi</h4>
                     <a href="#pendahuluan" class="block p-3 rounded-r-lg text-sm">Pendahuluan</a>
-                    <a href="#central-admin" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-shield-lock me-2"></i>Dinas Koperasi (Pusat)</a>
-                    <a href="#master-data" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-stack me-2"></i>Master Data UMKM</a>
+                    <a href="#central-admin" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-shield-lock me-2"></i>DPMD Jatim (Pusat)</a>
+                    <a href="#master-data" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-stack me-2"></i>Master Data BUMDesa</a>
                     <a href="#transaksi" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-arrow-down-up me-2"></i>Alur Dagang & Jasa</a>
+                    <a href="#flowchart-transaksi" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-diagram-3-fill text-emerald-600 me-2"></i>Flowchart Transaksi</a>
                     <a href="#manufaktur" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-gear-wide-connected me-2"></i>Alur Manufaktur</a>
                     <a href="#laporan" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-file-bar-graph me-2"></i>Laporan Keuangan</a>
                     <a href="#proses-akhir" class="block p-3 rounded-r-lg text-sm"><i class="bi bi-archive me-2"></i>Tutup Buku</a>
@@ -111,7 +112,7 @@
                 
                 <section id="pendahuluan" class="content-card border-t-4 border-teal-500">
                     <h2 class="text-3xl font-black text-slate-800 mb-6">Selamat Datang di Program Digitalisasi! 🎉</h2>
-                    <p class="text-lg text-slate-600 mb-6">Sistem <strong class="text-teal-700">SimpleAkunting v3.5</strong> ini difasilitasi langsung oleh <strong>Dinas Koperasi Kabupaten Pasuruan</strong> untuk memberdayakan UMKM binaan agar memiliki pembukuan yang modern, tertata, dan <i>Bankable</i>.</p>
+                    <p class="text-lg text-slate-600 mb-6">Sistem <strong class="text-teal-700">SimpleAkunting v3.6</strong> ini difasilitasi langsung oleh <strong>DPMD Jatim</strong> untuk memberdayakan BUMDesa binaan agar memiliki pembukuan yang modern, tertata, dan <i>Bankable</i>.</p>
                     
                     <div class="bg-teal-50 border border-teal-100 rounded-lg p-5 flex gap-4 items-start">
                         <i class="bi bi-lightbulb-fill text-2xl text-teal-500"></i>
@@ -233,6 +234,56 @@
                     </div>
                     <div class="mt-8 bg-slate-50 rounded-lg p-4 text-sm text-slate-600 border border-slate-200">
                         <strong>Catatan Bebas:</strong> Untuk transaksi operasional seperti bayar gaji, biaya listrik, atau setoran modal awal, gunakan modul <strong>Kas & Bank</strong> atau langsung via <strong>Jurnal Umum</strong>.
+                    </div>
+                </section>
+
+                <!-- Section Flowchart Interaktif -->
+                <section id="flowchart-transaksi" class="content-card border-t-4 border-emerald-500 bg-gradient-to-br from-white to-emerald-50/40">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-emerald-100 pb-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-emerald-100 text-emerald-700 p-2.5 rounded-xl shadow-sm">
+                                <i class="bi bi-diagram-3-fill text-2xl"></i>
+                            </div>
+                            <div>
+                                <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Dokumentasi Visual Lengkap</span>
+                                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Flowchart Siklus Entry Transaksi</h2>
+                            </div>
+                        </div>
+                        <a href="flowchart_entry_transaksi.html" target="_blank" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-5 py-3 rounded-xl shadow-md shadow-emerald-200 transition-all hover:scale-105 w-fit">
+                            <span>Buka Flowchart Interaktif</span>
+                            <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    </div>
+                    
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        Untuk mempermudah pemahaman tim operator dan akuntan, seluruh alur transaksi di SimpleAkunting v3.6 telah dipetakan dalam diagram alir berbasis <strong class="text-emerald-700">Mermaid.js</strong> interaktif dengan detail simulasi akuntansi (Debit & Kredit) per modul:
+                    </p>
+
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6 text-xs">
+                        <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-sm">
+                            <span class="font-bold text-slate-800 flex items-center gap-1.5"><i class="bi bi-check-circle-fill text-emerald-500"></i> Siklus Global & Tutup Buku</span>
+                            <p class="text-slate-500 mt-1">Proteksi PeriodLock dan transaksi ACID database.</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-sm">
+                            <span class="font-bold text-slate-800 flex items-center gap-1.5"><i class="bi bi-check-circle-fill text-emerald-500"></i> Jurnal Umum Manual</span>
+                            <p class="text-slate-500 mt-1">Entri bebas multi-debit/kredit dengan validasi balance.</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-sm">
+                            <span class="font-bold text-slate-800 flex items-center gap-1.5"><i class="bi bi-check-circle-fill text-emerald-500"></i> Kas Masuk & Kas Keluar</span>
+                            <p class="text-slate-500 mt-1">Pengecekan saldo minimum dan penguncian jurnal.</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-sm">
+                            <span class="font-bold text-slate-800 flex items-center gap-1.5"><i class="bi bi-check-circle-fill text-emerald-500"></i> Penjualan & Piutang</span>
+                            <p class="text-slate-500 mt-1">Potong stok, kalkulasi HPP, PPN, dan saldo piutang.</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-sm">
+                            <span class="font-bold text-slate-800 flex items-center gap-1.5"><i class="bi bi-check-circle-fill text-emerald-500"></i> Pembelian & Kartu Stok</span>
+                            <p class="text-slate-500 mt-1">Penambahan stok, kartu stok IN, dan utang usaha.</p>
+                        </div>
+                        <div class="p-3 bg-white rounded-lg border border-slate-200 shadow-sm">
+                            <span class="font-bold text-slate-800 flex items-center gap-1.5"><i class="bi bi-check-circle-fill text-emerald-500"></i> Produksi & Penyesuaian</span>
+                            <p class="text-slate-500 mt-1">Work order BOM dan depresiasi aset bulanan.</p>
+                        </div>
                     </div>
                 </section>
 

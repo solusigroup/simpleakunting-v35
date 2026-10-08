@@ -44,3 +44,6 @@ app/config.php
 
 # Error logs
 public/error_log
+
+# Scratch
+scratch/

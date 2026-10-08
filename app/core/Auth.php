@@ -31,6 +31,9 @@ class Auth {
         $_SESSION['database_type'] = $user['database_type'] ?? 'dagang';
         $_SESSION['user_name'] = $user['nama_user'];
         $_SESSION['user_role'] = $user['role'];
+        $_SESSION['user_role_id'] = $user['role_id'] ?? null;
+        $_SESSION['kluster_wilayah_id'] = $user['kluster_wilayah_id'] ?? null;
+        $_SESSION['kluster_wilayah_nama'] = $user['kluster_wilayah_nama'] ?? null;
         $_SESSION['user_permissions'] = $permissions;
     }
 
@@ -44,7 +47,9 @@ class Auth {
             $_SESSION['original_user'] = [
                 'id' => $_SESSION['user_id'],
                 'name' => $_SESSION['user_name'],
-                'role' => $_SESSION['user_role']
+                'role' => $_SESSION['user_role'],
+                'kluster_wilayah_id' => $_SESSION['kluster_wilayah_id'] ?? null,
+                'kluster_wilayah_nama' => $_SESSION['kluster_wilayah_nama'] ?? null
             ];
         }
         
@@ -54,6 +59,9 @@ class Auth {
         $_SESSION['database_type'] = $user['database_type'] ?? 'dagang';
         $_SESSION['user_name'] = $user['nama_user'];
         $_SESSION['user_role'] = $user['role'];
+        $_SESSION['user_role_id'] = $user['role_id'] ?? null;
+        $_SESSION['kluster_wilayah_id'] = $user['kluster_wilayah_id'] ?? null;
+        $_SESSION['kluster_wilayah_nama'] = $user['kluster_wilayah_nama'] ?? null;
         $_SESSION['user_permissions'] = $permissions;
         $_SESSION['impersonating'] = true;
     }
@@ -65,11 +73,14 @@ class Auth {
             $_SESSION['user_id'] = $orig['id'];
             $_SESSION['user_name'] = $orig['name'];
             $_SESSION['user_role'] = $orig['role'];
+            $_SESSION['kluster_wilayah_id'] = $orig['kluster_wilayah_id'] ?? null;
+            $_SESSION['kluster_wilayah_nama'] = $orig['kluster_wilayah_nama'] ?? null;
             $_SESSION['tenant_id'] = null; // Superadmin doesn't belong to a tenant
             $_SESSION['database_type'] = 'dagang';
             unset($_SESSION['original_user']);
             unset($_SESSION['impersonating']);
             unset($_SESSION['user_permissions']);
+            unset($_SESSION['user_role_id']);
             return true;
         }
         return false;
@@ -107,7 +118,9 @@ class Auth {
                 'database_type' => $_SESSION['database_type'] ?? 'dagang',
                 'name' => $_SESSION['user_name'], // Kunci 'user_name' dibaca di sini
                 'role' => $_SESSION['user_role'],
-                'impersonating' => $_SESSION['impersonating'] ?? false
+                'impersonating' => $_SESSION['impersonating'] ?? false,
+                'kluster_wilayah_id' => $_SESSION['kluster_wilayah_id'] ?? null,
+                'kluster_wilayah_nama' => $_SESSION['kluster_wilayah_nama'] ?? null
             ];
         }
         return null;
@@ -128,7 +141,8 @@ class Auth {
     public static function isActuallySuperadmin() {
         self::startSession();
         if (self::hasRole('Superadmin')) return true;
-        if (isset($_SESSION['original_user']) && $_SESSION['original_user']['role'] === 'Superadmin') return true;
+        if (self::hasRole('Penyelia Wilayah')) return true;
+        if (isset($_SESSION['original_user']) && ($_SESSION['original_user']['role'] === 'Superadmin' || $_SESSION['original_user']['role'] === 'Penyelia Wilayah')) return true;
         return false;
     }
 
@@ -143,8 +157,25 @@ class Auth {
         // Hanya Superadmin yang membypass semua check (RBAC Global)
         if (self::hasRole('Superadmin')) return true;
 
+        // Admin Tenant tanpa Custom Role (RBAC) mendapatkan akses penuh secara default (Legacy Compatibility)
+        if (self::hasRole('Admin') && empty($_SESSION['user_role_id'])) return true;
+
         $permissions = $_SESSION['user_permissions'] ?? [];
         return in_array($permission_key, $permissions);
+    }
+
+    public static function isPenyeliaWilayah() {
+        return self::hasRole('Penyelia Wilayah');
+    }
+
+    public static function getKlusterWilayahId() {
+        self::startSession();
+        return $_SESSION['kluster_wilayah_id'] ?? null;
+    }
+
+    public static function getKlusterWilayahNama() {
+        self::startSession();
+        return $_SESSION['kluster_wilayah_nama'] ?? null;
     }
 }
 

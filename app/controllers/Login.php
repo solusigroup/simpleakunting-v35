@@ -28,9 +28,20 @@ class Login extends Controller {
      * Memproses data yang dikirim dari form login.
      */
     public function process() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASEURL . '/login');
+            exit;
+        }
+
         $login_type = $_POST['login_type'] ?? 'tenant';
-        $nama_user = $_POST['nama_user'];
-        $password = $_POST['password'];
+        $nama_user = trim($_POST['nama_user'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        if (empty($nama_user) || empty($password)) {
+            Flash::setFlash('Nama pengguna dan kata sandi wajib diisi.', 'warning');
+            header('Location: ' . BASEURL . '/login');
+            exit;
+        }
 
         // 1. Ambil data user
         $user = $this->model('User')->getUserByUsername($nama_user);
@@ -44,8 +55,8 @@ class Login extends Controller {
 
         // 3. Verifikasi berdasarkan jenis login
         if ($login_type === 'central') {
-            // Login Central harus role Superadmin
-            if ($user['role'] !== 'Superadmin') {
+            // Login Central harus role Superadmin atau Penyelia Wilayah
+            if ($user['role'] !== 'Superadmin' && $user['role'] !== 'Penyelia Wilayah') {
                 Flash::setFlash('Akses Ditolak! Akun Anda tidak memiliki otoritas Central.', 'danger');
                 header('Location: ' . BASEURL . '/login');
                 exit;
@@ -83,6 +94,12 @@ class Login extends Controller {
             $permissions = $roleModel->getRolePermissions($user['role_id']);
         }
 
+        // Ambil info nama kluster wilayah jika Penyelia Wilayah
+        if ($user['role'] === 'Penyelia Wilayah' && !empty($user['kluster_wilayah_id'])) {
+            $kw = $this->model('KlusterWilayah')->getKlusterById($user['kluster_wilayah_id']);
+            $user['kluster_wilayah_nama'] = $kw['nama_kabupaten'] ?? null;
+        }
+
         // Jika semua lolos, atur sesi
         Auth::setUser($user, $permissions);
         Logger::log('LOGIN', 'Authentication', 'User successfully logged in.');
@@ -95,7 +112,7 @@ class Login extends Controller {
      */
     public function logout() {
         Auth::logout();
-        header('Location: ' . BASEURL . '/login');
+        header('Location: ' . BASEURL);
         exit;
     }
 }

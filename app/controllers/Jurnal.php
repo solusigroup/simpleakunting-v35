@@ -4,18 +4,53 @@ class Jurnal extends Controller {
 
     public function index()
     {
-        $data['judul'] = 'Jurnal Umum';
-        $data['jurnal'] = $this->model('Jurnal')->getAllJurnal($this->tenantId());
+        $data['judul'] = 'Riwayat Jurnal';
+        $id_unit = $_GET['id_unit'] ?? null;
+        $data['jurnal'] = $this->model('Jurnal')->getAllJurnal($this->tenantId(), $id_unit);
+        $data['units'] = $this->model('Unit')->getAllUnits($this->tenantId());
+        $data['selected_unit'] = $id_unit;
         
         $this->view('templates/header', $data);
         $this->view('jurnal/index', $data);
         $this->view('templates/footer');
     }
 
+    public function detail($id)
+    {
+        $data['judul'] = 'Detail Entri Jurnal';
+        $data['jurnal'] = $this->model('Jurnal')->getJurnalWithDetailsById($id, $this->tenantId());
+        
+        if ($data['jurnal'] === null) {
+            Flash::setFlash('Gagal! Entri jurnal tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/jurnal');
+            exit;
+        }
+
+        $this->view('templates/header', $data);
+        $this->view('jurnal/detail', $data);
+        $this->view('templates/footer');
+    }
+
+    public function cetak($id)
+    {
+        $data['jurnal'] = $this->model('Jurnal')->getJurnalWithDetailsById($id, $this->tenantId());
+        if ($data['jurnal'] === null) {
+            Flash::setFlash('Gagal! Entri jurnal tidak ditemukan.', 'danger');
+            header('Location: ' . BASEURL . '/jurnal');
+            exit;
+        }
+        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($this->tenantId());
+        $this->view('jurnal/cetak', $data);
+    }
+
+
+
     public function tambah()
     {
         $data['judul'] = 'Tambah Entri Jurnal';
         $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
+        $data['programs'] = $this->model('Program')->getAllPrograms($this->tenantId());
+        $data['units'] = $this->model('Unit')->getAllUnits($this->tenantId());
         $data['no_transaksi'] = $this->model('Jurnal')->generateNoTransaksi($this->tenantId());
 
         $this->view('templates/header', $data);
@@ -38,6 +73,8 @@ class Jurnal extends Controller {
             'no_transaksi' => $_POST['no_transaksi'],
             'tanggal' => $_POST['tanggal'],
             'deskripsi' => $_POST['deskripsi'],
+            'id_program' => !empty($_POST['id_program']) ? $_POST['id_program'] : null,
+            'id_unit' => !empty($_POST['id_unit']) ? $_POST['id_unit'] : null,
             'details' => []
         ];
 
@@ -71,6 +108,8 @@ class Jurnal extends Controller {
         $jurnal_model = $this->model('Jurnal');
         $data['jurnal'] = $jurnal_model->getJurnalWithDetailsById($id, $this->tenantId());
         $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
+        $data['programs'] = $this->model('Program')->getAllPrograms($this->tenantId());
+        $data['units'] = $this->model('Unit')->getAllUnits($this->tenantId());
 
         // PERBAIKAN: Cek apakah jurnal ditemukan SEBELUM melanjutkan
         if ($data['jurnal'] === null) {
@@ -107,6 +146,8 @@ class Jurnal extends Controller {
             'no_transaksi' => $_POST['no_transaksi'],
             'tanggal' => $_POST['tanggal'],
             'deskripsi' => $_POST['deskripsi'],
+            'id_program' => !empty($_POST['id_program']) ? $_POST['id_program'] : null,
+            'id_unit' => !empty($_POST['id_unit']) ? $_POST['id_unit'] : null,
             'details' => []
         ];
         

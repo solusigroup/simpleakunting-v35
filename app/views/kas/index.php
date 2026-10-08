@@ -41,12 +41,10 @@
     </div>
 </div>
 
-<style>
-    .hover-scale { transition: transform 0.2s; }
-    .hover-scale:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
-    .bg-success-soft { background-color: rgba(16, 185, 129, 0.1); }
+</style>
 
 <div class="card border-0 shadow-sm overflow-hidden">
+
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">

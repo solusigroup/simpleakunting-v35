@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentasi Flowchart Entry Transaksi - SimpleAkunting v3.6</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        jakarta: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Mermaid.js (Latest stable v10) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'neutral',
+            securityLevel: 'loose',
+            fontFamily: 'Inter, sans-serif',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        code, pre, .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .mermaid svg {
+            max-width: 100% !important;
+            height: auto;
+            border-radius: 0.75rem;
+            margin: 0 auto;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .tab-pane { display: block !important; margin-bottom: 2rem; page-break-after: always; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/90">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-tr from-emerald-600 to-teal-500 text-white p-2.5 rounded-xl shadow-md shadow-emerald-200">
+                        <i data-lucide="git-branch" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-heading font-extrabold text-lg text-slate-900 tracking-tight">SimpleAkunting</span>
+                            <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded-full">v3.6 Multi-Tenant</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 font-medium">Dokumentasi Arsitektur & Flowchart Entry Transaksi</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 no-print">
+                    <a href="panduan_pengguna.html" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5 border border-slate-200">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        <span>Buku Panduan v3.6</span>
+                    </a>
+                    <button onclick="window.print()" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5 border border-slate-200">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Cetak / PDF</span>
+                    </button>
+                    <a href="#quick-matrix" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition flex items-center gap-1.5 shadow-sm shadow-emerald-200">
+                        <i data-lucide="table" class="w-4 h-4"></i>
+                        <span>Matriks Transaksi</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="bg-gradient-to-b from-slate-900 via-slate-850 to-slate-900 text-white py-10 px-4 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-4">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Single Source of Truth & Real-time Perpetual Journal
+                </div>
+                <h1 class="font-heading text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                    Flowchart & Logika Bisnis Entry Transaksi
+                </h1>
+                <p class="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
+                    Setiap modul operasional (Penjualan, Pembelian, Kas & Bank, Produksi, dan Penyesuaian) terintegrasi langsung dengan mesin akuntansi otomatis yang membentuk jurnal berimbang (<span class="text-emerald-400 font-mono">Debit = Kredit</span>) serta divalidasi dengan <span class="text-emerald-400 font-mono">PeriodLockTrait</span> dan transaksi database <span class="text-emerald-400 font-mono">ACID</span>.
+                </p>
+            </div>
+
+            <!-- Quick stats bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 pt-6 border-t border-slate-800/80">
+                <div class="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/50">
+                    <p class="text-[11px] font-medium text-slate-400">Arsitektur Jurnal</p>
+                    <p class="font-heading font-bold text-base text-white mt-0.5">Real-time Perpetual</p>
+                </div>
+                <div class="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/50">
+                    <p class="text-[11px] font-medium text-slate-400">Proteksi Periode</p>
+                    <p class="font-heading font-bold text-base text-emerald-400 mt-0.5">PeriodLock Guard</p>
+                </div>
+                <div class="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/50">
+                    <p class="text-[11px] font-medium text-slate-400">Integritas Data</p>
+                    <p class="font-heading font-bold text-base text-teal-400 mt-0.5">PDO Atomic Rollback</p>
+                </div>
+                <div class="bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/50">
+                    <p class="text-[11px] font-medium text-slate-400">Isolasi Organisasi</p>
+                    <p class="font-heading font-bold text-base text-cyan-400 mt-0.5">Tenant & Unit Scoped</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Container with Tabs -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Tab Navigation (Pills) -->
+        <div class="no-print mb-8 overflow-x-auto pb-2">
+            <div class="flex items-center gap-2 p-1.5 bg-slate-200/80 rounded-2xl w-max max-w-full">
+                <button onclick="switchTab('global')" id="tab-btn-global" class="tab-btn active px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 bg-white text-emerald-700 shadow-sm">
+                    <i data-lucide="network" class="w-4 h-4"></i>
+                    <span>1. Siklus Global</span>
+                </button>
+                <button onclick="switchTab('jurnal')" id="tab-btn-jurnal" class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    <span>2. Jurnal Umum Manual</span>
+                </button>
+                <button onclick="switchTab('kas')" id="tab-btn-kas" class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                    <i data-lucide="banknote" class="w-4 h-4"></i>
+                    <span>3. Kas & Bank</span>
+                </button>
+                <button onclick="switchTab('penjualan')" id="tab-btn-penjualan" class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                    <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                    <span>4. Penjualan & Piutang</span>
+                </button>
+                <button onclick="switchTab('pembelian')" id="tab-btn-pembelian" class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                    <i data-lucide="truck" class="w-4 h-4"></i>
+                    <span>5. Pembelian & Stok</span>
+                </button>
+                <button onclick="switchTab('pelunasan')" id="tab-btn-pelunasan" class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                    <i data-lucide="receipt" class="w-4 h-4"></i>
+                    <span>6. Pelunasan Piutang/Utang</span>
+                </button>
+                <button onclick="switchTab('produksi')" id="tab-btn-produksi" class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                    <i data-lucide="factory" class="w-4 h-4"></i>
+                    <span>7. Produksi & Penyesuaian</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= TAB 1: SIKLUS GLOBAL ================= -->
+        <div id="tab-content-global" class="tab-pane space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-lg">Arsitektur Terpadu</span>
+                            <h2 class="font-heading text-xl sm:text-2xl font-bold text-slate-900">Flowchart Siklus Entry Transaksi Global</h2>
+                        </div>
+                        <p class="text-slate-500 text-xs sm:text-sm mt-1">Diagram alir holistik mulai dari validasi form, pemeriksaan periode tutup buku, pembentukan jurnal otomatis, hingga pembaruan laporan keuangan.</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg font-mono">
+                        app/core/PeriodLockTrait.php
+                    </span>
+                </div>
+
+                <!-- Mermaid Container -->
+                <div class="mt-6 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 overflow-x-auto flex justify-center">
+                    <div class="mermaid w-full text-center">
+flowchart TD
+    Start["Mulai Entry Transaksi"] --> AuthCheck{"Otorisasi User dan Tenant?"}
+    AuthCheck -- "Tidak Valid" --> Denied["Tolak Akses / Flash Error"]
+    AuthCheck -- "Valid" --> FormInput["User Input Form Transaksi"]
+    
+    FormInput --> PeriodCheck{"Apakah Periode Terbuka?<br/>PeriodLockTrait"}
+    PeriodCheck -- "Periode Ditutup - Closed" --> ErrPeriod["Flash Error: Periode Akuntansi Sudah Ditutup"]
+    ErrPeriod --> FormInput
+    
+    PeriodCheck -- "Periode Aktif - Open" --> SelectType{"Pilih Jenis Transaksi"}
+    
+    SelectType --> FlowJU["Entry Jurnal Umum Manual"]
+    SelectType --> FlowKas["Entry Kas dan Bank"]
+    SelectType --> FlowPJ["Entry Faktur Penjualan"]
+    SelectType --> FlowPB["Entry Faktur Pembelian"]
+    SelectType --> FlowPay["Entry Pembayaran / Penerimaan"]
+    SelectType --> FlowAdj["Entry Produksi dan Penyesuaian"]
+
+    FlowJU --> Validation["Validasi Data dan Keseimbangan Debit = Kredit"]
+    FlowKas --> Validation
+    FlowPJ --> Validation
+    FlowPB --> Validation
+    FlowPay --> Validation
+    FlowAdj --> Validation
+
+    Validation -- "Gagal / Tidak Seimbang" --> Rollback["Batalkan dan Tampilkan Flash Message"]
+    Rollback --> FormInput
+    
+    Validation -- "Lolos Validasi" --> DBTransaction["Begin DB Transaction - PDO"]
+    DBTransaction --> InsertHeaderDetail["Simpan Header dan Detail Dokumen Transaksi"]
+    DBTransaction --> AutoJournal["Otomatis Posting ke jurnal_umum dan jurnal_detail"]
+    DBTransaction --> AuxUpdate["Update Stok / Saldo Kontak / Kartu Stok"]
+    AuxUpdate --> Commit["Commit Transaction"]
+    Commit --> Finish["Laporan Keuangan dan Buku Besar Terupdate Otomatis"]
+                    </div>
+                </div>
+
+                <!-- Step Explanations Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="flex items-center gap-2 text-emerald-700 font-bold text-sm mb-2">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                            1. Gatekeeper: Tutup Buku
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Setiap request dicek oleh <code>PeriodLockTrait::checkPeriodLock()</code>. Jika tanggal transaksi masuk dalam bulan yang sudah ditutup di tabel <code>periode_akuntansi</code>, transaksi diblokir seketika.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="flex items-center gap-2 text-teal-700 font-bold text-sm mb-2">
+                            <i data-lucide="database" class="w-4 h-4"></i>
+                            2. Atomic DB Transactions
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Menggunakan <code>beginTransaction()</code> dan <code>commit()</code>. Jika gagal saat menyimpan detail atau mutasi stok, otomatis <code>rollBack()</code> sehingga database selalu bersih tanpa data parsial.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="flex items-center gap-2 text-indigo-700 font-bold text-sm mb-2">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            3. Real-Time Reporting
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Semua transaksi langsung mengalir ke <code>jurnal_umum</code> & <code>jurnal_detail</code>. Neraca Lajur, Laba Rugi, Posisi Keuangan, dan Arus Kas langsung mencerminkan data terbaru tanpa proses batch.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 2: JURNAL UMUM MANUAL ================= -->
+        <div id="tab-content-jurnal" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded-lg">Entri Bebas</span>
+                            <h2 class="font-heading text-xl sm:text-2xl font-bold text-slate-900">Flowchart Entri Jurnal Umum Manual</h2>
+                        </div>
+                        <p class="text-slate-500 text-xs sm:text-sm mt-1">Mencatat transaksi akuntansi multi-debit dan multi-kredit non-operasional langsung ke bagan akun (COA).</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg font-mono">
+                        app/controllers/Jurnal.php & Jurnal_model.php
+                    </span>
+                </div>
+
+                <div class="mt-6 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 overflow-x-auto flex justify-center">
+                    <div class="mermaid w-full text-center">
+flowchart TD
+    A["Buka Form Tambah Jurnal - /jurnal/tambah"] --> B["Generate Nomor Transaksi - JU-yymm-xxx"]
+    B --> C["Input Header: Tanggal, Unit Bisnis, Program, Deskripsi"]
+    C --> D["Input Baris: Kode Akun, Nilai Debit, Nilai Kredit"]
+    D --> E{"Validasi Server: Total Debit = Total Kredit dan Total > 0?"}
+    E -- "Tidak Seimbang - Debit != Kredit" --> F["Flash Danger: Total Debit dan Kredit harus sama"]
+    F --> D
+    E -- "Seimbang - Debit = Kredit" --> G["Begin DB Transaction"]
+    G --> H["INSERT INTO jurnal_umum - Header"]
+    H --> I["Ambil id_jurnal via lastInsertId"]
+    I --> J["Loop INSERT INTO jurnal_detail - Baris Akun"]
+    J --> K["Commit DB Transaction"]
+    K --> L["Flash Success: Entri jurnal berhasil disimpan"]
+    L --> M["Redirect ke /jurnal - Riwayat Jurnal"]
+                    </div>
+                </div>
+
+                <!-- Simulation & Accounting Concept -->
+                <div class="mt-6 bg-slate-900 text-slate-100 p-5 rounded-xl">
+                    <h4 class="font-heading text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i data-lucide="code" class="w-4 h-4"></i> Struktur Data Database
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+                        <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700">
+                            <span class="text-amber-400 font-bold block mb-1">Tabel: jurnal_umum (Header)</span>
+                            • id_jurnal (PK)<br>
+                            • tenant_id, id_unit, id_program<br>
+                            • no_transaksi (JU-2608-001)<br>
+                            • tanggal, deskripsi, sumber_jurnal<br>
+                            • is_locked (0 = Bebas Edit, 1 = Terkunci Modul)
+                        </div>
+                        <div class="bg-slate-800/80 p-3 rounded-lg border border-slate-700">
+                            <span class="text-cyan-400 font-bold block mb-1">Tabel: jurnal_detail (Line Items)</span>
+                            • id_detail (PK), id_jurnal (FK)<br>
+                            • kode_akun (FK -> akun.kode_akun)<br>
+                            • debit (DECIMAL 15,2)<br>
+                            • kredit (DECIMAL 15,2)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 3: KAS & BANK ================= -->
+        <div id="tab-content-kas" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-lg">Kas Masuk & Keluar</span>
+                            <h2 class="font-heading text-xl sm:text-2xl font-bold text-slate-900">Flowchart Entry Transaksi Kas & Bank</h2>
+                        </div>
+                        <p class="text-slate-500 text-xs sm:text-sm mt-1">Mencatat penerimaan dan pengeluaran kas dengan validasi saldo real-time dan penguncian jurnal otomatis.</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg font-mono">
+                        app/controllers/Kas.php & Kas_model.php
+                    </span>
+                </div>
+
+                <div class="mt-6 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 overflow-x-auto flex justify-center">
+                    <div class="mermaid w-full text-center">
+flowchart TD
+    A["Pilih Kas Masuk / Kas Keluar"] --> B["Generate No Bukti - KM/KK-yymm-xxx"]
+    B --> C["Input: Tanggal, Akun Kas/Bank, Akun Lawan, Nominal, Unit, Program"]
+    C --> D["PeriodLockTrait: Validasi Periode Transaksi"]
+    D --> E{"Tipe Transaksi?"}
+    
+    E -- "Kas Keluar" --> F{"Cek Saldo Kas:<br/>Saldo Tersedia >= Nominal?"}
+    F -- "Saldo Kurang" --> G["Throw Exception: Saldo tidak mencukupi"]
+    G --> C
+    F -- "Saldo Cukup" --> H["Begin DB Transaction"]
+    
+    E -- "Kas Masuk" --> H
+
+    H --> I["Susun Jurnal Otomatis"]
+    I --> J1["Kas Masuk: Debit Kas, Kredit Akun Lawan"]
+    I --> J2["Kas Keluar: Debit Akun Lawan, Kredit Kas"]
+
+    J1 --> K["Simpan ke jurnal_umum dan jurnal_detail"]
+    J2 --> K
+    K --> L["Set is_locked = 1 pada jurnal_umum"]
+    L --> M["INSERT INTO kas_transaksi - Hubungkan id_jurnal"]
+    M --> N["Commit DB Transaction"]
+    N --> O["Flash Success dan Redirect ke /kas"]
+                    </div>
+                </div>
+
+                <!-- Simulation Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                    <div class="p-4 rounded-xl bg-emerald-50/50 border border-emerald-200">
+                        <div class="flex items-center justify-between font-bold text-emerald-800 text-xs mb-2">
+                            <span>SIMULASI KAS MASUK (KM)</span>
+                            <span class="bg-emerald-200 px-2 py-0.5 rounded text-[10px]">Contoh: Pendapatan Bunga</span>
+                        </div>
+                        <table class="w-full text-xs font-mono text-slate-700 bg-white rounded-lg overflow-hidden border border-emerald-100">
+                            <tr class="bg-emerald-100/70 font-semibold">
+                                <th class="p-1.5 text-left">Akun</th>
+                                <th class="p-1.5 text-right">Debit</th>
+                                <th class="p-1.5 text-right">Kredit</th>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="p-1.5 font-bold text-emerald-700">1-10001 (Kas Utama)</td>
+                                <td class="p-1.5 text-right font-bold text-emerald-700">Rp 500.000</td>
+                                <td class="p-1.5 text-right">Rp 0</td>
+                            </tr>
+                            <tr>
+                                <td class="p-1.5 text-slate-600">8-10001 (Pendapatan Bunga)</td>
+                                <td class="p-1.5 text-right">Rp 0</td>
+                                <td class="p-1.5 text-right font-bold text-emerald-700">Rp 500.000</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-rose-50/50 border border-rose-200">
+                        <div class="flex items-center justify-between font-bold text-rose-800 text-xs mb-2">
+                            <span>SIMULASI KAS KELUAR (KK)</span>
+                            <span class="bg-rose-200 px-2 py-0.5 rounded text-[10px]">Contoh: Beban Listrik</span>
+                        </div>
+                        <table class="w-full text-xs font-mono text-slate-700 bg-white rounded-lg overflow-hidden border border-rose-100">
+                            <tr class="bg-rose-100/70 font-semibold">
+                                <th class="p-1.5 text-left">Akun</th>
+                                <th class="p-1.5 text-right">Debit</th>
+                                <th class="p-1.5 text-right">Kredit</th>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="p-1.5 text-slate-600">6-10002 (Beban Listrik & Air)</td>
+                                <td class="p-1.5 text-right font-bold text-rose-700">Rp 750.000</td>
+                                <td class="p-1.5 text-right">Rp 0</td>
+                            </tr>
+                            <tr>
+                                <td class="p-1.5 font-bold text-rose-700">1-10001 (Kas Utama)</td>
+                                <td class="p-1.5 text-right">Rp 0</td>
+                                <td class="p-1.5 text-right font-bold text-rose-700">Rp 750.000</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: PENJUALAN ================= -->
+        <div id="tab-content-penjualan" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2.5 py-1 rounded-lg">Penjualan & Piutang</span>
+                            <h2 class="font-heading text-xl sm:text-2xl font-bold text-slate-900">Flowchart Entry Faktur Penjualan</h2>
+                        </div>
+                        <p class="text-slate-500 text-xs sm:text-sm mt-1">Otomatisasi pemotongan stok persediaan, pencatatan HPP, kalkulasi PPN/Diskon, dan penambahan saldo piutang pelanggan.</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg font-mono">
+                        app/controllers/Penjualan.php & Penjualan_model.php
+                    </span>
+                </div>
+
+                <div class="mt-6 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 overflow-x-auto flex justify-center">
+                    <div class="mermaid w-full text-center">
+flowchart TD
+    A["Form Tambah Penjualan - /penjualan/tambah"] --> B["Generate No Faktur - PJ-yymm-xxx"]
+    B --> C["Input: Pelanggan, Barang/Jasa, Qty, Harga, Diskon, Pajak"]
+    C --> D["PeriodLockTrait: Validasi Periode Transaksi"]
+    D --> E{"Jenis Usaha Perusahaan?"}
+    
+    E -- "Dagang / Manufaktur" --> F{"Cek Stok Persediaan:<br/>Stok Saat Ini >= Qty Dijual?"}
+    F -- "Stok Tidak Cukup" --> G["Flash Danger: Stok Tidak Cukup"]
+    G --> C
+    F -- "Stok Cukup" --> H["Pilih Metode Pembayaran: Tunai / Kredit"]
+    
+    E -- "Jasa" --> H
+
+    H --> I["Begin DB Transaction"]
+    I --> J["Kalkulasi Total = Subtotal - Diskon + Pajak"]
+    J --> K["Otomatis Posting Jurnal Penjualan"]
+
+    K --> K1["Debit: Kas/Bank - Tunai ATAU Piutang - Kredit"]
+    K --> K2["Debit: Potongan Penjualan - Jika Ada Diskon"]
+    K --> K3["Kredit: Pendapatan Penjualan"]
+    K --> K4["Kredit: Utang Pajak Penjualan - Jika Ada PPN"]
+    K --> K5["Debit: HPP dan Kredit: Persediaan - Jika Dagang"]
+
+    K1 --> L["Set is_locked = 1 pada jurnal_umum"]
+    K2 --> L
+    K3 --> L
+    K4 --> L
+    K5 --> L
+    L --> M["INSERT INTO penjualan dan penjualan_detail"]
+    M --> N{"Jenis Usaha Jasa?"}
+    N -- "Bukan Jasa" --> O["UPDATE master_persediaan: Stok Dikurangi Qty"]
+    N -- "Jasa" --> P{"Metode Pembayaran Kredit?"}
+    O --> P
+    
+    P -- "Ya - Kredit" --> Q["UPDATE pelanggan: Tambah Saldo Piutang"]
+    P -- "Tidak - Tunai" --> R["Set status_pembayaran: Lunas"]
+    Q --> S["Commit DB Transaction"]
+    R --> S
+    S --> T["Flash Success dan Redirect ke /penjualan"]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 5: PEMBELIAN ================= -->
+        <div id="tab-content-pembelian" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-lg">Pengadaan & Utang</span>
+                            <h2 class="font-heading text-xl sm:text-2xl font-bold text-slate-900">Flowchart Entry Faktur Pembelian</h2>
+                        </div>
+                        <p class="text-slate-500 text-xs sm:text-sm mt-1">Mencatat pembelian stok dari pemasok, update mutasi kartu stok (IN), dan pencatatan utang usaha.</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg font-mono">
+                        app/controllers/Pembelian.php & Pembelian_model.php
+                    </span>
+                </div>
+
+                <div class="mt-6 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 overflow-x-auto flex justify-center">
+                    <div class="mermaid w-full text-center">
+flowchart TD
+    A["Form Tambah Pembelian - /pembelian/tambah"] --> B["Generate No Faktur - PB-yymm-xxx"]
+    B --> C["Input: Pemasok, Daftar Barang, Qty, Harga Beli, Diskon, Pajak"]
+    C --> D["PeriodLockTrait: Validasi Periode Transaksi"]
+    D --> E["Pilih Metode: Tunai / Kredit"]
+    E --> F["Begin DB Transaction"]
+    
+    F --> G["Otomatis Posting Jurnal Pembelian"]
+    G --> G1["Debit: Akun Persediaan Barang"]
+    G --> G2["Debit: PPN Masukan / Pajak Pembelian"]
+    G --> G3["Kredit: Kas/Bank - Tunai ATAU Utang - Kredit"]
+    G --> G4["Kredit: Potongan Pembelian - Jika Ada Diskon"]
+
+    G1 --> H["Set is_locked = 1 pada jurnal_umum"]
+    G2 --> H
+    G3 --> H
+    G4 --> H
+    H --> I["INSERT INTO pembelian dan pembelian_detail"]
+    I --> J["UPDATE master_persediaan: Stok Ditambah Qty"]
+    J --> K["INSERT INTO kartu_stok - Tipe IN"]
+    K --> L{"Metode Pembayaran Kredit?"}
+    
+    L -- "Ya - Kredit" --> M["UPDATE pemasok: Tambah Saldo Utang"]
+    L -- "Tidak - Tunai" --> N["Set status_pembayaran: Lunas"]
+    M --> O["Commit DB Transaction"]
+    N --> O
+    O --> P["Flash Success dan Redirect ke /pembelian"]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 6: PELUNASAN ================= -->
+        <div id="tab-content-pelunasan" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-teal-100 text-teal-800 text-xs font-bold px-2.5 py-1 rounded-lg">Settlement Piutang & Utang</span>
+                            <h2 class="font-heading text-xl sm:text-2xl font-bold text-slate-900">Flowchart Pelunasan & Pembayaran</h2>
+                        </div>
+                        <p class="text-slate-500 text-xs sm:text-sm mt-1">Alur pembayaran faktur yang belum lunas dengan update sisa tagihan bertahap (partial/full settlement).</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg font-mono">
+                        app/controllers/Pembayaran.php & Penerimaan.php
+                    </span>
+                </div>
+
+                <div class="mt-6 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 overflow-x-auto flex justify-center">
+                    <div class="mermaid w-full text-center">
+flowchart TD
+    A["Pilih Menu: Penerimaan Piutang / Pembayaran Utang"] --> B["Pilih Kontak: Pelanggan / Pemasok"]
+    B --> C["AJAX Fetch: Faktur dengan Sisa Tagihan > 0"]
+    C --> D["Pilih Faktur, Input Nominal Bayar dan Akun Kas/Bank"]
+    D --> E["PeriodLockTrait: Validasi Periode Transaksi"]
+    E --> F["Begin DB Transaction"]
+    
+    F --> G["INSERT INTO pembayaran / penerimaan_piutang"]
+    G --> H["UPDATE Faktur: sisa_tagihan = sisa_tagihan - bayar"]
+    H --> I{"Apakah Sisa Tagihan <= 0?"}
+    I -- "Ya - Lunas" --> J["Set status_pembayaran: Lunas"]
+    I -- "Tidak - Sebagian" --> K["Set status_pembayaran: Sebagian"]
+    
+    J --> L["Otomatis Posting Jurnal Pelunasan"]
+    K --> L
+    L --> L1["Penerimaan: Debit Kas/Bank, Kredit Piutang Usaha"]
+    L --> L2["Pembayaran: Debit Utang Usaha, Kredit Kas/Bank"]
+
+    L1 --> M["Set is_locked = 1 pada jurnal_umum"]
+    L2 --> M
+    M --> N["UPDATE Saldo Kontak: Potong saldo_terkini piutang/utang"]
+    N --> O["Commit DB Transaction"]
+    O --> P["Flash Success dan Redirect"]
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 7: PRODUKSI & PENYESUAIAN ================= -->
+        <div id="tab-content-produksi" class="tab-pane hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded-lg">Manufaktur & Tutup Buku</span>
+                            <h2 class="font-heading text-xl sm:text-2xl font-bold text-slate-900">Flowchart Produksi (Work Order) & Penyesuaian</h2>
+                        </div>
+                        <p class="text-slate-500 text-xs sm:text-sm mt-1">Penyelesaian perintah produksi (BOM) dan jurnal penyesuaian akhir periode (depresiasi aset tetap).</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg font-mono">
+                        Produksi.php & Penyesuaian.php
+                    </span>
+                </div>
+
+                <div class="mt-6 p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 overflow-x-auto flex justify-center">
+                    <div class="mermaid w-full text-center">
+flowchart TD
+    subgraph Modul_Produksi["Modul Produksi Manufaktur"]
+        P1["Buat Work Order Produksi berdasarkan BOM"] --> P2["Status: Draft / In Progress"]
+        P2 --> P3["Eksekusi Selesaikan Produksi"]
+        P3 --> P4["Potong Stok Bahan Baku di master_persediaan"]
+        P4 --> P5["Tambah Stok Barang Jadi Hasil Produksi"]
+        P5 --> P6["Catat Jurnal: Debit Persediaan Barang Jadi, Kredit Persediaan Bahan Baku"]
+    end
+
+    subgraph Modul_Penyesuaian["Modul Penyesuaian dan Depresiasi Aset"]
+        A1["Pilih Periode Penyesuaian YYYY-MM"] --> A2["Generate Pratinjau Nilai Depresiasi Aset"]
+        A2 --> A3["Proses Jurnal Penyesuaian Depresiasi Otomatis"]
+        A3 --> A4["Catat Jurnal: Debit Beban Penyusutan Aset, Kredit Akumulasi Penyusutan"]
+        A4 --> A5["Tandai sumber_jurnal = Adjustment"]
+    end
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION: MATRIKS KOMPARASI ================= -->
+        <section id="quick-matrix" class="mt-12 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="p-2 bg-emerald-100 text-emerald-800 rounded-xl">
+                    <i data-lucide="layers" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-heading text-lg sm:text-xl font-bold text-slate-900">Matriks Aturan Entry & Penguncian Transaksi</h3>
+                    <p class="text-xs sm:text-sm text-slate-500">Tinjauan cepat efek basis data dan penjurnalan untuk setiap jenis transaksi.</p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse font-sans">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider border-y border-slate-200">
+                            <th class="py-3 px-4">Modul / Transaksi</th>
+                            <th class="py-3 px-4">Tabel Database Utama</th>
+                            <th class="py-3 px-4">Dampak Jurnal Otomatis</th>
+                            <th class="py-3 px-4">Penguncian (is_locked)</th>
+                            <th class="py-3 px-4">Efek Sampingan (Auxiliary)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-blue-500"></span> Jurnal Umum Manual
+                            </td>
+                            <td class="py-3.5 px-4 font-mono text-[11px]">jurnal_umum, jurnal_detail</td>
+                            <td class="py-3.5 px-4">Sesuai baris input pengguna</td>
+                            <td class="py-3.5 px-4"><span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded font-semibold text-[10px]">0 (Bisa Diedit Langsung)</span></td>
+                            <td class="py-3.5 px-4 text-slate-500">-</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Kas Masuk / Keluar
+                            </td>
+                            <td class="py-3.5 px-4 font-mono text-[11px]">kas_transaksi</td>
+                            <td class="py-3.5 px-4">Debit Kas vs Kredit Lawan (atau sebaliknya)</td>
+                            <td class="py-3.5 px-4"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-semibold text-[10px]">1 (Terkunci di Jurnal)</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">Validasi Saldo Minimum Kas</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-purple-500"></span> Faktur Penjualan
+                            </td>
+                            <td class="py-3.5 px-4 font-mono text-[11px]">penjualan, penjualan_detail</td>
+                            <td class="py-3.5 px-4">Kas/Piutang vs Pendapatan, Pajak, HPP & Persediaan</td>
+                            <td class="py-3.5 px-4"><span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded font-semibold text-[10px]">1 (Terkunci di Jurnal)</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">Potong Stok Barang & Tambah Piutang</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Faktur Pembelian
+                            </td>
+                            <td class="py-3.5 px-4 font-mono text-[11px]">pembelian, pembelian_detail</td>
+                            <td class="py-3.5 px-4">Persediaan, PPN vs Kas/Utang & Diskon</td>
+                            <td class="py-3.5 px-4"><span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-semibold text-[10px]">1 (Terkunci di Jurnal)</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">Tambah Stok, Kartu Stok & Tambah Utang</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-teal-500"></span> Pelunasan Piutang / Utang
+                            </td>
+                            <td class="py-3.5 px-4 font-mono text-[11px]">pembayaran, penerimaan</td>
+                            <td class="py-3.5 px-4">Kas/Bank vs Piutang (atau Utang vs Kas/Bank)</td>
+                            <td class="py-3.5 px-4"><span class="px-2 py-0.5 bg-teal-100 text-teal-800 rounded font-semibold text-[10px]">1 (Terkunci di Jurnal)</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">Kurangi sisa_tagihan faktur & saldo kontak</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-indigo-500"></span> Produksi & BOM
+                            </td>
+                            <td class="py-3.5 px-4 font-mono text-[11px]">produksi, produksi_detail</td>
+                            <td class="py-3.5 px-4">Persediaan Barang Jadi vs Persediaan Bahan Baku</td>
+                            <td class="py-3.5 px-4"><span class="px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded font-semibold text-[10px]">1 (Terkunci di Jurnal)</span></td>
+                            <td class="py-3.5 px-4 text-slate-600">Konversi Stok Bahan Baku -> Barang Jadi</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-medium text-slate-600">SimpleAkunting v3.6 - Multi-Tenant Accounting Framework</p>
+            <p class="mt-1 text-slate-400">Dokumentasi Standar Prosedur Operasional & Logika Entry Transaksi Akuntansi</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Script -->
+    <script>
+        // Track rendered tabs to render each diagram only when visible
+        const renderedTabs = new Set();
+
+        async function renderTabDiagram(tabId) {
+            if (renderedTabs.has(tabId)) return;
+
+            const pane = document.getElementById('tab-content-' + tabId);
+            if (!pane) return;
+
+            const mermaidEl = pane.querySelector('.mermaid');
+            if (mermaidEl) {
+                try {
+                    await mermaid.run({
+                        nodes: [mermaidEl]
+                    });
+                    renderedTabs.add(tabId);
+                } catch (err) {
+                    console.error('Error rendering diagram for ' + tabId, err);
+                }
+            }
+        }
+
+        // Tab Switching Logic
+        async function switchTab(tabId) {
+            // Hide all tab panes
+            const panes = document.querySelectorAll('.tab-pane');
+            panes.forEach(pane => {
+                pane.classList.add('hidden');
+            });
+
+            // Deactivate all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-white', 'text-emerald-700', 'shadow-sm');
+                btn.classList.add('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-100');
+            });
+
+            // Show current pane FIRST (so SVG calculation gets non-zero dimensions)
+            const currentPane = document.getElementById('tab-content-' + tabId);
+            if (currentPane) {
+                currentPane.classList.remove('hidden');
+                // Render diagram on demand now that the container is visible
+                await renderTabDiagram(tabId);
+            }
+
+            // Activate current button
+            const currentBtn = document.getElementById('tab-btn-' + tabId);
+            if (currentBtn) {
+                currentBtn.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
+                currentBtn.classList.remove('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-100');
+            }
+
+            // Re-initialize Lucide Icons
+            lucide.createIcons();
+        }
+
+        // Initialize on DOM Ready
+        document.addEventListener("DOMContentLoaded", async function() {
+            lucide.createIcons();
+            // Render the first default visible tab ('global')
+            await renderTabDiagram('global');
+        });
+    </script>
+</body>
+</html>

@@ -7,16 +7,37 @@
             <input type="hidden" name="id_jurnal" value="<?php echo htmlspecialchars($data['jurnal']['id_jurnal']); ?>">
             <!-- Header Jurnal -->
             <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="tanggal" class="form-label">Tanggal</label>
+                <div class="col-md-2">
+                    <label for="tanggal" class="form-label text-sm">Tanggal</label>
                     <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?php echo htmlspecialchars($data['jurnal']['tanggal']); ?>" required>
                 </div>
-                <div class="col-md-4">
-                    <label for="no_transaksi" class="form-label">No. Transaksi / Bukti</label>
+                <div class="col-md-2">
+                    <label for="no_transaksi" class="form-label text-sm">No. Transaksi</label>
                     <input type="text" class="form-control" id="no_transaksi" name="no_transaksi" value="<?php echo htmlspecialchars($data['jurnal']['no_transaksi']); ?>" required>
                 </div>
-                <div class="col-md-4">
-                    <label for="deskripsi" class="form-label">Deskripsi</label>
+                <div class="col-md-3">
+                    <label for="id_unit" class="form-label text-sm text-danger fw-bold">Unit Usaha <span class="text-danger">*</span></label>
+                    <select name="id_unit" id="id_unit" class="form-select border-danger shadow-sm" required>
+                        <?php foreach($data['units'] as $u): ?>
+                            <option value="<?php echo $u['id_unit']; ?>" <?php echo ($u['id_unit'] == $data['jurnal']['id_unit']) ? 'selected' : ''; ?>>
+                                <?php echo $u['nama_unit']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="id_program" class="form-label text-sm text-primary fw-bold">Program (Opsional)</label>
+                    <select name="id_program" id="id_program" class="form-select border-primary shadow-sm">
+                        <option value="">-- Tanpa Program --</option>
+                        <?php foreach($data['programs'] as $p): ?>
+                            <option value="<?php echo $p['id_program']; ?>" <?php echo ($p['id_program'] == $data['jurnal']['id_program']) ? 'selected' : ''; ?>>
+                                <?php echo $p['nama_program']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="deskripsi" class="form-label text-sm">Deskripsi</label>
                     <input type="text" class="form-control" id="deskripsi" name="deskripsi" value="<?php echo htmlspecialchars($data['jurnal']['deskripsi']); ?>" required>
                 </div>
             </div>

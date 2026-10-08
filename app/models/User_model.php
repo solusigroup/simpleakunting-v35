@@ -46,6 +46,7 @@ class User_model {
 
     public function tambahDataUser($data, $tenant_id) {
         $role_id = !empty($data['role_id']) ? $data['role_id'] : null;
+        $kluster_wilayah_id = !empty($data['kluster_wilayah_id']) ? $data['kluster_wilayah_id'] : null;
 
         // Auto-map role name to role_id if role_id is empty (for Central Admin creation)
         if (empty($role_id) && !empty($data['role'])) {
@@ -57,12 +58,13 @@ class User_model {
             }
         }
 
-        $query = "INSERT INTO {$this->table} (tenant_id, nama_user, nama_lengkap, password_hash, role, role_id, jabatan) 
-                  VALUES (:tenant_id, :nama, :nama_lengkap, :password, :role, :role_id, :jabatan)";
+        $query = "INSERT INTO {$this->table} (tenant_id, kluster_wilayah_id, nama_user, nama_lengkap, password_hash, role, role_id, jabatan) 
+                  VALUES (:tenant_id, :kluster_wilayah_id, :nama, :nama_lengkap, :password, :role, :role_id, :jabatan)";
         $this->db->query($query);
         $this->db->bind('tenant_id', $tenant_id);
+        $this->db->bind('kluster_wilayah_id', $kluster_wilayah_id);
         $this->db->bind('nama', $data['nama_user']);
-        $this->db->bind('nama_lengkap', $data['nama_lengkap']);
+        $this->db->bind('nama_lengkap', $data['nama_lengkap'] ?? $data['nama_user']);
         $this->db->bind('password', password_hash($data['password'], PASSWORD_DEFAULT));
         $this->db->bind('role', $data['role'] ?? 'Staff');
         $this->db->bind('role_id', $role_id);
@@ -82,6 +84,7 @@ class User_model {
 
     public function ubahDataUser($data, $tenant_id) {
         $role_id = !empty($data['role_id']) ? $data['role_id'] : null;
+        $kluster_wilayah_id = !empty($data['kluster_wilayah_id']) ? $data['kluster_wilayah_id'] : null;
 
         // Auto-map role name to role_id if role_id is empty
         if (empty($role_id) && !empty($data['role'])) {
@@ -100,6 +103,7 @@ class User_model {
                         password_hash = :password,
                         role = :role,
                         role_id = :role_id,
+                        kluster_wilayah_id = :kluster_wilayah_id,
                         jabatan = :jabatan
                       WHERE id_user = :id AND tenant_id = :tenant_id";
             $this->db->query($query);
@@ -110,15 +114,17 @@ class User_model {
                         nama_lengkap = :nama_lengkap,
                         role = :role,
                         role_id = :role_id,
+                        kluster_wilayah_id = :kluster_wilayah_id,
                         jabatan = :jabatan
                       WHERE id_user = :id AND tenant_id = :tenant_id";
             $this->db->query($query);
         }
         
         $this->db->bind('nama', $data['nama_user']);
-        $this->db->bind('nama_lengkap', $data['nama_lengkap']);
+        $this->db->bind('nama_lengkap', $data['nama_lengkap'] ?? $data['nama_user']);
         $this->db->bind('role', $data['role'] ?? 'Staff');
         $this->db->bind('role_id', $role_id);
+        $this->db->bind('kluster_wilayah_id', $kluster_wilayah_id);
         $this->db->bind('jabatan', $data['jabatan']);
         $this->db->bind('id', $data['id_user']);
         $this->db->bind('tenant_id', $tenant_id);

@@ -6,17 +6,36 @@
         <form action="<?php echo BASEURL; ?>/jurnal/simpan" method="post">
             <!-- Bagian Header Jurnal -->
             <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="tanggal" class="form-label">Tanggal</label>
+                <div class="col-md-2">
+                    <label for="tanggal" class="form-label text-sm">Tanggal</label>
                     <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?php echo date('Y-m-d'); ?>" required>
                 </div>
-                <div class="col-md-4">
-                    <label for="no_transaksi" class="form-label">No. Transaksi / Bukti</label>
+                <div class="col-md-2">
+                    <label for="no_transaksi" class="form-label text-sm">No. Transaksi</label>
                     <input type="text" class="form-control bg-light" id="no_transaksi" name="no_transaksi" value="<?php echo htmlspecialchars($data['no_transaksi']); ?>" readonly required>
                 </div>
-                <div class="col-md-4">
-                    <label for="deskripsi" class="form-label">Deskripsi</label>
-                    <input type="text" class="form-control" id="deskripsi" name="deskripsi" required>
+                <div class="col-md-3">
+                    <label for="id_unit" class="form-label text-sm text-danger fw-bold">Unit Usaha <span class="text-danger">*</span></label>
+                    <select name="id_unit" id="id_unit" class="form-select border-danger shadow-sm" required>
+                        <?php foreach($data['units'] as $u): ?>
+                            <option value="<?php echo $u['id_unit']; ?>" <?php echo ($u['is_default']) ? 'selected' : ''; ?>>
+                                <?php echo $u['nama_unit']; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="id_program" class="form-label text-sm text-primary fw-bold">Program (Opsional)</label>
+                    <select name="id_program" id="id_program" class="form-select border-primary shadow-sm">
+                        <option value="">-- Tanpa Program --</option>
+                        <?php foreach($data['programs'] as $p): ?>
+                            <option value="<?php echo $p['id_program']; ?>"><?php echo $p['nama_program']; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="deskripsi" class="form-label text-sm">Deskripsi</label>
+                    <input type="text" class="form-control" id="deskripsi" name="deskripsi" required placeholder="Keterangan transaksi...">
                 </div>
             </div>
 

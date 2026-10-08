@@ -70,5 +70,22 @@ class Dashboard_model {
         ");
         return $this->db->single();
     }
+
+    /**
+     * Ringkasan Central tapi hanya untuk tenant di kluster tertentu (Penyelia Wilayah).
+     */
+    public function getCentralSummaryByKluster($kluster_id) {
+        $this->db->query("SELECT 
+            (SELECT COUNT(*) FROM tenants WHERE status = 'active' AND kluster_wilayah_id = :k1) as total_active_tenants,
+            (SELECT COALESCE(SUM(p.total), 0) FROM penjualan p INNER JOIN tenants t ON p.tenant_id = t.id WHERE t.kluster_wilayah_id = :k2) as total_sales_all,
+            (SELECT COALESCE(SUM(pb.total), 0) FROM pembelian pb INNER JOIN tenants t ON pb.tenant_id = t.id WHERE t.kluster_wilayah_id = :k3) as total_purchases_all,
+            (SELECT COUNT(*) FROM users u INNER JOIN tenants t ON u.tenant_id = t.id WHERE t.kluster_wilayah_id = :k4) as total_users
+        ");
+        $this->db->bind('k1', $kluster_id);
+        $this->db->bind('k2', $kluster_id);
+        $this->db->bind('k3', $kluster_id);
+        $this->db->bind('k4', $kluster_id);
+        return $this->db->single();
+    }
 }
 

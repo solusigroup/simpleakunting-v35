@@ -59,9 +59,24 @@ class App {
 
 
         // --- Menentukan Controller ---
-        if (!empty($url) && file_exists(APPROOT . '/app/controllers/' . ucfirst($url[0]) . '.php')) {
-            $this->controller = ucfirst($url[0]);
-            unset($url[0]);
+        if (!empty($url)) {
+            $controllerCandidate = strtolower($url[0]);
+            // Cek file langsung dengan ucfirst
+            if (file_exists(APPROOT . '/app/controllers/' . ucfirst($url[0]) . '.php')) {
+                $this->controller = ucfirst($url[0]);
+                unset($url[0]);
+            } else {
+                // Pencarian case-insensitive (misal: 'klusterwilayah' -> 'KlusterWilayah.php')
+                $controllerFiles = glob(APPROOT . '/app/controllers/*.php');
+                foreach ($controllerFiles as $file) {
+                    $baseName = basename($file, '.php');
+                    if (strtolower($baseName) === $controllerCandidate) {
+                        $this->controller = $baseName;
+                        unset($url[0]);
+                        break;
+                    }
+                }
+            }
         }
 
         require_once APPROOT . '/app/controllers/' . $this->controller . '.php';

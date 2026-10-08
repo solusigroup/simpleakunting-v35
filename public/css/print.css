@@ -1,0 +1,606 @@
+/* ==========================================================================
+   SIMPLEAKUNTING - CORPORATE AESTHETIC PRINT STYLESHEET (PBS-ERP STANDARD)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body.print-preview-mode {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-size: 9pt;
+    color: #0f172a;
+    background-color: #0b1329;
+    line-height: 1.35;
+    margin: 0;
+    padding: 20px 15px 40px 15px;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+/* Screen Wrapper */
+.screen-container {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.screen-container.landscape {
+    max-width: 1140px;
+}
+
+/* Floating Action Toolbar (Screen Only) */
+.toolbar-print {
+    background-color: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: #f8fafc;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.btn-toolbar-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background-color: #1e293b;
+    color: #e2e8f0;
+    border: 1px solid #475569;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+
+.btn-toolbar-back:hover {
+    background-color: #334155;
+    color: #ffffff;
+    border-color: #64748b;
+}
+
+.toolbar-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-toolbar-print {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #0f172a;
+    border: none;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+    transition: all 0.15s ease;
+}
+
+.btn-toolbar-print:hover {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+}
+
+/* Corporate Paper Canvas */
+.paper-canvas {
+    background-color: #ffffff;
+    color: #0f172a;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+    padding: 36px 44px;
+    border: 1px solid #e2e8f0;
+    position: relative;
+}
+
+/* 1. KOP SURAT RESMI KORPORASI */
+.kop-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 12px;
+}
+
+.kop-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.kop-logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 3px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.kop-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    margin: 0;
+}
+
+.kop-sub {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: #b45309;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-top: 3px;
+    margin-bottom: 2px;
+}
+
+.kop-desc {
+    font-size: 8.5pt;
+    color: #475569;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.kop-meta {
+    font-size: 8pt;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.kop-meta strong {
+    color: #334155;
+}
+
+.kop-badge-box {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.kop-badge {
+    display: inline-block;
+    background-color: #0f172a;
+    color: #ffffff;
+    font-size: 8pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: 4px;
+}
+
+.kop-date {
+    font-size: 7.5pt;
+    color: #64748b;
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Divider Double Border (Garis Kop Formal) */
+.kop-divider {
+    border-bottom: 2.5px solid #0f172a;
+    margin-top: 6px;
+}
+
+.kop-divider-sub {
+    border-bottom: 1px solid #94a3b8;
+    margin-top: 1.5px;
+    margin-bottom: 16px;
+}
+
+/* Document Title Block */
+.doc-title-block {
+    text-align: center;
+    padding: 4px 0 12px 0;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.doc-title {
+    font-size: 14pt;
+    font-weight: 900;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.doc-subtitle {
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 3px;
+    margin-bottom: 6px;
+}
+
+.doc-period-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 12px;
+    background-color: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 8.5pt;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Details Box / Grid (2 Kolom) */
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.details-box {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background-color: #f8fafc;
+}
+
+.details-box-title {
+    font-size: 8pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475569;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+}
+
+.details-table {
+    width: 100%;
+    font-size: 8.5pt;
+    border-collapse: collapse;
+}
+
+.details-table td {
+    padding: 2px 0;
+    vertical-align: top;
+}
+
+.details-table td.label-col {
+    width: 100px;
+    color: #64748b;
+    font-size: 8pt;
+}
+
+.details-table td.value-col {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+/* KPI Summary Cards Grid */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.kpi-grid.cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.kpi-box {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 10px;
+    background-color: #f8fafc;
+    text-align: center;
+}
+
+.kpi-box.highlight {
+    background-color: #f1f5f9;
+    border-color: #0f172a;
+}
+
+.kpi-label {
+    display: block;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.03em;
+    margin-bottom: 2px;
+}
+
+.kpi-value {
+    display: block;
+    font-size: 11pt;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    color: #0f172a;
+}
+
+.kpi-value.income { color: #047857; }
+.kpi-value.expense { color: #b91c1c; }
+
+/* Corporate Table Styles */
+.print-table {
+    width: 100%;
+    font-size: 8.5pt;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    border: 1px solid #0f172a;
+}
+
+.print-table th {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 7.5pt;
+    letter-spacing: 0.03em;
+    padding: 6px 8px;
+    border: 1px solid #cbd5e1;
+}
+
+.print-table th.table-dark-header {
+    background-color: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+}
+
+.print-table td {
+    padding: 5px 8px;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    vertical-align: middle;
+}
+
+.print-table tbody tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+.print-table .section-header {
+    background-color: #1e293b;
+    color: #ffffff;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 8pt;
+    letter-spacing: 0.04em;
+    padding: 5px 8px;
+}
+
+.print-table .subtotal-row {
+    background-color: #f1f5f9;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.print-table .grand-total-row {
+    background-color: #e2e8f0;
+    font-weight: 900;
+    color: #0f172a;
+    border-top: 1.5px solid #0f172a;
+    border-bottom: 3.5px double #0f172a;
+}
+
+.double-border-bottom {
+    border-bottom: 3.5px double #0f172a !important;
+}
+
+.text-left { text-align: left !important; }
+.text-center { text-align: center !important; }
+.text-right { text-align: right !important; }
+
+/* Status Badges */
+.badge-status {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 7.5pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badge-lunas {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.badge-belum-lunas {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.badge-batal {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* Terbilang Box */
+.terbilang-box {
+    border: 1px dashed #94a3b8;
+    background-color: #f8fafc;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-bottom: 16px;
+    font-size: 8pt;
+}
+
+.terbilang-box strong {
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 7.5pt;
+    margin-right: 4px;
+}
+
+.terbilang-box span {
+    font-style: italic;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+/* Signature Block (Tanda Tangan Pengesahan) */
+.ttd-container {
+    margin-top: 24px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.ttd-city-date {
+    text-align: right;
+    font-size: 8.5pt;
+    color: #334155;
+    margin-bottom: 8px;
+    padding-right: 12px;
+}
+
+.ttd-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    text-align: center;
+}
+
+.ttd-grid.cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.ttd-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100px;
+}
+
+.ttd-title {
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #475569;
+    letter-spacing: 0.03em;
+    margin-bottom: 50px;
+}
+
+.ttd-name {
+    font-size: 8.5pt;
+    font-weight: 800;
+    color: #0f172a;
+    text-decoration: underline;
+    margin-bottom: 1px;
+}
+
+.ttd-role {
+    font-size: 7.5pt;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+/* Paper Footer */
+.paper-footer {
+    margin-top: 24px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 7.5pt;
+    color: #64748b;
+}
+
+/* ==========================================================================
+   PRINT MEDIA RULES (FOR EXACT A4 PRINTING)
+   ========================================================================== */
+@media print {
+    .no-print, .toolbar-print, .btn, .d-print-none, .sidebar, .navbar, .topbar {
+        display: none !important;
+    }
+
+    body, body.print-preview-mode {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 8.5pt !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 8mm 10mm 8mm 10mm;
+    }
+
+    @page.landscape {
+        size: A4 landscape;
+        margin: 8mm 10mm 8mm 10mm;
+    }
+
+    .screen-container, .screen-container.landscape {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .paper-canvas {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .break-inside-avoid, tr, .ttd-container, .kpi-grid, .details-grid {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .page-break {
+        page-break-before: always !important;
+    }
+}

@@ -354,8 +354,8 @@
     $url_parts = explode('/', trim($_GET['url'] ?? 'home', '/'));
     $current_controller = strtolower($url_parts[0]);
 
-    $master_controllers = ['akun', 'pelanggan', 'pemasok', 'persediaan', 'aset'];
-    $transaksi_controllers = ['penjualan', 'pembelian', 'penerimaan', 'pembayaran', 'kas', 'penyesuaian', 'jurnal', 'tutupbuku', 'produksi', 'bom', 'pos'];
+    $master_controllers = ['akun', 'pelanggan', 'pemasok', 'persediaan', 'aset', 'asetbiologis'];
+    $transaksi_controllers = ['penjualan', 'pembelian', 'penerimaan', 'pembayaran', 'kas', 'penyesuaian', 'jurnal', 'tutupbuku', 'produksi', 'bom', 'pos', 'programs', 'units'];
     $laporan_controllers = ['laporan', 'analisis'];
     $user = Auth::user();
 
@@ -377,6 +377,10 @@
     $showTradeMenu = $canPenjualan || $canPenerimaan || $canPembelian || $canPembayaran;
     $showManufMenu = ($user['database_type'] === 'manufaktur') && ($canBom || $canProduksi);
     $showOperasionalSection = $showTradeMenu || $showManufMenu || $canPos;
+
+    $canPrograms = Auth::hasPermission('menu_programs');
+    $canUnits = Auth::hasPermission('menu_units');
+    $showProgramSection = $canPrograms || $canUnits;
 
     $canKas = Auth::hasPermission('trx_kas');
     $canJurnal = Auth::hasPermission('fin_jurnal');
@@ -403,12 +407,32 @@
             </li>
 
             <?php if (Auth::isActuallySuperadmin()): ?>
+                <?php if (Auth::isPenyeliaWilayah()): ?>
                 <li class="nav-item">
-                    <a class="nav-link <?php echo (in_array($current_controller, ['tenants', 'central'])) ? 'active' : ''; ?>"
+                    <span class="nav-link text-warning-emphasis opacity-75 py-1" style="font-size: 0.8rem;">
+                        <i class="bi bi-geo-alt-fill"></i> <?php 
+                            $kwNama = Auth::getKlusterWilayahNama();
+                            $kwId = Auth::getKlusterWilayahId();
+                            if (!$kwNama && $kwId) {
+                                require_once APPROOT . '/app/models/KlusterWilayah_model.php';
+                                $kwModel = new KlusterWilayah_model(new Database());
+                                $kw = $kwModel->getKlusterById($kwId);
+                                $kwNama = $kw['nama_kabupaten'] ?? null;
+                                if ($kwNama) {
+                                    $_SESSION['kluster_wilayah_nama'] = $kwNama;
+                                }
+                            }
+                            echo htmlspecialchars($kwNama ?? ($kwId ? 'Kluster #' . $kwId : 'Tanpa Kluster'));
+                        ?>
+                    </span>
+                </li>
+                <?php endif; ?>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo (in_array($current_controller, ['tenants', 'central', 'klusterwilayah'])) ? 'active' : ''; ?>"
                         data-bs-toggle="collapse" href="#centralCollapse">
                         <i class="bi bi-shield-lock-fill"></i> Central Admin <i class="bi bi-chevron-down ms-auto"></i>
                     </a>
-                    <div class="collapse <?php echo (in_array($current_controller, ['tenants', 'central'])) ? 'show' : ''; ?>"
+                    <div class="collapse <?php echo (in_array($current_controller, ['tenants', 'central', 'klusterwilayah'])) ? 'show' : ''; ?>"
                         id="centralCollapse">
                         <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'tenants') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/tenants">
@@ -418,10 +442,16 @@
                             href="<?php echo BASEURL; ?>/central/users">
                             <i class="bi bi-people"></i> Users Global
                         </a>
+                        <?php if (Auth::hasRole('Superadmin')): ?>
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'klusterwilayah') ? 'fw-bold text-white' : ''; ?>"
+                            href="<?php echo BASEURL; ?>/klusterwilayah">
+                            <i class="bi bi-geo-alt"></i> Kluster Wilayah
+                        </a>
                         <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && $url_parts[1] == 'roles') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/central/roles">
                             <i class="bi bi-key"></i> Roles List
                         </a>
+                        <?php endif; ?>
                         <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && $url_parts[1] == 'monitoring') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/central/monitoring">
                             <i class="bi bi-activity"></i> Monitoring Transaksi
@@ -483,6 +513,12 @@
                         <a class="nav-link <?php echo ($current_controller == 'aset') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/aset">
                             <i class="bi bi-building"></i> Aset Tetap
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo ($current_controller == 'asetbiologis') ? 'active' : ''; ?>"
+                            href="<?php echo BASEURL; ?>/asetbiologis">
+                            <i class="bi bi-tree"></i> Aset Biologis
                         </a>
                     </li>
                 <?php endif; ?>
@@ -577,6 +613,24 @@
                 <?php endif; /* end showManufMenu */ ?>
                 <?php endif; /* end showOperasionalSection */ ?>
 
+                <?php if ($showProgramSection || Auth::isAdmin()): ?>
+                <li class="nav-item mt-3">
+                    <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Pembiayaan & Program</small>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo ($current_controller == 'programs') ? 'active' : ''; ?>"
+                        href="<?php echo BASEURL; ?>/programs">
+                        <i class="bi bi-gift-fill"></i> Program & Dana
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?php echo ($current_controller == 'units') ? 'active' : ''; ?>"
+                        href="<?php echo BASEURL; ?>/units">
+                        <i class="bi bi-diagram-3-fill"></i> Unit Usaha
+                    </a>
+                </li>
+                <?php endif; ?>
+
                 <?php if ($showKeuanganSection): ?>
                 <li class="nav-item mt-3">
                     <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Keuangan</small>
@@ -616,7 +670,12 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="<?php echo BASEURL; ?>/panduan_pengguna.html" target="_blank">
-                    <i class="bi bi-book-half"></i> Panduan v3.5
+                    <i class="bi bi-book-half"></i> Panduan Pengguna
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-warning" href="<?php echo BASEURL; ?>/flowchart_entry_transaksi.html" target="_blank">
+                    <i class="bi bi-diagram-3-fill"></i> Flowchart Transaksi
                 </a>
             </li>
             <li class="nav-item">
