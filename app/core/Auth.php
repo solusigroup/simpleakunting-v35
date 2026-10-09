@@ -25,6 +25,7 @@ class Auth {
     public static function setUser($user, $permissions = []) {
         self::startSession();
         session_regenerate_id(true);
+        unset($_SESSION['flash']); // Bersihkan notifikasi error/flash sebelumnya
         $_SESSION['user_id'] = $user['id_user'];
         $_SESSION['tenant_id'] = $user['tenant_id'] ?? null;
         $_SESSION['tenant_name'] = $user['tenant_name'] ?? null;

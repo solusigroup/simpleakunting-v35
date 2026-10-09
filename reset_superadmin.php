@@ -10,6 +10,11 @@
 require_once 'app/config.php';
 require_once 'app/core/Database.php';
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+unset($_SESSION['flash']);
+
 $isWeb = (php_sapi_name() !== 'cli');
 
 if ($isWeb) {

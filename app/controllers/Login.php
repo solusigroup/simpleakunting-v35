@@ -110,6 +110,9 @@ class Login extends Controller {
             $user['kluster_wilayah_nama'] = $kw['nama_kabupaten'] ?? null;
         }
 
+        // Bersihkan flash error sisa percobaan login yang gagal sebelumnya
+        unset($_SESSION['flash']);
+
         // Jika semua lolos, atur sesi
         Auth::setUser($user, $permissions);
         Logger::log('LOGIN', 'Authentication', 'User successfully logged in.');
@@ -131,6 +134,7 @@ class Login extends Controller {
      * URL: /login/reset_superadmin
      */
     public function reset_superadmin() {
+        unset($_SESSION['flash']); // Bersihkan notifikasi error lama
         $username = 'superadmin';
         $password = $_REQUEST['pass'] ?? 'admin123';
         $hash = password_hash($password, PASSWORD_DEFAULT);
