@@ -16,13 +16,19 @@ class KlusterWilayah extends Controller
     public function index()
     {
         $data['judul'] = 'Manajemen Kluster Wilayah';
-        $data['klusters'] = $this->model('KlusterWilayah')->getAllKluster();
+        $klusters = $this->model('KlusterWilayah')->getAllKluster();
+        $data['klusters'] = is_array($klusters) ? $klusters : [];
+        
         // Count tenants per kluster
         foreach ($data['klusters'] as &$k) {
-            $this->db->query("SELECT COUNT(*) as total FROM tenants WHERE kluster_wilayah_id = :id");
-            $this->db->bind('id', $k['id']);
-            $result = $this->db->single();
-            $k['tenant_count'] = $result['total'];
+            try {
+                $this->db->query("SELECT COUNT(*) as total FROM tenants WHERE kluster_wilayah_id = :id");
+                $this->db->bind('id', $k['id']);
+                $result = $this->db->single();
+                $k['tenant_count'] = $result['total'] ?? 0;
+            } catch (Throwable $e) {
+                $k['tenant_count'] = 0;
+            }
         }
         $this->view('templates/header', $data);
         $this->view('klusterwilayah/index', $data);
@@ -52,14 +58,16 @@ class KlusterWilayah extends Controller
     public function hapus($id)
     {
         // Check if any tenants use this kluster
-        $this->db->query("SELECT COUNT(*) as total FROM tenants WHERE kluster_wilayah_id = :id");
-        $this->db->bind('id', $id);
-        $result = $this->db->single();
-        if ($result['total'] > 0) {
-            Flash::setFlash('Gagal', 'Kluster ini masih memiliki ' . $result['total'] . ' tenant terdaftar. Pindahkan tenant terlebih dahulu.', 'danger');
-            header('Location: ' . BASEURL . '/klusterwilayah');
-            return;
-        }
+        try {
+            $this->db->query("SELECT COUNT(*) as total FROM tenants WHERE kluster_wilayah_id = :id");
+            $this->db->bind('id', $id);
+            $result = $this->db->single();
+            if (($result['total'] ?? 0) > 0) {
+                Flash::setFlash('Gagal', 'Kluster ini masih memiliki ' . $result['total'] . ' tenant terdaftar. Pindahkan tenant terlebih dahulu.', 'danger');
+                header('Location: ' . BASEURL . '/klusterwilayah');
+                return;
+            }
+        } catch (Throwable $e) {}
 
         if ($this->model('KlusterWilayah')->hapusKluster($id) > 0) {
             Flash::setFlash('Berhasil', 'Kluster wilayah telah dihapus', 'success');

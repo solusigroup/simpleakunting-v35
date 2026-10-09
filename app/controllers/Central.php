@@ -20,30 +20,36 @@ class Central extends Controller {
      */
     public function users() {
         $data['judul'] = 'Global User Management';
-        $data['tenants'] = $this->model('Tenants')->getAllTenants();
-        $data['klusters'] = $this->model('KlusterWilayah')->getActiveKluster();
+        $tenants = $this->model('Tenants')->getAllTenants();
+        $data['tenants'] = is_array($tenants) ? $tenants : [];
+
+        $klusters = $this->model('KlusterWilayah')->getActiveKluster();
+        $data['klusters'] = is_array($klusters) ? $klusters : [];
         
         if (Auth::isPenyeliaWilayah()) {
             // Penyelia Wilayah hanya melihat user di tenant yang masuk klusternya
             $klusterId = Auth::getKlusterWilayahId();
             $tenantIds = [];
             foreach ($data['tenants'] as $tenant) {
-                if ($tenant['kluster_wilayah_id'] == $klusterId) {
+                if (($tenant['kluster_wilayah_id'] ?? null) == $klusterId) {
                     $tenantIds[] = $tenant['id'];
                 }
             }
             // Filter tenants hanya kluster ini
-            $data['tenants'] = array_filter($data['tenants'], function($t) use ($klusterId) {
-                return $t['kluster_wilayah_id'] == $klusterId;
-            });
+            $data['tenants'] = array_values(array_filter($data['tenants'], function($t) use ($klusterId) {
+                return ($t['kluster_wilayah_id'] ?? null) == $klusterId;
+            }));
             // Ambil semua users lalu filter berdasarkan tenant_id
             $allUsers = $this->model('User')->getAllUsers();
-            $data['users'] = array_filter($allUsers, function($u) use ($tenantIds) {
-                return in_array($u['tenant_id'], $tenantIds);
-            });
-            $data['users'] = array_values($data['users']);
+            if (!is_array($allUsers)) {
+                $allUsers = [];
+            }
+            $data['users'] = array_values(array_filter($allUsers, function($u) use ($tenantIds) {
+                return in_array($u['tenant_id'] ?? null, $tenantIds);
+            }));
         } else {
-            $data['users'] = $this->model('User')->getAllUsers();
+            $allUsers = $this->model('User')->getAllUsers();
+            $data['users'] = is_array($allUsers) ? $allUsers : [];
         }
         
         $this->view('templates/header', $data);

@@ -20,14 +20,16 @@ class Tenants extends Controller
         // Penyelia Wilayah hanya melihat tenant di klusternya
         if (Auth::isPenyeliaWilayah()) {
             $klusterId = Auth::getKlusterWilayahId();
-            $data['tenants'] = $this->model('Tenants')->getTenantsByKluster($klusterId);
+            $tenants = $this->model('Tenants')->getTenantsByKluster($klusterId);
             $data['kluster_info'] = $this->model('KlusterWilayah')->getKlusterById($klusterId);
         } else {
-            $data['tenants'] = $this->model('Tenants')->getAllTenants();
+            $tenants = $this->model('Tenants')->getAllTenants();
         }
+        $data['tenants'] = is_array($tenants) ? $tenants : [];
         
         // Data kluster untuk dropdown
-        $data['klusters'] = $this->model('KlusterWilayah')->getActiveKluster();
+        $klusters = $this->model('KlusterWilayah')->getActiveKluster();
+        $data['klusters'] = is_array($klusters) ? $klusters : [];
         $data['is_penyelia'] = Auth::isPenyeliaWilayah();
         $data['penyelia_kluster_id'] = Auth::getKlusterWilayahId();
 

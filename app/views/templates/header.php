@@ -442,7 +442,7 @@
                             href="<?php echo BASEURL; ?>/tenants">
                             <i class="bi bi-buildings"></i> Tenants
                         </a>
-                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && $url_parts[1] == 'users') ? 'fw-bold text-white' : ''; ?>"
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && ($url_parts[1] ?? '') == 'users') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/central/users">
                             <i class="bi bi-people"></i> Users Global
                         </a>
@@ -451,16 +451,16 @@
                             href="<?php echo BASEURL; ?>/klusterwilayah">
                             <i class="bi bi-geo-alt"></i> Kluster Wilayah
                         </a>
-                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && $url_parts[1] == 'roles') ? 'fw-bold text-white' : ''; ?>"
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && ($url_parts[1] ?? '') == 'roles') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/central/roles">
                             <i class="bi bi-key"></i> Roles List
                         </a>
                         <?php endif; ?>
-                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && $url_parts[1] == 'monitoring') ? 'fw-bold text-white' : ''; ?>"
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && ($url_parts[1] ?? '') == 'monitoring') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/central/monitoring">
                             <i class="bi bi-activity"></i> Monitoring Transaksi
                         </a>
-                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && $url_parts[1] == 'agregat') ? 'fw-bold text-white' : ''; ?>"
+                        <a class="nav-link ms-4 py-1 <?php echo ($current_controller == 'central' && ($url_parts[1] ?? '') == 'agregat') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/central/agregat">
                             <i class="bi bi-bar-chart-steps"></i> Laporan Agregat
                         </a>
