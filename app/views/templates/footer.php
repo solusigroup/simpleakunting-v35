@@ -1,4 +1,5 @@
     </main> <!-- Penutup .p-4 -->
+    <?php $current_controller = $current_controller ?? ''; ?>
     
     <footer class="footer mt-auto py-3 text-muted text-center">
         <div class="container">

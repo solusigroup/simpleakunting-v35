@@ -414,12 +414,16 @@
                             $kwNama = Auth::getKlusterWilayahNama();
                             $kwId = Auth::getKlusterWilayahId();
                             if (!$kwNama && $kwId) {
-                                require_once APPROOT . '/app/models/KlusterWilayah_model.php';
-                                $kwModel = new KlusterWilayah_model(new Database());
-                                $kw = $kwModel->getKlusterById($kwId);
-                                $kwNama = $kw['nama_kabupaten'] ?? null;
-                                if ($kwNama) {
-                                    $_SESSION['kluster_wilayah_nama'] = $kwNama;
+                                try {
+                                    require_once APPROOT . '/app/models/KlusterWilayah_model.php';
+                                    $kwModel = new KlusterWilayah_model(new Database());
+                                    $kw = $kwModel->getKlusterById($kwId);
+                                    $kwNama = $kw['nama_kabupaten'] ?? null;
+                                    if ($kwNama) {
+                                        $_SESSION['kluster_wilayah_nama'] = $kwNama;
+                                    }
+                                } catch (Throwable $e) {
+                                    $kwNama = null;
                                 }
                             }
                             echo htmlspecialchars($kwNama ?? ($kwId ? 'Kluster #' . $kwId : 'Tanpa Kluster'));
