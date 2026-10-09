@@ -304,6 +304,11 @@
                             <div class="d-grid mt-4">
                                 <button type="submit" class="btn btn-dark shadow-sm">Masuk Central Monitoring</button>
                             </div>
+                            <div class="text-center mt-3">
+                                <a href="<?php echo BASEURL; ?>/login/reset_superadmin" class="text-decoration-none small text-muted">
+                                    <i class="bi bi-shield-lock me-1"></i>Reset / Buat Akun Superadmin
+                                </a>
+                            </div>
                         </form>
                     </div>
                 </div>

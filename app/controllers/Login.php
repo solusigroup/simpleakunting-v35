@@ -125,5 +125,62 @@ class Login extends Controller {
         header('Location: ' . BASEURL);
         exit;
     }
+
+    /**
+     * Endpoint Darurat: Reset & Pastikan Akun Superadmin
+     * URL: /login/reset_superadmin
+     */
+    public function reset_superadmin() {
+        $username = 'superadmin';
+        $password = $_REQUEST['pass'] ?? 'admin123';
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+
+        $this->db->query("SELECT * FROM users WHERE nama_user = :user");
+        $this->db->bind('user', $username);
+        $existing = $this->db->single();
+
+        if ($existing) {
+            $this->db->query("UPDATE users SET password_hash = :hash, role = 'Superadmin', jabatan = 'Developer / Superadmin' WHERE id_user = :id");
+            $this->db->bind('hash', $hash);
+            $this->db->bind('id', $existing['id_user']);
+            $this->db->execute();
+            $status = "Akun '{$username}' berhasil diperbarui!";
+        } else {
+            $this->db->query("INSERT INTO users (nama_user, nama_lengkap, password_hash, role, jabatan, tenant_id) 
+                              VALUES (:user, 'Super Administrator', :hash, 'Superadmin', 'System Superadmin', NULL)");
+            $this->db->bind('user', $username);
+            $this->db->bind('hash', $hash);
+            $this->db->execute();
+            $status = "Akun '{$username}' baru berhasil dibuat!";
+        }
+
+        echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Reset Superadmin</title>";
+        echo "<style>body{font-family:system-ui,-apple-system,sans-serif;background:#f0fdf4;color:#1e293b;padding:2rem;}";
+        echo ".card{max-width:550px;margin:2rem auto;background:#fff;border-radius:16px;box-shadow:0 10px 25px -5px rgba(0,0,0,0.1);padding:2rem;}";
+        echo "h2{color:#065f46;margin-top:0;}";
+        echo ".info-box{background:#f8fafc;border-left:4px solid #059669;padding:1rem;margin:1.5rem 0;border-radius:6px;font-family:monospace;font-size:1rem;}";
+        echo ".btn{display:inline-block;padding:0.75rem 1.5rem;background:#059669;color:#fff;text-decoration:none;border-radius:8px;font-weight:bold;}";
+        echo "</style></head><body><div class='card'>";
+        echo "<h2>🔑 {$status}</h2>";
+        echo "<p>Kredensial login Anda telah siap digunakan:</p>";
+        echo "<div class='info-box'>";
+        echo "<strong>Username:</strong> {$username}<br>";
+        echo "<strong>Password:</strong> {$password}<br>";
+        echo "<strong>Role:</strong> Superadmin<br>";
+        echo "<strong>Cara Login:</strong> Bisa di tab 'Central' atau tab 'Tenant'";
+        echo "</div>";
+        echo "<a href='" . BASEURL . "/login' class='btn'>👉 Masuk ke Halaman Login</a>";
+        echo "</div></body></html>";
+        exit;
+    }
+
+    /**
+     * Endpoint Darurat: Jalankan Semua Migrasi Database
+     * URL: /login/migrate
+     */
+    public function migrate() {
+        require_once APPROOT . '/migrate_all.php';
+        exit;
+    }
 }
 
