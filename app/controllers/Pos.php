@@ -19,16 +19,40 @@ class Pos extends Controller {
     // Cashier UI
     public function index() {
         $tenantId = $this->tenantId();
+        if (empty($tenantId)) {
+            if (Auth::isActuallySuperadmin()) {
+                Flash::setFlash('Akses Kasir POS', 'Silakan klik tombol "Login" pada salah satu tenant di Manajemen Tenant untuk masuk ke kasir tenant tersebut.', 'info');
+                header('Location: ' . BASEURL . '/tenants');
+                exit;
+            } else {
+                Flash::setFlash('Akses Ditolak', 'Tenant tidak valid atau belum dipilih.', 'danger');
+                header('Location: ' . BASEURL . '/dashboard');
+                exit;
+            }
+        }
+
         $posModel = $this->model('Pos');
         
         $data['judul'] = 'Point of Sales (Kasir)';
-        $data['barang'] = $posModel->getAllBarangAktif($tenantId);
-        $data['pelanggan'] = $this->model('Pelanggan')->getAllPelanggan($tenantId);
-        $data['akun_kas'] = $this->model('Akun')->getAkunKasBank($tenantId);
-        $data['perusahaan'] = $this->model('Perusahaan')->getPerusahaan($tenantId);
+        $barang = $posModel->getAllBarangAktif($tenantId);
+        $data['barang'] = is_array($barang) ? $barang : [];
+
+        $pelanggan = $this->model('Pelanggan')->getAllPelanggan($tenantId);
+        $data['pelanggan'] = is_array($pelanggan) ? $pelanggan : [];
+
+        $akunKas = $this->model('Akun')->getAkunKasBank($tenantId);
+        $data['akun_kas'] = is_array($akunKas) ? $akunKas : [];
+
+        $perusahaan = $this->model('Perusahaan')->getPerusahaan($tenantId);
+        $data['perusahaan'] = is_array($perusahaan) ? $perusahaan : [
+            'nama_perusahaan' => 'Toko / POS',
+            'persentase_pajak_default' => 0
+        ];
+
         $data['no_receipt'] = $posModel->generateReceiptNumber($tenantId);
         $data['walk_in'] = $posModel->getWalkInCustomer($tenantId);
-        $data['statistik'] = $posModel->getStatistikHariIni($tenantId);
+        $statistik = $posModel->getStatistikHariIni($tenantId);
+        $data['statistik'] = is_array($statistik) ? $statistik : ['jumlah_transaksi' => 0, 'total_penjualan' => 0];
 
         // Standalone fullscreen cashier screen
         $this->view('pos/index', $data);
@@ -207,6 +231,18 @@ class Pos extends Controller {
     // View Transaction History Page
     public function riwayat() {
         $tenantId = $this->tenantId();
+        if (empty($tenantId)) {
+            if (Auth::isActuallySuperadmin()) {
+                Flash::setFlash('Akses Kasir POS', 'Silakan login ke salah satu tenant di Manajemen Tenant untuk melihat riwayat transaksi POS.', 'info');
+                header('Location: ' . BASEURL . '/tenants');
+                exit;
+            } else {
+                Flash::setFlash('Akses Ditolak', 'Tenant tidak valid atau belum dipilih.', 'danger');
+                header('Location: ' . BASEURL . '/dashboard');
+                exit;
+            }
+        }
+
         $posModel = $this->model('Pos');
         
         $dari = $_GET['dari'] ?? date('Y-m-d');
@@ -215,8 +251,10 @@ class Pos extends Controller {
         $data['judul'] = 'Riwayat Transaksi POS';
         $data['dari'] = $dari;
         $data['sampai'] = $sampai;
-        $data['riwayat'] = $posModel->getTransaksiByPeriode($tenantId, $dari, $sampai);
-        $data['statistik'] = $posModel->getStatistikHariIni($tenantId);
+        $riwayat = $posModel->getTransaksiByPeriode($tenantId, $dari, $sampai);
+        $data['riwayat'] = is_array($riwayat) ? $riwayat : [];
+        $statistik = $posModel->getStatistikHariIni($tenantId);
+        $data['statistik'] = is_array($statistik) ? $statistik : ['jumlah_transaksi' => 0, 'total_penjualan' => 0];
 
         $this->view('templates/header', $data);
         $this->view('pos/riwayat', $data);

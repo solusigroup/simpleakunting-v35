@@ -582,14 +582,14 @@
     <!-- Global Javascript Data & Logic -->
     <script>
         // Data injected from PHP
-        const PRODUCTS = <?php echo json_encode($data['barang']); ?>;
+        const PRODUCTS = <?php echo json_encode($data['barang'] ?? []); ?>;
         const WALK_IN_ID = '<?php echo $data['walk_in']['id_pelanggan'] ?? ''; ?>';
-        const RECEIPT_NO = '<?php echo $data['no_receipt']; ?>';
+        const RECEIPT_NO = '<?php echo $data['no_receipt'] ?? ''; ?>';
         const TAX_RATE = <?php echo (float)($data['perusahaan']['persentase_pajak_default'] ?? 11); ?> / 100;
         const CSRF_TOKEN = '<?php echo Auth::getCsrfToken(); ?>';
         const BASE_URL = '<?php echo BASEURL; ?>';
-        const COMPANY = <?php echo json_encode($data['perusahaan']); ?>;
-        const KASIR_NAME = '<?php echo Auth::user()['name']; ?>';
+        const COMPANY = <?php echo json_encode($data['perusahaan'] ?? []); ?>;
+        const KASIR_NAME = <?php echo json_encode(Auth::user()['name'] ?? ''); ?>;
 
         // Cart State
         let cart = [];

@@ -20,7 +20,7 @@
                         <i class="bi bi-wallet2"></i>
                     </div>
                     <div class="small text-white-50 text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">Total Penjualan POS Hari Ini</div>
-                    <h2 class="h1 mb-0 brand-font fw-extrabold">Rp <?php echo number_format($data['statistik']['total_penjualan'], 0, ',', '.'); ?></h2>
+                    <h2 class="h1 mb-0 brand-font fw-extrabold">Rp <?php echo number_format($data['statistik']['total_penjualan'] ?? 0, 0, ',', '.'); ?></h2>
                     <div class="mt-3 small text-white-50">Tercatat dari kasir aktif hari ini</div>
                 </div>
             </div>
@@ -32,8 +32,8 @@
                         <i class="bi bi-cart-check"></i>
                     </div>
                     <div class="small text-white-50 text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.05em;">Jumlah Transaksi Hari Ini</div>
-                    <h2 class="h1 mb-0 brand-font fw-extrabold"><?php echo number_format($data['statistik']['jumlah_transaksi']); ?> Transaksi</h2>
-                    <div class="mt-3 small text-white-50">Rata-rata penjualan: Rp <?php echo ($data['statistik']['jumlah_transaksi'] > 0) ? number_format($data['statistik']['total_penjualan'] / $data['statistik']['jumlah_transaksi'], 0, ',', '.') : '0'; ?> per transaksi</div>
+                    <h2 class="h1 mb-0 brand-font fw-extrabold"><?php echo number_format($data['statistik']['jumlah_transaksi'] ?? 0); ?> Transaksi</h2>
+                    <div class="mt-3 small text-white-50">Rata-rata penjualan: Rp <?php echo (($data['statistik']['jumlah_transaksi'] ?? 0) > 0) ? number_format(($data['statistik']['total_penjualan'] ?? 0) / $data['statistik']['jumlah_transaksi'], 0, ',', '.') : '0'; ?> per transaksi</div>
                 </div>
             </div>
         </div>
