@@ -66,25 +66,35 @@ class Login extends Controller {
             $user['tenant_name'] = 'SYSTEM CENTRAL';
             $user['database_type'] = 'dagang'; // Default dashboard type for central
         } else {
-            // Login Tenant harus menyertakan kode bisnis yang benar
-            $tenant_code = $_POST['tenant_code'] ?? '';
-            $tenant = $this->model('Tenants')->getTenantByCode($tenant_code);
-
-            if (!$tenant) {
-                Flash::setFlash('Kode Bisnis tidak ditemukan atau tidak aktif.', 'danger');
-                header('Location: ' . BASEURL . '/login');
-                exit;
-            }
-
-            if ($user['tenant_id'] != $tenant['id']) {
-                Flash::setFlash('Pengguna tidak terdaftar di bisnis ' . $tenant['name'], 'danger');
-                header('Location: ' . BASEURL . '/login');
-                exit;
-            }
+            // Login Tenant
+            $tenant_code = trim($_POST['tenant_code'] ?? '');
             
-            // Simpan info tenant ke user session array
-            $user['tenant_name'] = $tenant['name'];
-            $user['database_type'] = $tenant['database_type'];
+            // Kemudahan Superadmin: Jika Superadmin login di tab Tenant tanpa kode bisnis, otomatis masuk Central
+            if (($user['role'] === 'Superadmin' || $user['role'] === 'Penyelia Wilayah') && empty($tenant_code)) {
+                $user['tenant_id'] = null;
+                $user['tenant_name'] = 'SYSTEM CENTRAL';
+                $user['database_type'] = 'dagang';
+            } else {
+                $tenant = $this->model('Tenants')->getTenantByCode($tenant_code);
+
+                if (!$tenant) {
+                    Flash::setFlash('Kode Bisnis tidak ditemukan atau tidak aktif.', 'danger');
+                    header('Location: ' . BASEURL . '/login');
+                    exit;
+                }
+
+                // Superadmin memiliki hak akses universal ke semua tenant
+                if ($user['role'] !== 'Superadmin' && $user['tenant_id'] != $tenant['id']) {
+                    Flash::setFlash('Pengguna tidak terdaftar di bisnis ' . $tenant['name'], 'danger');
+                    header('Location: ' . BASEURL . '/login');
+                    exit;
+                }
+                
+                // Simpan info tenant ke user session array
+                $user['tenant_id'] = $tenant['id'];
+                $user['tenant_name'] = $tenant['name'];
+                $user['database_type'] = $tenant['database_type'];
+            }
         }
 
         // 4. Ambil Izin Akses jika ada custom role
