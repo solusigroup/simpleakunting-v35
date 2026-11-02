@@ -34,6 +34,12 @@ class Kurasi_model {
               `status` varchar(50) NOT NULL DEFAULT 'Menunggu Kurasi',
               `rekomendasi_pembiayaan` text DEFAULT NULL,
               `catatan_kurator` text DEFAULT NULL,
+              `agree_nda` tinyint(1) NOT NULL DEFAULT 0,
+              `agree_spk` tinyint(1) NOT NULL DEFAULT 0,
+              `agree_pakta` tinyint(1) NOT NULL DEFAULT 0,
+              `agree_hardcopy` tinyint(1) NOT NULL DEFAULT 0,
+              `agree_share_profit` tinyint(1) NOT NULL DEFAULT 0,
+              `alamat_hardcopy` varchar(255) DEFAULT 'Jln. Suromulang Barat VI/20 Mojokerto Jatim',
               `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
               `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
               PRIMARY KEY (`id_pengajuan`),
@@ -44,6 +50,26 @@ class Kurasi_model {
             $this->db->query($sql);
             $this->db->execute();
         } catch (Throwable $e) {}
+
+        // Pastikan kolom persetujuan baru ada di tabel yang sudah dibuat sebelumnya
+        $columnsToAdd = [
+            'agree_nda' => "TINYINT(1) NOT NULL DEFAULT 0",
+            'agree_spk' => "TINYINT(1) NOT NULL DEFAULT 0",
+            'agree_pakta' => "TINYINT(1) NOT NULL DEFAULT 0",
+            'agree_hardcopy' => "TINYINT(1) NOT NULL DEFAULT 0",
+            'agree_share_profit' => "TINYINT(1) NOT NULL DEFAULT 0",
+            'alamat_hardcopy' => "VARCHAR(255) DEFAULT 'Jln. Suromulang Barat VI/20 Mojokerto Jatim'"
+        ];
+
+        foreach ($columnsToAdd as $col => $type) {
+            try {
+                $this->db->query("SHOW COLUMNS FROM `{$this->table}` LIKE '{$col}'");
+                if (!$this->db->single()) {
+                    $this->db->query("ALTER TABLE `{$this->table}` ADD COLUMN `{$col}` {$type}");
+                    $this->db->execute();
+                }
+            } catch (Throwable $e) {}
+        }
     }
 
     public function simpanPengajuan($data, $tenant_id = null) {
@@ -59,6 +85,14 @@ class Kurasi_model {
         $metode = trim($data['metode_pembukuan'] ?? 'simpleakunting');
         $deskripsi = trim($data['deskripsi'] ?? '');
 
+        // Persetujuan legalitas
+        $agree_nda = !empty($data['agree_nda']) ? 1 : 0;
+        $agree_spk = !empty($data['agree_spk']) ? 1 : 0;
+        $agree_pakta = !empty($data['agree_pakta']) ? 1 : 0;
+        $agree_hardcopy = !empty($data['agree_hardcopy']) ? 1 : 0;
+        $agree_share_profit = !empty($data['agree_share_profit']) ? 1 : 0;
+        $alamat_hardcopy = 'Jln. Suromulang Barat VI/20 Mojokerto Jatim';
+
         // Hitung estimasi skor awal
         $skor = 50;
         if ($omset >= 50000000) $skor += 20;
@@ -71,6 +105,11 @@ class Kurasi_model {
         if ($metode === 'simpleakunting') $skor += 15;
         else $skor += 8;
 
+        // Bonus skor jika menyetujui seluruh pakta & komitmen
+        if ($agree_nda && $agree_spk && $agree_pakta && $agree_share_profit) {
+            $skor += 5;
+        }
+
         $skor = min(100, max(40, $skor));
         $grade = ($skor >= 85) ? 'A' : (($skor >= 70) ? 'B+' : 'B');
         
@@ -80,9 +119,9 @@ class Kurasi_model {
 
         try {
             $query = "INSERT INTO {$this->table} 
-                        (tenant_id, nama_usaha, nama_pemilik, telepon, kota, sektor, omset, laba_bersih, aset_usaha, lama_usaha, metode_pembukuan, deskripsi, skor_kelayakan, grade, status, rekomendasi_pembiayaan)
+                        (tenant_id, nama_usaha, nama_pemilik, telepon, kota, sektor, omset, laba_bersih, aset_usaha, lama_usaha, metode_pembukuan, deskripsi, skor_kelayakan, grade, status, rekomendasi_pembiayaan, agree_nda, agree_spk, agree_pakta, agree_hardcopy, agree_share_profit, alamat_hardcopy)
                       VALUES 
-                        (:tenant_id, :nama_usaha, :nama_pemilik, :telepon, :kota, :sektor, :omset, :laba, :aset, :lama, :metode, :deskripsi, :skor, :grade, 'Menunggu Kurasi', :rekomendasi)";
+                        (:tenant_id, :nama_usaha, :nama_pemilik, :telepon, :kota, :sektor, :omset, :laba, :aset, :lama, :metode, :deskripsi, :skor, :grade, 'Menunggu Kurasi', :rekomendasi, :agree_nda, :agree_spk, :agree_pakta, :agree_hardcopy, :agree_share_profit, :alamat_hardcopy)";
             $this->db->query($query);
             $this->db->bind('tenant_id', $tenant_id);
             $this->db->bind('nama_usaha', $nama_usaha);
@@ -99,6 +138,12 @@ class Kurasi_model {
             $this->db->bind('skor', $skor);
             $this->db->bind('grade', $grade);
             $this->db->bind('rekomendasi', $rekomendasi);
+            $this->db->bind('agree_nda', $agree_nda);
+            $this->db->bind('agree_spk', $agree_spk);
+            $this->db->bind('agree_pakta', $agree_pakta);
+            $this->db->bind('agree_hardcopy', $agree_hardcopy);
+            $this->db->bind('agree_share_profit', $agree_share_profit);
+            $this->db->bind('alamat_hardcopy', $alamat_hardcopy);
             $this->db->execute();
             return $this->db->lastInsertId();
         } catch (Throwable $e) {

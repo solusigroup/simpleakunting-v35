@@ -181,6 +181,11 @@
                                             data-skor="<?php echo $p['skor_kelayakan']; ?>"
                                             data-grade="<?php echo $p['grade']; ?>"
                                             data-status="<?php echo htmlspecialchars($p['status']); ?>"
+                                            data-nda="<?php echo !empty($p['agree_nda']) ? 1 : 0; ?>"
+                                            data-spk="<?php echo !empty($p['agree_spk']) ? 1 : 0; ?>"
+                                            data-pakta="<?php echo !empty($p['agree_pakta']) ? 1 : 0; ?>"
+                                            data-hardcopy="<?php echo !empty($p['agree_hardcopy']) ? 1 : 0; ?>"
+                                            data-profit="<?php echo !empty($p['agree_share_profit']) ? 1 : 0; ?>"
                                             data-rekomendasi="<?php echo htmlspecialchars($p['rekomendasi_pembiayaan'] ?? ''); ?>"
                                             data-catatan="<?php echo htmlspecialchars($p['catatan_kurator'] ?? ''); ?>"
                                             data-deskripsi="<?php echo htmlspecialchars($p['deskripsi'] ?? ''); ?>"
@@ -249,7 +254,33 @@
                             </div>
                             <div class="col-12 pt-2 border-top">
                                 <span class="text-muted d-block">Deskripsi Usaha:</span>
-                                <div id="modalDeskripsi" class="text-dark fst-italic">-</div>
+                                <div id="modalDeskripsi" class="text-dark fst-italic mb-2">-</div>
+                            </div>
+                            <div class="col-12 pt-2 border-top">
+                                <span class="text-muted d-block fw-semibold mb-1">Status Komitmen & Dokumen Legalitas:</span>
+                                <div class="d-flex flex-wrap gap-2 small">
+                                    <span id="badgeNda" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                        <i class="bi bi-check-circle me-1"></i> NDA Disetujui
+                                    </span>
+                                    <span id="badgeSpk" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                        <i class="bi bi-check-circle me-1"></i> SPK Disetujui
+                                    </span>
+                                    <span id="badgePakta" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                        <i class="bi bi-check-circle me-1"></i> Pakta Integritas Disetujui
+                                    </span>
+                                    <span id="badgeHardcopy" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                        <i class="bi bi-envelope-paper me-1"></i> Kirim Hardcopy ke Mojokerto
+                                    </span>
+                                    <span id="badgeProfit" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                        <i class="bi bi-cash-stack me-1"></i> Share 0,1% GP Th-3
+                                    </span>
+                                </div>
+                                <div class="mt-2 small text-muted">
+                                    Link Dokumen: 
+                                    <a href="https://docs.google.com/document/d/1kR4Iefb0fcEBS4LkuG_j2By-GF-S7YbHuSV6GBskw_o/edit?tab=t.0" target="_blank" class="text-success me-2">NDA ↗</a>
+                                    <a href="https://docs.google.com/document/d/1wqptEM41hmiiIs4-yTjcJEJODR9hmMIPnqgX-L9GdO8/edit?tab=t.0" target="_blank" class="text-success me-2">SPK ↗</a>
+                                    <a href="https://docs.google.com/document/d/1mFWWtUGIAL9XADrPf_M8joirW4EWBq92Xi3PaiBKdWw/edit?tab=t.0" target="_blank" class="text-success">Pakta Integritas ↗</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -320,6 +351,25 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modalSkor').value = this.dataset.skor;
             document.getElementById('modalRekomendasi').value = this.dataset.rekomendasi;
             document.getElementById('modalCatatan').value = this.dataset.catatan;
+
+            // Update badge persetujuan legalitas
+            const updateBadge = (id, val, labelYes, labelNo) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (parseInt(val) === 1) {
+                        el.className = 'badge bg-success-subtle text-success border border-success-subtle rounded-pill';
+                        el.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + labelYes;
+                    } else {
+                        el.className = 'badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill';
+                        el.innerHTML = '<i class="bi bi-x-circle me-1"></i> ' + labelNo;
+                    }
+                }
+            };
+            updateBadge('badgeNda', this.dataset.nda, 'NDA Disetujui', 'NDA Belum');
+            updateBadge('badgeSpk', this.dataset.spk, 'SPK Disetujui', 'SPK Belum');
+            updateBadge('badgePakta', this.dataset.pakta, 'Pakta Integritas Disetujui', 'Pakta Belum');
+            updateBadge('badgeHardcopy', this.dataset.hardcopy, 'Kirim Hardcopy ke Mojokerto Disetujui', 'Hardcopy Belum');
+            updateBadge('badgeProfit', this.dataset.profit, 'Share 0,1% GP Th-3 Disetujui', 'Share Profit Belum');
         });
     });
 });

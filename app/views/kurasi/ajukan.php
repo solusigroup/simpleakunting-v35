@@ -181,6 +181,76 @@
                         <label class="form-label small fw-semibold">Deskripsi Singkat Produk / Rencana Pengembangan Usaha</label>
                         <textarea name="deskripsi" class="form-control" rows="3" placeholder="Ceritakan produk unggulan, kapasitas produksi, dan tujuan permodalan yang diharapkan..."></textarea>
                     </div>
+
+                    <!-- KESEPAKATAN LEGALITAS, DOKUMEN & PAKTA INTEGRITAS -->
+                    <div class="col-12 mt-4">
+                        <div class="p-3 p-md-4 rounded-4 border border-2 border-success-subtle bg-light">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-file-earmark-check-fill fs-4 text-success"></i>
+                                <h5 class="fw-bold mb-0 text-success">Persetujuan Dokumen Legalitas & Komitmen Kurasi</h5>
+                            </div>
+                            <p class="small text-muted mb-3">
+                                Sebagai syarat resmi verifikasi kelayakan akuntansi dan fasilitasi pembiayaan, pemohon wajib menyetujui seluruh klausul di bawah ini:
+                            </p>
+
+                            <!-- 1. NDA -->
+                            <div class="form-check p-3 mb-2 bg-white rounded-3 border">
+                                <input class="form-check-input ms-0 me-3" type="checkbox" name="agree_nda" id="agree_nda" value="1" required>
+                                <label class="form-check-label small" for="agree_nda">
+                                    <strong>1. Bersedia Menandatangani NDA (Non-Disclosure Agreement)</strong><br>
+                                    <span class="text-muted">Menjaga kerahasiaan data finansial, operasional, dan strategi usaha antara pihak UMKM dan tim kurator.</span><br>
+                                    <a href="https://docs.google.com/document/d/1kR4Iefb0fcEBS4LkuG_j2By-GF-S7YbHuSV6GBskw_o/edit?tab=t.0" target="_blank" class="d-inline-block text-success fw-bold mt-1 text-decoration-none">
+                                        <i class="bi bi-file-earmark-text me-1"></i> Buka Template Dokumen NDA ↗
+                                    </a>
+                                </label>
+                            </div>
+
+                            <!-- 2. SPK -->
+                            <div class="form-check p-3 mb-2 bg-white rounded-3 border">
+                                <input class="form-check-input ms-0 me-3" type="checkbox" name="agree_spk" id="agree_spk" value="1" required>
+                                <label class="form-check-label small" for="agree_spk">
+                                    <strong>2. Bersedia Menandatangani SPK (Surat Perjanjian Kerjasama)</strong><br>
+                                    <span class="text-muted">Perjanjian pendampingan pembukuan berstandar SAK EP dan akselerasi akses permodalan perbankan / CSR.</span><br>
+                                    <a href="https://docs.google.com/document/d/1wqptEM41hmiiIs4-yTjcJEJODR9hmMIPnqgX-L9GdO8/edit?tab=t.0" target="_blank" class="d-inline-block text-success fw-bold mt-1 text-decoration-none">
+                                        <i class="bi bi-file-earmark-text me-1"></i> Buka Template Dokumen SPK ↗
+                                    </a>
+                                </label>
+                            </div>
+
+                            <!-- 3. Pakta Integritas -->
+                            <div class="form-check p-3 mb-2 bg-white rounded-3 border">
+                                <input class="form-check-input ms-0 me-3" type="checkbox" name="agree_pakta" id="agree_pakta" value="1" required>
+                                <label class="form-check-label small" for="agree_pakta">
+                                    <strong>3. Bersedia Menandatangani Pakta Integritas</strong><br>
+                                    <span class="text-muted">Komitmen kejujuran, keabsahan bukti transaksi, serta kepatuhan tata kelola keuangan yang transparan.</span><br>
+                                    <a href="https://docs.google.com/document/d/1mFWWtUGIAL9XADrPf_M8joirW4EWBq92Xi3PaiBKdWw/edit?tab=t.0" target="_blank" class="d-inline-block text-success fw-bold mt-1 text-decoration-none">
+                                        <i class="bi bi-file-earmark-text me-1"></i> Buka Template Dokumen Pakta Integritas ↗
+                                    </a>
+                                </label>
+                            </div>
+
+                            <!-- 4. Pengiriman Hardcopy -->
+                            <div class="form-check p-3 mb-2 bg-white rounded-3 border">
+                                <input class="form-check-input ms-0 me-3" type="checkbox" name="agree_hardcopy" id="agree_hardcopy" value="1" required>
+                                <label class="form-check-label small" for="agree_hardcopy">
+                                    <strong>4. Bersedia Mengirimkan Hardcopy 3 Berkas Dokumen</strong><br>
+                                    <span class="text-muted">Mengirimkan berkas fisik bertandatangan basah & bermaterai dari dokumen NDA, SPK, dan Pakta Integritas ke alamat kurasi:</span><br>
+                                    <span class="badge bg-light text-dark border mt-1 font-mono-tech p-2">
+                                        <i class="bi bi-geo-alt-fill text-danger me-1"></i> Jln. Suromulang Barat VI/20 Mojokerto Jatim
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- 5. Share 0,1% gross profit per tahun pada tahun ketiga -->
+                            <div class="form-check p-3 bg-white rounded-3 border border-success">
+                                <input class="form-check-input ms-0 me-3" type="checkbox" name="agree_share_profit" id="agree_share_profit" value="1" required>
+                                <label class="form-check-label small" for="agree_share_profit">
+                                    <strong class="text-success">5. Bersedia Share 0,1% Gross Profit per Tahun pada Tahun Ketiga</strong><br>
+                                    <span class="text-muted">Berkomitmen memberikan kontribusi bagi hasil sebesar <strong>0,1% dari laba kotor (gross profit) per tahun pada tahun ketiga</strong> sebagai kontribusi keberlanjutan ekosistem pembinaan UMKM dan BUMDesa Jawa Timur.</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-12 pt-3">
                         <button type="submit" class="btn-tech-primary w-100 justify-content-center">
                             <i class="bi bi-send-fill me-1"></i> Kirim Pendaftaran Kurasi UMKM
