@@ -36,16 +36,17 @@
                         <td class="ps-4 fw-medium text-primary"><?php echo $row['kode_aset']; ?></td>
                         <td>
                             <div class="fw-bold"><?php echo $row['nama_aset']; ?></div>
-                            <small class="text-muted"><?php echo $row['metode_penyusutan']; ?></small>
+                            <small class="text-muted"><?php echo ($row['metode_penyusutan'] ?? '') === 'saldo_menurun' ? 'Saldo Menurun' : 'Garis Lurus'; ?></small>
                         </td>
                         <td><?php echo date('d/m/Y', strtotime($row['tanggal_perolehan'])); ?></td>
                         <td class="text-end fw-bold">Rp <?php echo number_format($row['harga_perolehan'], 2, ',', '.'); ?></td>
                         <td class="text-center"><?php echo $row['umur_ekonomis']; ?></td>
                         <td>
+                            <?php $rowStatus = $row['status'] ?? 'Aktif'; ?>
                             <span class="badge rounded-pill <?php 
-                                echo $row['status'] == 'Aktif' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'; 
+                                echo $rowStatus == 'Aktif' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'; 
                             ?>">
-                                <?php echo $row['status']; ?>
+                                <?php echo $rowStatus; ?>
                             </span>
                         </td>
                         <td class="text-center pe-4">

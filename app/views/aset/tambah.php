@@ -6,6 +6,7 @@
             </div>
             <div class="card-body p-4">
                 <form action="<?php echo BASEURL; ?>/aset/simpan" method="post">
+                    <input type="hidden" name="csrf_token" value="<?php echo Auth::getCsrfToken(); ?>">
                     <div class="row g-4 mb-4">
                         <div class="col-md-4">
                             <label class="form-label fw-bold small">Kode Aset</label>
@@ -46,8 +47,8 @@
                         <div class="col-md-4">
                             <label class="form-label fw-bold small">Metode Penyusutan</label>
                             <select name="metode_penyusutan" class="form-select rounded-3 shadow-none">
-                                <option value="Garis Lurus">Garis Lurus (Straight Line)</option>
-                                <option value="Saldo Menurun">Saldo Menurun (Declining Balance)</option>
+                                <option value="garis_lurus">Garis Lurus (Straight Line)</option>
+                                <option value="saldo_menurun">Saldo Menurun (Declining Balance)</option>
                             </select>
                         </div>
                     </div>

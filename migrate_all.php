@@ -27,9 +27,10 @@ $scripts = [
     'migrate_pos.php'             => '2. Migrasi Point of Sales (Kasir POS)',
     'migrate_programs.php'        => '3. Migrasi Program & Sumber Dana',
     'migrate_business_units.php'   => '4. Migrasi Unit Usaha / Cabang',
-    'migrate_aset_biologis.php'   => '5. Migrasi Aset Biologis PSAK 241',
-    'migrate_phase1_indexes.php'  => '6. Migrasi Indeks Performa Transaksi',
-    'fix_tenant_data.php'         => '7. Inisialisasi COA Tenant Kosong & Role User'
+    'migrate_aset_tetap.php'       => '5. Migrasi Aset Tetap & Skema Penyusutan',
+    'migrate_aset_biologis.php'   => '6. Migrasi Aset Biologis PSAK 241',
+    'migrate_phase1_indexes.php'  => '7. Migrasi Indeks Performa Transaksi',
+    'fix_tenant_data.php'         => '8. Inisialisasi COA Tenant Kosong & Role User'
 ];
 
 foreach ($scripts as $file => $title) {
