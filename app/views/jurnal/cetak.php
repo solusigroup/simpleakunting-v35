@@ -1,7 +1,18 @@
 <?php
 $j = $data['jurnal'];
 $c = $data['perusahaan'] ?? [];
-$logoPath = !empty($c['path_logo']) ? BASEURL . '/' . $c['path_logo'] : BASEURL . '/img/logo_jatim.png';
+
+$logoPath = '';
+if (!empty($c['path_logo'])) {
+    if (str_starts_with($c['path_logo'], 'http://') || str_starts_with($c['path_logo'], 'https://')) {
+        $logoPath = $c['path_logo'];
+    } else {
+        $logoPath = BASEURL . '/' . ltrim($c['path_logo'], '/');
+    }
+} else {
+    $logoPath = BASEURL . '/img/icon-512.png';
+}
+
 $kota = !empty($c['kota_laporan']) ? $c['kota_laporan'] : 'Mojokerto';
 ?>
 <!DOCTYPE html>

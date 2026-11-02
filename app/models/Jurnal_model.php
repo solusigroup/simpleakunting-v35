@@ -332,19 +332,25 @@ class Jurnal_model {
         }
     }
 
-    public function getJurnalWithDetailsById($id, $tenant_id) {
+    public function getJurnalWithDetailsById($id, $tenant_id = null) {
         $sql = "SELECT ju.*, jd.kode_akun, jd.debit, jd.kredit, a.nama_akun
                 FROM jurnal_umum ju
                 LEFT JOIN jurnal_detail jd ON ju.id_jurnal = jd.id_jurnal
                 LEFT JOIN akun a ON jd.kode_akun = a.kode_akun AND a.tenant_id = ju.tenant_id
-                WHERE ju.id_jurnal = :id_jurnal AND ju.tenant_id = :tenant_id";
+                WHERE ju.id_jurnal = :id_jurnal";
+        if (!empty($tenant_id)) {
+            $sql .= " AND ju.tenant_id = :tenant_id";
+        }
         $this->db->query($sql);
         $this->db->bind('id_jurnal', $id);
-        $this->db->bind('tenant_id', $tenant_id);
+        if (!empty($tenant_id)) {
+            $this->db->bind('tenant_id', $tenant_id);
+        }
         $results = $this->db->resultSet();
         if(empty($results)){ return null; }
         $jurnal = [
             'id_jurnal' => $results[0]['id_jurnal'],
+            'tenant_id' => $results[0]['tenant_id'] ?? null,
             'no_transaksi' => $results[0]['no_transaksi'],
             'tanggal' => $results[0]['tanggal'],
             'deskripsi' => $results[0]['deskripsi'],
