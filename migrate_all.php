@@ -23,14 +23,15 @@ require_once __DIR__ . '/app/config.php';
 require_once __DIR__ . '/app/core/Database.php';
 
 $scripts = [
-    'migrate_kluster_wilayah.php' => '1. Migrasi Kluster Wilayah & Seeding Jawa Timur',
-    'migrate_pos.php'             => '2. Migrasi Point of Sales (Kasir POS)',
-    'migrate_programs.php'        => '3. Migrasi Program & Sumber Dana',
-    'migrate_business_units.php'   => '4. Migrasi Unit Usaha / Cabang',
-    'migrate_aset_tetap.php'       => '5. Migrasi Aset Tetap & Skema Penyusutan',
-    'migrate_aset_biologis.php'   => '6. Migrasi Aset Biologis PSAK 241',
-    'migrate_phase1_indexes.php'  => '7. Migrasi Indeks Performa Transaksi',
-    'fix_tenant_data.php'         => '8. Inisialisasi COA Tenant Kosong & Role User'
+    'migrate_transaksi_detail.php' => '1. Migrasi Tabel Detail Transaksi (Pembelian & Penjualan)',
+    'migrate_kluster_wilayah.php'  => '2. Migrasi Kluster Wilayah & Seeding Jawa Timur',
+    'migrate_pos.php'              => '3. Migrasi Point of Sales (Kasir POS)',
+    'migrate_programs.php'         => '4. Migrasi Program & Sumber Dana',
+    'migrate_business_units.php'    => '5. Migrasi Unit Usaha / Cabang',
+    'migrate_aset_tetap.php'        => '6. Migrasi Aset Tetap & Skema Penyusutan',
+    'migrate_aset_biologis.php'    => '7. Migrasi Aset Biologis PSAK 241',
+    'migrate_phase1_indexes.php'   => '8. Migrasi Indeks Performa Transaksi',
+    'fix_tenant_data.php'          => '9. Inisialisasi COA Tenant Kosong & Role User'
 ];
 
 foreach ($scripts as $file => $title) {

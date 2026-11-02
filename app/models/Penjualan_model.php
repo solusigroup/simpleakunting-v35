@@ -6,15 +6,100 @@ require_once 'Persediaan_model.php';
 
 class Penjualan_model {
     private $db;
+    private static $schemaChecked = false;
 
     /**
      * Constructor baru yang menerima koneksi database dari Controller.
      */
     public function __construct($db) {
         $this->db = $db;
+        $this->ensureTableSchema();
+    }
+
+    /**
+     * Memastikan struktur tabel penjualan dan penjualan_detail lengkap dan mutakhir (Self-healing).
+     */
+    public function ensureTableSchema() {
+        if (self::$schemaChecked) {
+            return;
+        }
+
+        try {
+            // 1. Pastikan tabel penjualan ada
+            $this->db->query("CREATE TABLE IF NOT EXISTS `penjualan` (
+                `id_penjualan` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                `tenant_id` int(11) DEFAULT 1,
+                `id_pelanggan` bigint(20) unsigned NOT NULL,
+                `id_jurnal` bigint(20) unsigned DEFAULT NULL,
+                `no_faktur` varchar(255) NOT NULL,
+                `tanggal_faktur` date NOT NULL,
+                `total` decimal(15,2) NOT NULL DEFAULT 0.00,
+                `pajak` decimal(15,2) DEFAULT 0.00,
+                `diskon` decimal(15,2) DEFAULT 0.00,
+                `keterangan` text DEFAULT NULL,
+                `metode_pembayaran` varchar(255) NOT NULL,
+                `akun_kas_bank` varchar(255) DEFAULT NULL,
+                `sisa_tagihan` decimal(15,2) NOT NULL DEFAULT 0.00,
+                `status_pembayaran` varchar(255) NOT NULL DEFAULT 'Belum Lunas',
+                `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id_penjualan`),
+                KEY `idx_tenant_penjualan` (`tenant_id`, `no_faktur`),
+                KEY `idx_pelanggan` (`id_pelanggan`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
+            $this->db->execute();
+
+            // 2. Pastikan tabel penjualan_detail ada
+            $this->db->query("CREATE TABLE IF NOT EXISTS `penjualan_detail` (
+                `id_detail` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                `id_penjualan` bigint(20) unsigned NOT NULL,
+                `id_barang` bigint(20) unsigned NOT NULL,
+                `kuantitas` decimal(15,2) NOT NULL DEFAULT 0.00,
+                `harga` decimal(15,2) NOT NULL DEFAULT 0.00,
+                `subtotal` decimal(15,2) NOT NULL DEFAULT 0.00,
+                `akun_pendapatan` varchar(50) DEFAULT NULL,
+                `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id_detail`),
+                KEY `idx_penjualan_detail_penjualan` (`id_penjualan`),
+                KEY `idx_penjualan_detail_barang` (`id_barang`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
+            $this->db->execute();
+
+            // 3. Verifikasi kolom pada tabel penjualan jika tabel sudah ada sebelumnya
+            $this->db->query("SHOW COLUMNS FROM `penjualan`");
+            $cols = $this->db->resultSet();
+            $fields = array_column($cols, 'Field');
+
+            if (!in_array('tenant_id', $fields)) {
+                $this->db->query("ALTER TABLE `penjualan` ADD COLUMN `tenant_id` int(11) DEFAULT 1 AFTER `id_penjualan`");
+                $this->db->execute();
+            }
+            if (!in_array('pajak', $fields)) {
+                $this->db->query("ALTER TABLE `penjualan` ADD COLUMN `pajak` decimal(15,2) DEFAULT 0.00 AFTER `total`");
+                $this->db->execute();
+            }
+            if (!in_array('diskon', $fields)) {
+                $this->db->query("ALTER TABLE `penjualan` ADD COLUMN `diskon` decimal(15,2) DEFAULT 0.00 AFTER `pajak`");
+                $this->db->execute();
+            }
+            if (!in_array('sisa_tagihan', $fields)) {
+                $this->db->query("ALTER TABLE `penjualan` ADD COLUMN `sisa_tagihan` decimal(15,2) NOT NULL DEFAULT 0.00 AFTER `akun_kas_bank`");
+                $this->db->execute();
+            }
+            if (!in_array('status_pembayaran', $fields)) {
+                $this->db->query("ALTER TABLE `penjualan` ADD COLUMN `status_pembayaran` varchar(255) NOT NULL DEFAULT 'Belum Lunas' AFTER `sisa_tagihan`");
+                $this->db->execute();
+            }
+
+            self::$schemaChecked = true;
+        } catch (Throwable $e) {
+            error_log("Penjualan_model::ensureTableSchema error: " . $e->getMessage());
+        }
     }
 
     public function getAllPenjualan($tenant_id) {
+        $this->ensureTableSchema();
         $this->db->query("SELECT p.*, pl.nama_pelanggan 
                          FROM penjualan p
                          LEFT JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan AND pl.tenant_id = p.tenant_id
@@ -25,6 +110,7 @@ class Penjualan_model {
     }
     
     public function getPenjualanByIdWithDetails($id, $tenant_id) {
+        $this->ensureTableSchema();
         $this->db->query("SELECT p.*, pl.nama_pelanggan, pl.alamat as alamat_pelanggan
                          FROM penjualan p
                          LEFT JOIN pelanggan pl ON p.id_pelanggan = pl.id_pelanggan AND pl.tenant_id = p.tenant_id
@@ -46,6 +132,7 @@ class Penjualan_model {
     }
     
     public function simpanPenjualan($data, $tenant_id) {
+        $this->ensureTableSchema();
         $jurnalModel = new Jurnal_model($this->db);
         $persediaanModel = new Persediaan_model($this->db);
         
@@ -220,6 +307,10 @@ class Penjualan_model {
                 $this->db->bind('tenant_id', $tenant_id);
                 $this->db->execute();
             }
+
+            $this->db->query("DELETE FROM penjualan_detail WHERE id_penjualan = :id");
+            $this->db->bind('id', $id_penjualan);
+            $this->db->execute();
 
             $this->db->query("DELETE FROM penjualan WHERE id_penjualan = :id AND tenant_id = :tenant_id");
             $this->db->bind('id', $id_penjualan);

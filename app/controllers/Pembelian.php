@@ -5,6 +5,7 @@ class Pembelian extends Controller {
 
     public function __construct() {
         parent::__construct();
+        $this->model('Pembelian')->ensureTableSchema();
     }
 
     public function index() {

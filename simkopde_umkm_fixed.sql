@@ -445,6 +445,24 @@ CREATE TABLE IF NOT EXISTS `pembelian` (
 
 -- Membuang data untuk tabel simpleak_v35.pembelian: ~0 rows (lebih kurang)
 
+-- membuang struktur untuk table simpleak_v35.pembelian_detail
+CREATE TABLE IF NOT EXISTS `pembelian_detail` (
+  `id_detail` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `id_pembelian` bigint(20) unsigned NOT NULL,
+  `id_barang` bigint(20) unsigned NOT NULL,
+  `kuantitas` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `harga` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `subtotal` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `akun_beban_persediaan` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id_detail`),
+  KEY `idx_pembelian_detail_pembelian` (`id_pembelian`),
+  KEY `idx_pembelian_detail_barang` (`id_barang`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Membuang data untuk tabel simpleak_v35.pembelian_detail: ~0 rows (lebih kurang)
+
 -- membuang struktur untuk table simpleak_v35.penawaran
 CREATE TABLE IF NOT EXISTS `penawaran` (
   `id_penawaran` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -535,6 +553,24 @@ CREATE TABLE IF NOT EXISTS `penjualan` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Membuang data untuk tabel simpleak_v35.penjualan: ~0 rows (lebih kurang)
+
+-- membuang struktur untuk table simpleak_v35.penjualan_detail
+CREATE TABLE IF NOT EXISTS `penjualan_detail` (
+  `id_detail` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `id_penjualan` bigint(20) unsigned NOT NULL,
+  `id_barang` bigint(20) unsigned NOT NULL,
+  `kuantitas` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `harga` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `subtotal` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `akun_pendapatan` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id_detail`),
+  KEY `idx_penjualan_detail_penjualan` (`id_penjualan`),
+  KEY `idx_penjualan_detail_barang` (`id_barang`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Membuang data untuk tabel simpleak_v35.penjualan_detail: ~0 rows (lebih kurang)
 
 -- membuang struktur untuk table simpleak_v35.penyusutan_aset
 CREATE TABLE IF NOT EXISTS `penyusutan_aset` (

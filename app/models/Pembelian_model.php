@@ -6,12 +6,97 @@ require_once 'Persediaan_model.php';
 
 class Pembelian_model {
     private $db;
+    private static $schemaChecked = false;
 
     public function __construct($db) {
         $this->db = $db;
+        $this->ensureTableSchema();
+    }
+
+    /**
+     * Memastikan struktur tabel pembelian dan pembelian_detail lengkap dan mutakhir (Self-healing).
+     */
+    public function ensureTableSchema() {
+        if (self::$schemaChecked) {
+            return;
+        }
+
+        try {
+            // 1. Pastikan tabel pembelian ada
+            $this->db->query("CREATE TABLE IF NOT EXISTS `pembelian` (
+                `id_pembelian` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                `tenant_id` int(11) DEFAULT 1,
+                `id_pemasok` bigint(20) unsigned NOT NULL,
+                `id_jurnal` bigint(20) unsigned DEFAULT NULL,
+                `no_faktur_pembelian` varchar(255) NOT NULL,
+                `tanggal_faktur` date NOT NULL,
+                `total` decimal(15,2) NOT NULL DEFAULT 0.00,
+                `pajak` decimal(15,2) DEFAULT 0.00,
+                `diskon` decimal(15,2) DEFAULT 0.00,
+                `keterangan` text DEFAULT NULL,
+                `metode_pembayaran` varchar(255) NOT NULL,
+                `akun_kas_bank` varchar(255) DEFAULT NULL,
+                `sisa_tagihan` decimal(15,2) NOT NULL DEFAULT 0.00,
+                `status_pembayaran` varchar(255) NOT NULL DEFAULT 'Belum Lunas',
+                `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id_pembelian`),
+                KEY `idx_tenant_pembelian` (`tenant_id`, `no_faktur_pembelian`),
+                KEY `idx_pemasok` (`id_pemasok`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
+            $this->db->execute();
+
+            // 2. Pastikan tabel pembelian_detail ada
+            $this->db->query("CREATE TABLE IF NOT EXISTS `pembelian_detail` (
+                `id_detail` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+                `id_pembelian` bigint(20) unsigned NOT NULL,
+                `id_barang` bigint(20) unsigned NOT NULL,
+                `kuantitas` decimal(15,2) NOT NULL DEFAULT 0.00,
+                `harga` decimal(15,2) NOT NULL DEFAULT 0.00,
+                `subtotal` decimal(15,2) NOT NULL DEFAULT 0.00,
+                `akun_beban_persediaan` varchar(50) DEFAULT NULL,
+                `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id_detail`),
+                KEY `idx_pembelian_detail_pembelian` (`id_pembelian`),
+                KEY `idx_pembelian_detail_barang` (`id_barang`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
+            $this->db->execute();
+
+            // 3. Verifikasi kolom pada tabel pembelian jika tabel sudah ada sebelumnya
+            $this->db->query("SHOW COLUMNS FROM `pembelian`");
+            $cols = $this->db->resultSet();
+            $fields = array_column($cols, 'Field');
+
+            if (!in_array('tenant_id', $fields)) {
+                $this->db->query("ALTER TABLE `pembelian` ADD COLUMN `tenant_id` int(11) DEFAULT 1 AFTER `id_pembelian`");
+                $this->db->execute();
+            }
+            if (!in_array('pajak', $fields)) {
+                $this->db->query("ALTER TABLE `pembelian` ADD COLUMN `pajak` decimal(15,2) DEFAULT 0.00 AFTER `total`");
+                $this->db->execute();
+            }
+            if (!in_array('diskon', $fields)) {
+                $this->db->query("ALTER TABLE `pembelian` ADD COLUMN `diskon` decimal(15,2) DEFAULT 0.00 AFTER `pajak`");
+                $this->db->execute();
+            }
+            if (!in_array('sisa_tagihan', $fields)) {
+                $this->db->query("ALTER TABLE `pembelian` ADD COLUMN `sisa_tagihan` decimal(15,2) NOT NULL DEFAULT 0.00 AFTER `akun_kas_bank`");
+                $this->db->execute();
+            }
+            if (!in_array('status_pembayaran', $fields)) {
+                $this->db->query("ALTER TABLE `pembelian` ADD COLUMN `status_pembayaran` varchar(255) NOT NULL DEFAULT 'Belum Lunas' AFTER `sisa_tagihan`");
+                $this->db->execute();
+            }
+
+            self::$schemaChecked = true;
+        } catch (Throwable $e) {
+            error_log("Pembelian_model::ensureTableSchema error: " . $e->getMessage());
+        }
     }
 
     public function getAllPembelian($tenant_id) {
+        $this->ensureTableSchema();
         $this->db->query("SELECT p.*, pm.nama_pemasok 
                          FROM pembelian p
                          LEFT JOIN pemasok pm ON p.id_pemasok = pm.id_pemasok AND pm.tenant_id = p.tenant_id
@@ -22,6 +107,7 @@ class Pembelian_model {
     }
     
     public function getPembelianByIdWithDetails($id, $tenant_id) {
+        $this->ensureTableSchema();
         $this->db->query("SELECT p.*, pm.nama_pemasok, pm.alamat as alamat_pemasok
                          FROM pembelian p
                          LEFT JOIN pemasok pm ON p.id_pemasok = pm.id_pemasok AND pm.tenant_id = p.tenant_id
@@ -42,6 +128,7 @@ class Pembelian_model {
     }
     
     public function simpanPembelian($data, $tenant_id) {
+        $this->ensureTableSchema();
         $jurnalModel = new Jurnal_model($this->db);
         $persediaanModel = new Persediaan_model($this->db);
         
@@ -193,6 +280,10 @@ class Pembelian_model {
                 $this->db->bind('tenant_id', $tenant_id);
                 $this->db->execute();
             }
+
+            $this->db->query("DELETE FROM pembelian_detail WHERE id_pembelian = :id");
+            $this->db->bind('id', $id_pembelian);
+            $this->db->execute();
 
             $this->db->query("DELETE FROM pembelian WHERE id_pembelian = :id AND tenant_id = :tenant_id");
             $this->db->bind('id', $id_pembelian);

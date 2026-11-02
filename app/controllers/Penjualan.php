@@ -5,6 +5,7 @@ class Penjualan extends Controller {
 
     public function __construct() {
         parent::__construct();
+        $this->model('Penjualan')->ensureTableSchema();
     }
 
     public function index() {
