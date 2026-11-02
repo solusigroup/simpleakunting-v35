@@ -67,6 +67,11 @@
                                 </td>
                             </tr>
                         <?php endforeach; ?>
+                        <?php if(empty($data['units'])): ?>
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">Belum ada unit usaha yang terdaftar.</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

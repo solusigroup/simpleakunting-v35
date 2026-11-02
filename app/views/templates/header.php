@@ -362,31 +362,31 @@
     $databaseType = $user['database_type'] ?? '';
 
     // --- Permission flags untuk visibilitas section ---
-    $canPelanggan = Auth::hasPermission('master_pelanggan');
-    $canPemasok = Auth::hasPermission('master_pemasok');
-    $canAkun = Auth::hasPermission('master_akun');
-    $canPersediaan = ($databaseType !== 'jasa') && Auth::hasPermission('master_persediaan');
-    $canAset = Auth::hasPermission('master_aset');
+    $canPelanggan = Auth::hasPermission('master_pelanggan') || Auth::isAdmin() || Auth::isManager();
+    $canPemasok = Auth::hasPermission('master_pemasok') || Auth::isAdmin() || Auth::isManager();
+    $canAkun = Auth::hasPermission('master_akun') || Auth::isAdmin() || Auth::isManager();
+    $canPersediaan = ($databaseType !== 'jasa') && (Auth::hasPermission('master_persediaan') || Auth::isAdmin() || Auth::isManager());
+    $canAset = Auth::hasPermission('master_aset') || Auth::isAdmin() || Auth::isManager();
     $showMasterSection = $canPelanggan || $canPemasok || $canAkun || $canPersediaan || $canAset;
 
-    $canPenjualan = Auth::hasPermission('trx_penjualan');
-    $canPenerimaan = Auth::hasPermission('trx_penerimaan');
-    $canPembelian = Auth::hasPermission('trx_pembelian');
-    $canPembayaran = Auth::hasPermission('trx_pembayaran');
-    $canPos = Auth::hasPermission('trx_pos');
-    $canBom = Auth::hasPermission('trx_bom');
-    $canProduksi = Auth::hasPermission('trx_produksi');
+    $canPenjualan = Auth::hasPermission('trx_penjualan') || Auth::isAdmin() || Auth::isManager();
+    $canPenerimaan = Auth::hasPermission('trx_penerimaan') || Auth::isAdmin() || Auth::isManager();
+    $canPembelian = Auth::hasPermission('trx_pembelian') || Auth::isAdmin() || Auth::isManager();
+    $canPembayaran = Auth::hasPermission('trx_pembayaran') || Auth::isAdmin() || Auth::isManager();
+    $canPos = Auth::hasPermission('trx_pos') || Auth::isAdmin() || Auth::isManager();
+    $canBom = Auth::hasPermission('trx_bom') || Auth::isAdmin() || Auth::isManager();
+    $canProduksi = Auth::hasPermission('trx_produksi') || Auth::isAdmin() || Auth::isManager();
     $showTradeMenu = $canPenjualan || $canPenerimaan || $canPembelian || $canPembayaran;
     $showManufMenu = ($databaseType === 'manufaktur') && ($canBom || $canProduksi);
     $showOperasionalSection = $showTradeMenu || $showManufMenu || $canPos;
 
-    $canPrograms = Auth::hasPermission('menu_programs');
-    $canUnits = Auth::hasPermission('menu_units');
+    $canPrograms = Auth::hasPermission('menu_programs') || Auth::isAdmin() || Auth::isManager();
+    $canUnits = Auth::hasPermission('menu_units') || Auth::isAdmin() || Auth::isManager();
     $showProgramSection = $canPrograms || $canUnits;
 
-    $canKas = Auth::hasPermission('trx_kas');
-    $canJurnal = Auth::hasPermission('fin_jurnal');
-    $canLaporan = Auth::hasPermission('fin_laporan');
+    $canKas = Auth::hasPermission('trx_kas') || Auth::isAdmin() || Auth::isManager();
+    $canJurnal = Auth::hasPermission('fin_jurnal') || Auth::isAdmin() || Auth::isManager();
+    $canLaporan = Auth::hasPermission('fin_laporan') || Auth::isAdmin() || Auth::isManager();
     $showKeuanganSection = $canKas || $canJurnal || $canLaporan;
     ?>
 
@@ -619,16 +619,19 @@
                 <?php endif; /* end showManufMenu */ ?>
                 <?php endif; /* end showOperasionalSection */ ?>
 
-                <?php if ($showProgramSection || Auth::isAdmin()): ?>
+            <?php if ($showProgramSection): ?>
                 <li class="nav-item mt-3">
                     <small class="text-uppercase px-3 opacity-50 fw-bold" style="font-size: 0.7rem;">Pembiayaan & Program</small>
                 </li>
+                <?php if ($canPrograms): ?>
                 <li class="nav-item">
                     <a class="nav-link <?php echo ($current_controller == 'programs') ? 'active' : ''; ?>"
                         href="<?php echo BASEURL; ?>/programs">
                         <i class="bi bi-gift-fill"></i> Program & Dana
                     </a>
                 </li>
+                <?php endif; ?>
+                <?php if ($canUnits): ?>
                 <li class="nav-item">
                     <a class="nav-link <?php echo ($current_controller == 'units') ? 'active' : ''; ?>"
                         href="<?php echo BASEURL; ?>/units">
@@ -636,6 +639,7 @@
                     </a>
                 </li>
                 <?php endif; ?>
+            <?php endif; ?>
 
                 <?php if ($showKeuanganSection): ?>
                 <li class="nav-item mt-3">

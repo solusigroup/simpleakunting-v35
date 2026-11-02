@@ -3,18 +3,47 @@
 class Pemasok_model {
     private $table = 'pemasok';
     private $db;
+    private static $checked = false;
 
-    /**
-     * Constructor baru yang menerima koneksi database dari Controller.
-     */
     public function __construct($db) {
         $this->db = $db;
+        $this->ensureTableExists();
+    }
+
+    private function ensureTableExists() {
+        if (self::$checked) return;
+        self::$checked = true;
+
+        try {
+            $sql = "CREATE TABLE IF NOT EXISTS `pemasok` (
+              `id_pemasok` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+              `tenant_id` int(11) DEFAULT 1,
+              `nama_pemasok` varchar(255) NOT NULL,
+              `alamat` text DEFAULT NULL,
+              `telepon` varchar(255) DEFAULT NULL,
+              `email` varchar(255) DEFAULT NULL,
+              `saldo_awal_hutang` decimal(15,2) NOT NULL DEFAULT 0.00,
+              `saldo_terkini_hutang` decimal(15,2) NOT NULL DEFAULT 0.00,
+              `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+              `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+              PRIMARY KEY (`id_pemasok`),
+              KEY `tenant_id` (`tenant_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
+            $this->db->query($sql);
+            $this->db->execute();
+        } catch (Throwable $e) {}
     }
 
     public function getAllPemasok($tenant_id) {
-        $this->db->query('SELECT * FROM ' . $this->table . ' WHERE tenant_id = :tenant_id ORDER BY nama_pemasok ASC');
-        $this->db->bind('tenant_id', $tenant_id);
-        return $this->db->resultSet();
+        if (empty($tenant_id)) return [];
+        try {
+            $this->db->query('SELECT * FROM ' . $this->table . ' WHERE tenant_id = :tenant_id ORDER BY nama_pemasok ASC');
+            $this->db->bind('tenant_id', $tenant_id);
+            $res = $this->db->resultSet();
+            return is_array($res) ? $res : [];
+        } catch (Throwable $e) {
+            return [];
+        }
     }
 
     public function getPemasokById($id, $tenant_id) {

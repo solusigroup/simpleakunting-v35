@@ -1,9 +1,36 @@
 <?php
 
 class Pelanggan extends Controller {
+    public function __construct() {
+        parent::__construct();
+        if (!Auth::isLoggedIn()) {
+            Flash::setFlash('Silakan login terlebih dahulu.', 'warning');
+            header('Location: ' . BASEURL . '/login');
+            exit;
+        }
+        if (!Auth::hasPermission('master_pelanggan') && !Auth::isAdmin() && !Auth::isManager()) {
+            Flash::setFlash('Akses Ditolak', 'Anda tidak memiliki izin untuk mengakses data pelanggan', 'danger');
+            header('Location: ' . BASEURL . '/dashboard');
+            exit;
+        }
+    }
+
     public function index() {
+        $tenantId = $this->tenantId();
+        if (empty($tenantId)) {
+            if (Auth::isActuallySuperadmin()) {
+                Flash::setFlash('Pilih Tenant Terlebih Dahulu', 'Silakan pilih tenant di Manajemen Tenant untuk mengelola Data Pelanggan.', 'info');
+                header('Location: ' . BASEURL . '/tenants');
+                exit;
+            } else {
+                Flash::setFlash('Akses Ditolak', 'Tenant tidak valid.', 'danger');
+                header('Location: ' . BASEURL . '/dashboard');
+                exit;
+            }
+        }
         $data['judul'] = 'Data Pelanggan';
-        $data['pelanggan'] = $this->model('Pelanggan')->getAllPelanggan($this->tenantId());
+        $pelanggan = $this->model('Pelanggan')->getAllPelanggan($tenantId);
+        $data['pelanggan'] = is_array($pelanggan) ? $pelanggan : [];
         $this->view('templates/header', $data);
         $this->view('pelanggan/index', $data);
         $this->view('templates/footer');

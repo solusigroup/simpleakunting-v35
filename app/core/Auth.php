@@ -155,11 +155,8 @@ class Auth {
         self::startSession();
         if (!self::isLoggedIn()) return false;
         
-        // Hanya Superadmin yang membypass semua check (RBAC Global)
-        if (self::hasRole('Superadmin')) return true;
-
-        // Admin Tenant tanpa Custom Role (RBAC) mendapatkan akses penuh secara default (Legacy Compatibility)
-        if (self::hasRole('Admin') && empty($_SESSION['user_role_id'])) return true;
+        // Superadmin & Admin Tenant mendapatkan akses penuh secara default
+        if (self::hasRole('Superadmin') || self::hasRole('Admin')) return true;
 
         $permissions = $_SESSION['user_permissions'] ?? [];
         return in_array($permission_key, $permissions);

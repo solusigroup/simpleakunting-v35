@@ -2,9 +2,58 @@
 
 class Role_model {
     private $db;
+    private static $permsChecked = false;
 
     public function __construct($db) {
         $this->db = $db;
+        $this->ensureDefaultPermissions();
+    }
+
+    /**
+     * Memastikan seluruh permission esensial dan assignment ke role terdaftar otomatis di database
+     */
+    private function ensureDefaultPermissions() {
+        if (self::$permsChecked) return;
+        self::$permsChecked = true;
+
+        try {
+            $requiredPermissions = [
+                ['master_pelanggan', 'Manage Pelanggan', 'Master Data'],
+                ['master_pemasok', 'Manage Pemasok', 'Master Data'],
+                ['menu_programs', 'Menu Program & Sumber Dana', 'Pembiayaan'],
+                ['trx_programs_manage', 'Kelola Data Program', 'Pembiayaan'],
+                ['rep_programs_realization', 'Laporan Realisasi Program', 'Laporan'],
+                ['menu_units', 'Menu Unit Usaha', 'Pembiayaan'],
+                ['trx_units_manage', 'Kelola Data Unit Usaha', 'Pembiayaan'],
+                ['trx_pos', 'Point of Sales (Kasir)', 'Operasional']
+            ];
+
+            foreach ($requiredPermissions as $p) {
+                $this->db->query("SELECT id FROM permissions WHERE permission_key = :k");
+                $this->db->bind('k', $p[0]);
+                $row = $this->db->single();
+                $permId = $row ? $row['id'] : null;
+
+                if (!$permId) {
+                    $this->db->query("INSERT INTO permissions (permission_key, display_name, category) VALUES (:k, :d, :c)");
+                    $this->db->bind('k', $p[0]);
+                    $this->db->bind('d', $p[1]);
+                    $this->db->bind('c', $p[2]);
+                    $this->db->execute();
+                    $permId = $this->db->lastInsertId();
+                }
+
+                if ($permId) {
+                    // Berikan akses otomatis ke Superadmin (1), Admin (2), Manager (3)
+                    foreach ([1, 2, 3] as $rid) {
+                        $this->db->query("INSERT IGNORE INTO role_permissions (role_id, permission_id) VALUES (:rid, :pid)");
+                        $this->db->bind('rid', $rid);
+                        $this->db->bind('pid', $permId);
+                        $this->db->execute();
+                    }
+                }
+            }
+        } catch (Throwable $e) {}
     }
 
     public function getAllRoles() {
