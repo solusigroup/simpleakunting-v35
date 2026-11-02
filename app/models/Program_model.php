@@ -3,25 +3,60 @@
 class Program_model {
     private $table = 'programs';
     private $db;
+    private static $checked = false;
 
     public function __construct($db)
     {
         $this->db = $db;
+        $this->ensureTableExists();
+    }
+
+    private function ensureTableExists()
+    {
+        if (self::$checked) return;
+        self::$checked = true;
+
+        try {
+            $sql = "CREATE TABLE IF NOT EXISTS programs (
+                id_program INT AUTO_INCREMENT PRIMARY KEY,
+                tenant_id INT NOT NULL,
+                nama_program VARCHAR(255) NOT NULL,
+                tipe ENUM('Pemerintah', 'CSR', 'Lainnya') DEFAULT 'Pemerintah',
+                anggaran_total DECIMAL(15,2) DEFAULT 0.00,
+                deskripsi TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX (tenant_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
+            $this->db->query($sql);
+            $this->db->execute();
+        } catch (Throwable $e) {}
     }
 
     public function getAllPrograms($tenant_id)
     {
-        $this->db->query("SELECT * FROM {$this->table} WHERE tenant_id = :tenant_id ORDER BY created_at DESC");
-        $this->db->bind('tenant_id', $tenant_id);
-        return $this->db->resultSet();
+        if (empty($tenant_id)) return [];
+        try {
+            $this->db->query("SELECT * FROM {$this->table} WHERE tenant_id = :tenant_id ORDER BY created_at DESC");
+            $this->db->bind('tenant_id', $tenant_id);
+            $res = $this->db->resultSet();
+            return is_array($res) ? $res : [];
+        } catch (Throwable $e) {
+            return [];
+        }
     }
 
     public function getProgramById($id, $tenant_id)
     {
-        $this->db->query("SELECT * FROM {$this->table} WHERE id_program = :id AND tenant_id = :tenant_id");
-        $this->db->bind('id', $id);
-        $this->db->bind('tenant_id', $tenant_id);
-        return $this->db->single();
+        if (empty($tenant_id)) return null;
+        try {
+            $this->db->query("SELECT * FROM {$this->table} WHERE id_program = :id AND tenant_id = :tenant_id");
+            $this->db->bind('id', $id);
+            $this->db->bind('tenant_id', $tenant_id);
+            return $this->db->single();
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 
     public function tambahProgram($data, $tenant_id)

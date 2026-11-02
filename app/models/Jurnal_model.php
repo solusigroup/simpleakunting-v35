@@ -2,32 +2,78 @@
 
 class Jurnal_model {
     private $db;
+    private static $checked = false;
 
     public function __construct($db)
     {
         $this->db = $db;
+        $this->ensureSchema();
+    }
+
+    private function ensureSchema()
+    {
+        if (self::$checked) return;
+        self::$checked = true;
+
+        try {
+            $this->db->query("SHOW COLUMNS FROM jurnal_umum LIKE 'id_program'");
+            if (!$this->db->single()) {
+                $this->db->query("ALTER TABLE jurnal_umum ADD COLUMN id_program INT DEFAULT NULL AFTER sumber_jurnal");
+                $this->db->execute();
+            }
+        } catch (Throwable $e) {}
+
+        try {
+            $this->db->query("SHOW COLUMNS FROM jurnal_umum LIKE 'id_unit'");
+            if (!$this->db->single()) {
+                $this->db->query("ALTER TABLE jurnal_umum ADD COLUMN id_unit INT DEFAULT NULL AFTER id_program");
+                $this->db->execute();
+            }
+        } catch (Throwable $e) {}
     }
 
     public function getAllJurnal($tenant_id, $id_unit = null)
     {
-        $query = "SELECT 
-                    ju.id_jurnal, ju.no_transaksi, ju.tanggal, ju.deskripsi, ju.sumber_jurnal, ju.is_locked, ju.id_program, ju.id_unit,
-                    COALESCE(SUM(jd.debit), 0) as total
-                  FROM jurnal_umum ju
-                  LEFT JOIN jurnal_detail jd ON ju.id_jurnal = jd.id_jurnal
-                  WHERE ju.tenant_id = :tenant_id";
-        
-        if ($id_unit) {
-            $query .= " AND ju.id_unit = :id_unit";
-        }
+        if (empty($tenant_id)) return [];
 
-        $query .= " GROUP BY ju.id_jurnal ORDER BY ju.tanggal DESC, ju.no_transaksi DESC";
-        
-        $this->db->query($query);
-        $this->db->bind('tenant_id', $tenant_id);
-        if ($id_unit) $this->db->bind('id_unit', $id_unit);
-        
-        return $this->db->resultSet();
+        try {
+            $query = "SELECT 
+                        ju.id_jurnal, ju.no_transaksi, ju.tanggal, ju.deskripsi, ju.sumber_jurnal, ju.is_locked, ju.id_program, ju.id_unit,
+                        COALESCE(SUM(jd.debit), 0) as total
+                      FROM jurnal_umum ju
+                      LEFT JOIN jurnal_detail jd ON ju.id_jurnal = jd.id_jurnal
+                      WHERE ju.tenant_id = :tenant_id";
+            
+            if ($id_unit) {
+                $query .= " AND ju.id_unit = :id_unit";
+            }
+
+            $query .= " GROUP BY ju.id_jurnal ORDER BY ju.tanggal DESC, ju.no_transaksi DESC";
+            
+            $this->db->query($query);
+            $this->db->bind('tenant_id', $tenant_id);
+            if ($id_unit) $this->db->bind('id_unit', $id_unit);
+            
+            $res = $this->db->resultSet();
+            return is_array($res) ? $res : [];
+        } catch (Throwable $e) {
+            // Fallback jika id_program / id_unit belum ada pada tabel jurnal_umum
+            try {
+                $fallback = "SELECT 
+                            ju.id_jurnal, ju.no_transaksi, ju.tanggal, ju.deskripsi, ju.sumber_jurnal, ju.is_locked,
+                            COALESCE(SUM(jd.debit), 0) as total
+                          FROM jurnal_umum ju
+                          LEFT JOIN jurnal_detail jd ON ju.id_jurnal = jd.id_jurnal
+                          WHERE ju.tenant_id = :tenant_id
+                          GROUP BY ju.id_jurnal ORDER BY ju.tanggal DESC, ju.no_transaksi DESC";
+                $this->db->query($fallback);
+                $this->db->bind('tenant_id', $tenant_id);
+                $res = $this->db->resultSet();
+                return is_array($res) ? $res : [];
+            } catch (Throwable $e2) {
+                return [];
+            }
+        }
     }
 
     public function generateNoTransaksi($tenant_id) {
@@ -257,10 +303,15 @@ class Jurnal_model {
     }
 
     private function getDefaultUnit($tenant_id) {
-        $this->db->query("SELECT id_unit FROM business_units WHERE tenant_id = :tid AND is_default = 1");
-        $this->db->bind('tid', $tenant_id);
-        $res = $this->db->single();
-        return $res ? $res['id_unit'] : null;
+        if (empty($tenant_id)) return null;
+        try {
+            $this->db->query("SELECT id_unit FROM business_units WHERE tenant_id = :tid AND is_default = 1");
+            $this->db->bind('tid', $tenant_id);
+            $res = $this->db->single();
+            return $res ? $res['id_unit'] : null;
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 
     public function getNeracaSaldo($tanggal_selesai, $tenant_id, $id_unit = null)

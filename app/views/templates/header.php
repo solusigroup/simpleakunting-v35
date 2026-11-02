@@ -357,13 +357,15 @@
     $master_controllers = ['akun', 'pelanggan', 'pemasok', 'persediaan', 'aset', 'asetbiologis'];
     $transaksi_controllers = ['penjualan', 'pembelian', 'penerimaan', 'pembayaran', 'kas', 'penyesuaian', 'jurnal', 'tutupbuku', 'produksi', 'bom', 'pos', 'programs', 'units'];
     $laporan_controllers = ['laporan', 'analisis'];
-    $user = Auth::user();
+    $user = Auth::user() ?: [];
+    $userTenantId = $user['tenant_id'] ?? null;
+    $databaseType = $user['database_type'] ?? '';
 
     // --- Permission flags untuk visibilitas section ---
     $canPelanggan = Auth::hasPermission('master_pelanggan');
     $canPemasok = Auth::hasPermission('master_pemasok');
     $canAkun = Auth::hasPermission('master_akun');
-    $canPersediaan = ($user['database_type'] !== 'jasa') && Auth::hasPermission('master_persediaan');
+    $canPersediaan = ($databaseType !== 'jasa') && Auth::hasPermission('master_persediaan');
     $canAset = Auth::hasPermission('master_aset');
     $showMasterSection = $canPelanggan || $canPemasok || $canAkun || $canPersediaan || $canAset;
 
@@ -375,7 +377,7 @@
     $canBom = Auth::hasPermission('trx_bom');
     $canProduksi = Auth::hasPermission('trx_produksi');
     $showTradeMenu = $canPenjualan || $canPenerimaan || $canPembelian || $canPembayaran;
-    $showManufMenu = ($user['database_type'] === 'manufaktur') && ($canBom || $canProduksi);
+    $showManufMenu = ($databaseType === 'manufaktur') && ($canBom || $canProduksi);
     $showOperasionalSection = $showTradeMenu || $showManufMenu || $canPos;
 
     $canPrograms = Auth::hasPermission('menu_programs');
@@ -472,7 +474,7 @@
                 </li>
             <?php endif; ?>
 
-            <?php if ($user['tenant_id'] !== null): ?>
+            <?php if ($userTenantId !== null): ?>
 
                 <?php if ($showMasterSection): ?>
                 <li class="nav-item mt-3">
@@ -567,7 +569,7 @@
                             </a>
                         <?php endif; ?>
 
-                        <?php if ($user['database_type'] !== 'jasa'): ?>
+                        <?php if ($databaseType !== 'jasa'): ?>
                             <?php if ($canPembelian || $canPembayaran): ?>
                             <hr class="dropdown-divider bg-white opacity-25 mx-4">
                             <?php endif; ?>
@@ -700,9 +702,9 @@
 
                 <div class="d-flex align-items-center gap-3">
                     <h5 class="mb-0 fw-bold d-none d-md-block"><?php echo $data['judul']; ?></h5>
-                    <?php if ($user['impersonating']): ?>
+                    <?php if (!empty($user['impersonating'])): ?>
                         <span class="badge bg-warning text-dark rounded-pill px-3 py-2 border-0 shadow-sm animate-pulse">
-                            <i class="bi bi-eye-fill me-1"></i> Impersonating: <?php echo $user['name']; ?>
+                            <i class="bi bi-eye-fill me-1"></i> Impersonating: <?php echo htmlspecialchars($user['name'] ?? ''); ?>
                         </span>
                         <a href="<?php echo BASEURL; ?>/central/user_stop_impersonate"
                             class="btn btn-sm btn-outline-danger rounded-pill px-3">
@@ -732,9 +734,9 @@
                                 data-bs-toggle="dropdown">
                                 <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
                                     style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                    <?php echo strtoupper(substr($user['name'], 0, 1)); ?>
+                                    <?php echo strtoupper(substr($user['name'] ?? 'U', 0, 1)); ?>
                                 </div>
-                                <span class="fw-medium d-none d-sm-inline"><?php echo $user['name']; ?></span>
+                                <span class="fw-medium d-none d-sm-inline"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2">
                                 <li><a class="dropdown-item rounded-2" href="<?php echo BASEURL; ?>/perusahaan"><i
@@ -760,7 +762,7 @@
 
         <main class="p-4">
             <!-- Global Quick Access Bar (Permission-Gated) -->
-            <?php if ($user['tenant_id'] !== null): ?>
+            <?php if ($userTenantId !== null): ?>
             <div class="quick-access-bar mb-4 d-none d-md-flex align-items-center gap-2 p-2 bg-white rounded-pill shadow-sm border" style="width: max-content;">
                 <div class="px-3 border-end me-1">
                     <small class="fw-bold text-muted text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.05em;">Akses Cepat</small>

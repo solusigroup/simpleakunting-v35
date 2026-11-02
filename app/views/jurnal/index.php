@@ -7,7 +7,7 @@
         <form action="<?php echo BASEURL; ?>/jurnal" method="GET" class="d-flex gap-2">
             <select name="id_unit" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 200px;">
                 <option value="">-- Semua Unit (Konsolidasi) --</option>
-                <?php foreach($data['units'] as $u): ?>
+                <?php foreach(($data['units'] ?? []) as $u): ?>
                     <option value="<?php echo $u['id_unit']; ?>" <?php echo ($data['selected_unit'] == $u['id_unit']) ? 'selected' : ''; ?>>
                         <?php echo $u['nama_unit']; ?>
                     </option>
@@ -42,7 +42,7 @@
                     ?>
                         <tr><td colspan="6" class="text-center py-4">Belum ada entri jurnal.</td></tr>
                     <?php else: ?>
-                        <?php foreach ($data['jurnal'] as $jurnal): ?>
+                        <?php foreach (($data['jurnal'] ?? []) as $jurnal): ?>
                         <tr>
                             <td><?php echo date('d M Y', strtotime($jurnal['tanggal'])); ?></td>
                             <td><?php echo htmlspecialchars($jurnal['no_transaksi']); ?></td>

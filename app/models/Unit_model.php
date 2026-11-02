@@ -3,33 +3,73 @@
 class Unit_model {
     private $table = 'business_units';
     private $db;
+    private static $checked = false;
 
     public function __construct($db)
     {
         $this->db = $db;
+        $this->ensureTableExists();
+    }
+
+    private function ensureTableExists()
+    {
+        if (self::$checked) return;
+        self::$checked = true;
+
+        try {
+            $sql = "CREATE TABLE IF NOT EXISTS business_units (
+                id_unit INT AUTO_INCREMENT PRIMARY KEY,
+                tenant_id INT NOT NULL,
+                nama_unit VARCHAR(255) NOT NULL,
+                kode_unit VARCHAR(50) NOT NULL,
+                deskripsi TEXT,
+                is_default TINYINT(1) DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX (tenant_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;";
+            $this->db->query($sql);
+            $this->db->execute();
+        } catch (Throwable $e) {}
     }
 
     public function getAllUnits($tenant_id)
     {
-        $this->db->query("SELECT * FROM {$this->table} WHERE tenant_id = :tenant_id ORDER BY is_default DESC, nama_unit ASC");
-        $this->db->bind('tenant_id', $tenant_id);
-        return $this->db->resultSet();
+        if (empty($tenant_id)) return [];
+        try {
+            $this->db->query("SELECT * FROM {$this->table} WHERE tenant_id = :tenant_id ORDER BY is_default DESC, nama_unit ASC");
+            $this->db->bind('tenant_id', $tenant_id);
+            $res = $this->db->resultSet();
+            return is_array($res) ? $res : [];
+        } catch (Throwable $e) {
+            return [];
+        }
     }
 
     public function getUnitById($id, $tenant_id)
     {
-        $this->db->query("SELECT * FROM {$this->table} WHERE id_unit = :id AND tenant_id = :tenant_id");
-        $this->db->bind('id', $id);
-        $this->db->bind('tenant_id', $tenant_id);
-        return $this->db->single();
+        if (empty($tenant_id)) return null;
+        try {
+            $this->db->query("SELECT * FROM {$this->table} WHERE id_unit = :id AND tenant_id = :tenant_id");
+            $this->db->bind('id', $id);
+            $this->db->bind('tenant_id', $tenant_id);
+            return $this->db->single();
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 
     public function getDefaultUnit($tenant_id)
     {
-        $this->db->query("SELECT id_unit FROM {$this->table} WHERE tenant_id = :tenant_id AND is_default = 1");
-        $this->db->bind('tenant_id', $tenant_id);
-        $res = $this->db->single();
-        return $res ? $res['id_unit'] : null;
+        if (empty($tenant_id)) return null;
+        try {
+            $this->db->query("SELECT id_unit FROM {$this->table} WHERE tenant_id = :tenant_id AND is_default = 1");
+            $this->db->bind('tenant_id', $tenant_id);
+            $res = $this->db->single();
+            return $res ? $res['id_unit'] : null;
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 
     public function tambahUnit($data, $tenant_id)

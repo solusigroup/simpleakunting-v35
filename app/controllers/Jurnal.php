@@ -2,12 +2,41 @@
 
 class Jurnal extends Controller {
 
+    public function __construct() {
+        parent::__construct();
+        if (!Auth::isLoggedIn()) {
+            Flash::setFlash('Silakan login terlebih dahulu.', 'warning');
+            header('Location: ' . BASEURL . '/login');
+            exit;
+        }
+        if (!Auth::hasPermission('fin_jurnal')) {
+            Flash::setFlash('Anda tidak memiliki izin untuk mengakses Riwayat Jurnal.', 'danger');
+            header('Location: ' . BASEURL . '/dashboard');
+            exit;
+        }
+    }
+
     public function index()
     {
         $data['judul'] = 'Riwayat Jurnal';
+        $tenantId = $this->tenantId();
+        if (empty($tenantId)) {
+            if (Auth::isActuallySuperadmin()) {
+                Flash::setFlash('Pilih Tenant Terlebih Dahulu', 'Untuk melihat atau mencatat Riwayat Jurnal, silakan pilih tenant di Manajemen Tenant atau pantau melalui menu Agregat / Monitoring.', 'info');
+                header('Location: ' . BASEURL . '/tenants');
+                exit;
+            } else {
+                Flash::setFlash('Akses Ditolak', 'Tenant tidak valid atau belum dipilih.', 'danger');
+                header('Location: ' . BASEURL . '/dashboard');
+                exit;
+            }
+        }
+
         $id_unit = $_GET['id_unit'] ?? null;
-        $data['jurnal'] = $this->model('Jurnal')->getAllJurnal($this->tenantId(), $id_unit);
-        $data['units'] = $this->model('Unit')->getAllUnits($this->tenantId());
+        $jurnal = $this->model('Jurnal')->getAllJurnal($tenantId, $id_unit);
+        $data['jurnal'] = is_array($jurnal) ? $jurnal : [];
+        $units = $this->model('Unit')->getAllUnits($tenantId);
+        $data['units'] = is_array($units) ? $units : [];
         $data['selected_unit'] = $id_unit;
         
         $this->view('templates/header', $data);
@@ -47,10 +76,18 @@ class Jurnal extends Controller {
 
     public function tambah()
     {
+        $tenantId = $this->tenantId();
+        if (empty($tenantId)) {
+            Flash::setFlash('Pilih tenant terlebih dahulu.', 'warning');
+            header('Location: ' . BASEURL . '/tenants');
+            exit;
+        }
+
         $data['judul'] = 'Tambah Entri Jurnal';
         $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
         $data['programs'] = $this->model('Program')->getAllPrograms($this->tenantId());
-        $data['units'] = $this->model('Unit')->getAllUnits($this->tenantId());
+        $units = $this->model('Unit')->getAllUnits($tenantId);
+        $data['units'] = is_array($units) ? $units : [];
         $data['no_transaksi'] = $this->model('Jurnal')->generateNoTransaksi($this->tenantId());
 
         $this->view('templates/header', $data);
@@ -104,12 +141,20 @@ class Jurnal extends Controller {
      */
     public function edit($id)
     {
+        $tenantId = $this->tenantId();
+        if (empty($tenantId)) {
+            Flash::setFlash('Pilih tenant terlebih dahulu.', 'warning');
+            header('Location: ' . BASEURL . '/tenants');
+            exit;
+        }
+
         $data['judul'] = 'Edit Entri Jurnal';
         $jurnal_model = $this->model('Jurnal');
         $data['jurnal'] = $jurnal_model->getJurnalWithDetailsById($id, $this->tenantId());
         $data['akun'] = $this->model('Akun')->getAllAkun($this->tenantId());
         $data['programs'] = $this->model('Program')->getAllPrograms($this->tenantId());
-        $data['units'] = $this->model('Unit')->getAllUnits($this->tenantId());
+        $units = $this->model('Unit')->getAllUnits($tenantId);
+        $data['units'] = is_array($units) ? $units : [];
 
         // PERBAIKAN: Cek apakah jurnal ditemukan SEBELUM melanjutkan
         if ($data['jurnal'] === null) {
