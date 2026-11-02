@@ -365,18 +365,9 @@ class AsetBiologis_model {
                 
                 $tanggal = $data['tanggal_perolehan'] ?? date('Y-m-d');
                 $no_transaksi = "ABG/" . date('Ymd', strtotime($tanggal)) . "/" . sprintf('%03d', rand(1, 999));
-                $akun_sumber = $data['akun_sumber'] ?? '1-10001'; // Default Kas/Bank
-                
-                // Cek jika akun_sumber ada di Bagan Akun, fallback ke akun Kas terdekat
-                $checkKas = "SELECT kode_akun FROM akun WHERE kode_akun = :akun AND tenant_id = :tenant";
-                $this->db->query($checkKas);
-                $this->db->bind('akun', $akun_sumber);
-                $this->db->bind('tenant', $tenant_id);
-                if (!$this->db->single()) {
-                    $this->db->query("SELECT kode_akun FROM akun WHERE kode_akun LIKE '1-100%' AND tenant_id = :tenant LIMIT 1");
-                    $this->db->bind('tenant', $tenant_id);
-                    $firstKas = $this->db->single();
-                    $akun_sumber = $firstKas ? $firstKas['kode_akun'] : '1-10001';
+                $akun_sumber = !empty($data['akun_sumber']) ? $data['akun_sumber'] : null;
+                if (empty($akun_sumber)) {
+                    throw new Exception("Akun Sumber Perolehan (Kredit Jurnal Awal) harus dipilih. Silakan pilih akun Kas/Bank atau Hutang Usaha.");
                 }
 
                 $jurnalData = [
@@ -400,6 +391,7 @@ class AsetBiologis_model {
             return $id_aset;
         } catch (Exception $e) {
             if ($this->db->inTransaction()) $this->db->rollBack();
+            Flash::setFlash($e->getMessage(), 'danger');
             return false;
         }
     }

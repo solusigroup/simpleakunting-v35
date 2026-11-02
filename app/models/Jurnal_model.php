@@ -101,6 +101,9 @@ class Jurnal_model {
         }
         
         try {
+            // Validasi proteksi saldo kas: cegah pengeluaran kas melebihi saldo yang ada (saldo kas tidak boleh minus)
+            $this->validateSaldoKas($data['details'] ?? [], $tenant_id);
+
             $queryHeader = "INSERT INTO jurnal_umum (tenant_id, no_transaksi, tanggal, deskripsi, sumber_jurnal, id_program, id_unit) 
                             VALUES (:tenant_id, :no_transaksi, :tanggal, :deskripsi, :sumber_jurnal, :id_program, :id_unit)";
             $this->db->query($queryHeader);
@@ -132,7 +135,7 @@ class Jurnal_model {
             }
             return $id_jurnal;
 
-        } catch (\PDOException $e) {
+        } catch (\Throwable $e) {
             if (!$isTransactionActive) {
                 $this->db->rollBack();
             }
@@ -149,6 +152,9 @@ class Jurnal_model {
             $this->db->beginTransaction();
         }
         try {
+            // Validasi proteksi saldo kas saat update
+            $this->validateSaldoKas($data['details'] ?? [], $tenant_id, $data['id_jurnal']);
+
             $queryHeader = "UPDATE jurnal_umum SET no_transaksi = :no_transaksi, tanggal = :tanggal, deskripsi = :deskripsi, id_program = :id_program, id_unit = :id_unit WHERE id_jurnal = :id_jurnal AND tenant_id = :tenant_id";
             $this->db->query($queryHeader);
             $this->db->bind('no_transaksi', $data['no_transaksi']);
@@ -179,7 +185,7 @@ class Jurnal_model {
                 $this->db->commit();
             }
             return 1;
-        } catch (\PDOException $e) {
+        } catch (\Throwable $e) {
             if (!$isTransactionActive) {
                 $this->db->rollBack();
             }
@@ -191,12 +197,139 @@ class Jurnal_model {
         if ($this->isJurnalLocked($id) && !$force) {
             return 0;
         }
+        $this->validateHapusJurnalSaldoKas($id, $tenant_id);
         $query = "DELETE FROM jurnal_umum WHERE id_jurnal = :id_jurnal AND tenant_id = :tenant_id";
         $this->db->query($query);
         $this->db->bind('id_jurnal', $id);
         $this->db->bind('tenant_id', $tenant_id);
         $this->db->execute();
         return $this->db->rowCount();
+    }
+
+    /**
+     * Memeriksa apakah transaksi akan mengakibatkan saldo akun Kas & Setara Kas menjadi negatif (minus).
+     * Sesuai prinsip akuntansi, saldo Kas dan Setara Kas tidak boleh negatif (kredit).
+     *
+     * @param array $details Array detail jurnal [['kode_akun' => ..., 'debit' => ..., 'kredit' => ...], ...]
+     * @param int $tenant_id
+     * @param int|null $exclude_jurnal_id ID jurnal yang dikecualikan (digunakan saat edit jurnal)
+     * @throws Exception jika pengeluaran melebihi saldo kas yang tersedia
+     */
+    public function validateSaldoKas($details, $tenant_id, $exclude_jurnal_id = null)
+    {
+        if (empty($details) || !is_array($details)) return;
+
+        // Kelompokkan mutasi bersih per kode_akun dalam transaksi ini
+        $mutasiAkun = [];
+        foreach ($details as $d) {
+            $kode = trim($d['kode_akun'] ?? '');
+            if (empty($kode)) continue;
+            $debit = (float)($d['debit'] ?? 0);
+            $kredit = (float)($d['kredit'] ?? 0);
+            if (!isset($mutasiAkun[$kode])) {
+                $mutasiAkun[$kode] = ['debit' => 0.0, 'kredit' => 0.0];
+            }
+            $mutasiAkun[$kode]['debit'] += $debit;
+            $mutasiAkun[$kode]['kredit'] += $kredit;
+        }
+
+        foreach ($mutasiAkun as $kode => $trx) {
+            // Hanya perlu divalidasi jika ada pengeluaran bersih (kredit > debit)
+            $netKeluar = $trx['kredit'] - $trx['debit'];
+            if ($netKeluar <= 0.0001) continue;
+
+            // Cek apakah akun ini adalah akun Kas & Setara Kas (Aset kelompok 1 dengan kode 1-11% atau nama mengandung Kas/Bank)
+            $this->db->query("SELECT kode_akun, nama_akun, tipe_akun, saldo_awal, posisi_saldo_normal 
+                              FROM akun 
+                              WHERE kode_akun = :kode 
+                                AND tenant_id = :tenant_id 
+                                AND tipe_akun != 'Header' 
+                                AND SUBSTR(kode_akun, 1, 1) = '1'
+                                AND (kode_akun LIKE '1-11%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%')");
+            $this->db->bind('kode', $kode);
+            $this->db->bind('tenant_id', $tenant_id);
+            $akun = $this->db->single();
+
+            if ($akun) {
+                // Hitung saldo riil akun saat ini di database
+                $sqlMutasi = "SELECT COALESCE(SUM(jd.debit), 0) - COALESCE(SUM(jd.kredit), 0) AS mutasi_db 
+                              FROM jurnal_detail jd 
+                              JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal 
+                              WHERE jd.kode_akun = :kode AND ju.tenant_id = :tenant_id";
+                if ($exclude_jurnal_id) {
+                    $sqlMutasi .= " AND ju.id_jurnal != :exclude_id";
+                }
+                $this->db->query($sqlMutasi);
+                $this->db->bind('kode', $kode);
+                $this->db->bind('tenant_id', $tenant_id);
+                if ($exclude_jurnal_id) {
+                    $this->db->bind('exclude_id', $exclude_jurnal_id);
+                }
+                $resMutasi = $this->db->single();
+                $mutasiDb = (float)($resMutasi['mutasi_db'] ?? 0);
+
+                $saldoAwal = (float)($akun['saldo_awal'] ?? 0);
+                $saldoSaatIni = $saldoAwal + $mutasiDb;
+
+                // Jika saldo setelah transaksi ini menjadi negatif
+                $saldoProyeksi = $saldoSaatIni - $netKeluar;
+                if ($saldoProyeksi < -0.0001) {
+                    $namaAkun = $akun['nama_akun'];
+                    $saldoStr = number_format($saldoSaatIni, 2, ',', '.');
+                    $keluarStr = number_format($netKeluar, 2, ',', '.');
+                    throw new Exception("Proteksi Saldo Kas: Transaksi ditolak! Saldo akun '{$namaAkun}' ({$kode}) tidak mencukupi (Saldo saat ini: Rp {$saldoStr}, Pengeluaran yang diminta: Rp {$keluarStr}). Saldo Kas dan Setara Kas tidak boleh negatif/minus. Silakan gunakan akun Hutang atau lakukan transaksi penerimaan/pengisian kas terlebih dahulu.");
+                }
+            }
+        }
+    }
+
+    /**
+     * Memeriksa apakah penghapusan jurnal akan mengakibatkan saldo akun Kas & Setara Kas menjadi minus.
+     */
+    public function validateHapusJurnalSaldoKas($id_jurnal, $tenant_id)
+    {
+        $this->db->query("SELECT jd.kode_akun, jd.debit, jd.kredit 
+                          FROM jurnal_detail jd 
+                          JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal 
+                          WHERE ju.id_jurnal = :id AND ju.tenant_id = :tenant_id");
+        $this->db->bind('id', $id_jurnal);
+        $this->db->bind('tenant_id', $tenant_id);
+        $details = $this->db->resultSet();
+        if (empty($details)) return;
+
+        foreach ($details as $d) {
+            $netMasuk = (float)$d['debit'] - (float)$d['kredit'];
+            if ($netMasuk <= 0.0001) continue;
+
+            $kode = $d['kode_akun'];
+            $this->db->query("SELECT kode_akun, nama_akun, saldo_awal 
+                              FROM akun 
+                              WHERE kode_akun = :kode 
+                                AND tenant_id = :tenant_id 
+                                AND tipe_akun != 'Header' 
+                                AND SUBSTR(kode_akun, 1, 1) = '1'
+                                AND (kode_akun LIKE '1-11%' OR nama_akun LIKE '%Kas%' OR nama_akun LIKE '%Bank%')");
+            $this->db->bind('kode', $kode);
+            $this->db->bind('tenant_id', $tenant_id);
+            $akun = $this->db->single();
+
+            if ($akun) {
+                $this->db->query("SELECT COALESCE(SUM(jd.debit), 0) - COALESCE(SUM(jd.kredit), 0) AS mutasi_db 
+                                  FROM jurnal_detail jd 
+                                  JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal 
+                                  WHERE jd.kode_akun = :kode AND ju.tenant_id = :tenant_id");
+                $this->db->bind('kode', $kode);
+                $this->db->bind('tenant_id', $tenant_id);
+                $resMutasi = $this->db->single();
+                $mutasiDb = (float)($resMutasi['mutasi_db'] ?? 0);
+                $saldoSaatIni = (float)($akun['saldo_awal'] ?? 0) + $mutasiDb;
+
+                if (($saldoSaatIni - $netMasuk) < -0.0001) {
+                    $saldoStr = number_format($saldoSaatIni, 2, ',', '.');
+                    throw new Exception("Proteksi Saldo Kas: Jurnal tidak dapat dihapus! Penghapusan penerimaan ini akan menyebabkan saldo Kas/Bank '{$akun['nama_akun']}' ({$kode}) menjadi negatif (Saldo saat ini: Rp {$saldoStr}).");
+                }
+            }
+        }
     }
 
     public function getJurnalWithDetailsById($id, $tenant_id) {

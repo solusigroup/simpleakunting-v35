@@ -186,10 +186,10 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="form-label fw-bold small text-success"><i class="bi bi-wallet2 me-1"></i>Akun Sumber Perolehan (Kredit Jurnal Awal)</label>
-                            <select name="akun_sumber" id="akun_sumber" class="form-select rounded-3 search-select shadow-none">
-                                <option value="">-- Pilih Kas / Bank / Utang --</option>
+                            <select name="akun_sumber" id="akun_sumber" class="form-select rounded-3 search-select shadow-none" required>
+                                <option value="" selected disabled>-- Pilih Kas / Bank / Utang --</option>
                                 <?php foreach($data['akun'] as $row): if(in_array(substr($row['kode_akun'], 0, 1), ['1', '2', '3']) && $row['tipe_akun'] == 'Detail'): ?>
-                                <option value="<?php echo $row['kode_akun']; ?>" <?php echo (str_contains(strtolower($row['nama_akun']), 'kas') || $row['kode_akun'] == '1-10001') ? 'selected' : ''; ?>>
+                                <option value="<?php echo $row['kode_akun']; ?>">
                                     [<?php echo $row['kode_akun']; ?>] <?php echo htmlspecialchars($row['nama_akun']); ?>
                                 </option>
                                 <?php endif; endforeach; ?>

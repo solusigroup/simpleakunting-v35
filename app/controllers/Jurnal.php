@@ -125,12 +125,18 @@ class Jurnal extends Controller {
             }
         }
 
-        if ($this->model('Jurnal')->simpanJurnal($formattedData, $this->tenantId()) > 0) {
-            Flash::setFlash('Entri jurnal berhasil disimpan.', 'success');
-            header('Location: ' . BASEURL . '/jurnal');
-            exit;
-        } else {
-            Flash::setFlash('Gagal menyimpan entri jurnal.', 'danger');
+        try {
+            if ($this->model('Jurnal')->simpanJurnal($formattedData, $this->tenantId()) > 0) {
+                Flash::setFlash('Entri jurnal berhasil disimpan.', 'success');
+                header('Location: ' . BASEURL . '/jurnal');
+                exit;
+            } else {
+                Flash::setFlash('Gagal menyimpan entri jurnal.', 'danger');
+                header('Location: ' . BASEURL . '/jurnal/tambah');
+                exit;
+            }
+        } catch (\Throwable $e) {
+            Flash::setFlash($e->getMessage(), 'danger');
             header('Location: ' . BASEURL . '/jurnal/tambah');
             exit;
         }
@@ -206,25 +212,35 @@ class Jurnal extends Controller {
             }
         }
 
-        $result = $this->model('Jurnal')->updateJurnal($formattedData, $this->tenantId());
+        try {
+            $result = $this->model('Jurnal')->updateJurnal($formattedData, $this->tenantId());
 
-        if ($result > 0) {
-            Flash::setFlash('Entri jurnal berhasil diperbarui.', 'success');
-        } elseif ($result < 0) {
-            Flash::setFlash('Gagal! Jurnal ini terkunci dan tidak dapat diubah.', 'warning');
-        } else {
-            Flash::setFlash('Gagal memperbarui entri jurnal.', 'danger');
+            if ($result > 0) {
+                Flash::setFlash('Entri jurnal berhasil diperbarui.', 'success');
+            } elseif ($result < 0) {
+                Flash::setFlash('Gagal! Jurnal ini terkunci dan tidak dapat diubah.', 'warning');
+            } else {
+                Flash::setFlash('Gagal memperbarui entri jurnal.', 'danger');
+            }
+            header('Location: ' . BASEURL . '/jurnal');
+            exit;
+        } catch (\Throwable $e) {
+            Flash::setFlash($e->getMessage(), 'danger');
+            header('Location: ' . BASEURL . '/jurnal/edit/' . $_POST['id_jurnal']);
+            exit;
         }
-        header('Location: ' . BASEURL . '/jurnal');
-        exit;
     }
 
     public function hapus($id)
     {
-        if ($this->model('Jurnal')->hapusJurnal($id, $this->tenantId()) > 0) {
-            Flash::setFlash('Entri jurnal berhasil dihapus.', 'success');
-        } else {
-            Flash::setFlash('Gagal menghapus entri jurnal. Kemungkinan jurnal ini terkunci.', 'danger');
+        try {
+            if ($this->model('Jurnal')->hapusJurnal($id, $this->tenantId()) > 0) {
+                Flash::setFlash('Entri jurnal berhasil dihapus.', 'success');
+            } else {
+                Flash::setFlash('Gagal menghapus entri jurnal. Kemungkinan jurnal ini terkunci.', 'danger');
+            }
+        } catch (\Throwable $e) {
+            Flash::setFlash($e->getMessage(), 'danger');
         }
         header('Location: ' . BASEURL . '/jurnal');
         exit;

@@ -156,14 +156,24 @@ class AsetBiologis extends Controller {
     // === Action Methods ===
 
     public function simpan() {
-        $result = $this->model('AsetBiologis')->simpanAsetBiologis($_POST, $this->tenantId());
-        if ($result) {
-            Flash::setFlash('Aset biologis berhasil ditambahkan dengan jurnal pengakuan awal otomatis (PSAK 241).', 'success');
-        } else {
-            Flash::setFlash('Gagal menambahkan aset biologis.', 'danger');
+        try {
+            $result = $this->model('AsetBiologis')->simpanAsetBiologis($_POST, $this->tenantId());
+            if ($result) {
+                Flash::setFlash('Aset biologis berhasil ditambahkan dengan jurnal pengakuan awal otomatis (PSAK 241).', 'success');
+                header('Location: ' . BASEURL . '/asetbiologis');
+                exit;
+            } else {
+                if (!isset($_SESSION['flash'])) {
+                    Flash::setFlash('Gagal menambahkan aset biologis.', 'danger');
+                }
+                header('Location: ' . BASEURL . '/asetbiologis/tambah');
+                exit;
+            }
+        } catch (\Throwable $e) {
+            Flash::setFlash($e->getMessage(), 'danger');
+            header('Location: ' . BASEURL . '/asetbiologis/tambah');
+            exit;
         }
-        header('Location: ' . BASEURL . '/asetbiologis');
-        exit;
     }
 
     public function update() {
