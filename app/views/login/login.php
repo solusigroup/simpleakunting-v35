@@ -192,8 +192,8 @@
             <!-- Sisi Ilustrasi -->
             <div class="col-lg-6 illustration-side">
                 <div style="position: relative; z-index: 2;">
-                    <img src="<?php echo BASEURL; ?>/img/pasuruan_sedap_malam.png" alt="Sedap Malam Pasuruan"
-                        class="img-fluid mb-4 shadow-lg">
+                    <img src="<?php echo BASEURL; ?>/img/icon-512.png" alt="Logo SimpleAkunting"
+                        class="img-fluid mb-4 shadow-lg rounded-4 p-3 bg-white" style="max-height: 180px; max-width: 180px;">
                     <h2 class="fw-bold mt-4">Puspa Candra</h2>
                     <p class="mt-2 opacity-90">Sistem Akuntansi Terintegrasi dengan kearifan lokal Kabupaten Kota di Jawa Timur.
                         Mewujudkan tata kelola keuangan yang andal dan transparan.</p>
@@ -206,7 +206,7 @@
                         class="mx-auto mb-3" style="max-height: 120px;">
                     <h3 class="fw-bold mb-1" style="color: var(--pasuruan-green);">SIMPLE AKUNTING</h3>
                     <div class="badge bg-pasuruan rounded-pill px-3 py-2 mt-2">
-                        <i class="bi bi-flower1 me-1"></i>
+                        <i class="bi bi-patch-check-fill me-1"></i> SimpleAkunting v3.6
                     </div>
                 </div>
                 <h3 class="text-center fw-bold mb-1">Selamat Datang</h3>
@@ -343,11 +343,14 @@
             });
         });
 
-        // PWA Service Worker Registration
+        // PWA Service Worker Registration with automatic update check
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('<?php echo BASEURL; ?>/sw.js')
-                    .then(reg => console.log('SW Registered', reg))
+                navigator.serviceWorker.register('<?php echo BASEURL; ?>/sw.js?v=3.6')
+                    .then(reg => {
+                        console.log('SW Registered', reg);
+                        reg.update();
+                    })
                     .catch(err => console.log('SW registration failed', err));
             });
         }
