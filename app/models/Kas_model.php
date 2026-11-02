@@ -5,9 +5,47 @@ require_once 'Jurnal_model.php';
 class Kas_model {
     private $table = 'kas_transaksi';
     private $db;
+    private static $checked = false;
 
     public function __construct($db) {
         $this->db = $db;
+        $this->ensureSchema();
+    }
+
+    /**
+     * Pastikan kolom id_unit dan id_program sudah ada pada tabel kas_transaksi
+     */
+    private function ensureSchema() {
+        if (self::$checked) return;
+        self::$checked = true;
+
+        try {
+            $this->db->query("SHOW COLUMNS FROM {$this->table} LIKE 'id_unit'");
+            if (!$this->db->single()) {
+                $this->db->query("ALTER TABLE {$this->table} ADD COLUMN id_unit INT DEFAULT NULL AFTER id_jurnal");
+                $this->db->execute();
+            }
+        } catch (Throwable $e) {}
+
+        try {
+            $this->db->query("SHOW COLUMNS FROM {$this->table} LIKE 'id_program'");
+            if (!$this->db->single()) {
+                $this->db->query("ALTER TABLE {$this->table} ADD COLUMN id_program INT DEFAULT NULL AFTER id_unit");
+                $this->db->execute();
+            }
+        } catch (Throwable $e) {}
+    }
+
+    /**
+     * Memeriksa apakah kolom tertentu ada di tabel kas_transaksi
+     */
+    private function hasColumn($column) {
+        try {
+            $this->db->query("SHOW COLUMNS FROM {$this->table} LIKE '{$column}'");
+            return !empty($this->db->single());
+        } catch (Throwable $e) {
+            return false;
+        }
     }
 
     public function getAllTransaksi($tenant_id) {
@@ -27,7 +65,6 @@ class Kas_model {
         $this->db->bind('tenant_id', $tenant_id);
         return $this->db->single();
     }
-
 
     public function getSaldoAkun($kode_akun, $tenant_id) {
         // Ambil info posisi normal dan saldo awal
@@ -76,8 +113,8 @@ class Kas_model {
                 'tanggal' => $data['tanggal'],
                 'deskripsi' => $data['deskripsi'],
                 'sumber_jurnal' => 'Kas & Bank',
-                'id_unit' => $data['id_unit'] ?? null,
-                'id_program' => $data['id_program'] ?? null,
+                'id_unit' => !empty($data['id_unit']) ? $data['id_unit'] : null,
+                'id_program' => !empty($data['id_program']) ? $data['id_program'] : null,
                 'details' => [
                     ['kode_akun' => $debit_akun, 'debit' => $data['jumlah'], 'kredit' => 0],
                     ['kode_akun' => $kredit_akun, 'debit' => 0, 'kredit' => $data['jumlah']]
@@ -91,13 +128,28 @@ class Kas_model {
             $this->db->bind('tenant_id', $tenant_id);
             $this->db->execute();
 
-            $query = "INSERT INTO {$this->table} (tenant_id, id_jurnal, id_unit, id_program, tipe_transaksi, tanggal, no_bukti, akun_kas_bank, akun_lawan, jumlah, deskripsi) 
-                      VALUES (:tenant_id, :id_jurnal, :id_unit, :id_program, :tipe, :tgl, :no_bukti, :akun_kas, :akun_lawan, :jumlah, :deskripsi)";
+            $hasUnit = $this->hasColumn('id_unit');
+            $hasProgram = $this->hasColumn('id_program');
+
+            $fields = ['tenant_id', 'id_jurnal'];
+            $params = [':tenant_id', ':id_jurnal'];
+            if ($hasUnit) {
+                $fields[] = 'id_unit';
+                $params[] = ':id_unit';
+            }
+            if ($hasProgram) {
+                $fields[] = 'id_program';
+                $params[] = ':id_program';
+            }
+            $fields = array_merge($fields, ['tipe_transaksi', 'tanggal', 'no_bukti', 'akun_kas_bank', 'akun_lawan', 'jumlah', 'deskripsi']);
+            $params = array_merge($params, [':tipe', ':tgl', ':no_bukti', ':akun_kas', ':akun_lawan', ':jumlah', ':deskripsi']);
+
+            $query = "INSERT INTO {$this->table} (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $params) . ")";
             $this->db->query($query);
             $this->db->bind('tenant_id', $tenant_id);
             $this->db->bind('id_jurnal', $id_jurnal);
-            $this->db->bind('id_unit', $data['id_unit'] ?? null);
-            $this->db->bind('id_program', $data['id_program'] ?? null);
+            if ($hasUnit) $this->db->bind('id_unit', !empty($data['id_unit']) ? $data['id_unit'] : null);
+            if ($hasProgram) $this->db->bind('id_program', !empty($data['id_program']) ? $data['id_program'] : null);
             $this->db->bind('tipe', $data['tipe_transaksi']);
             $this->db->bind('tgl', $data['tanggal']);
             $this->db->bind('no_bukti', $data['no_bukti']);
@@ -147,8 +199,8 @@ class Kas_model {
                 'tanggal' => $data['tanggal'],
                 'deskripsi' => $data['deskripsi'],
                 'sumber_jurnal' => 'Kas & Bank',
-                'id_unit' => $data['id_unit'] ?? null,
-                'id_program' => $data['id_program'] ?? null,
+                'id_unit' => !empty($data['id_unit']) ? $data['id_unit'] : null,
+                'id_program' => !empty($data['id_program']) ? $data['id_program'] : null,
                 'details' => [
                     ['kode_akun' => $debit_akun, 'debit' => $data['jumlah'], 'kredit' => 0],
                     ['kode_akun' => $kredit_akun, 'debit' => 0, 'kredit' => $data['jumlah']]
@@ -162,16 +214,25 @@ class Kas_model {
             $this->db->bind('tenant_id', $tenant_id);
             $this->db->execute();
             
-            $query = "UPDATE {$this->table} SET 
-                        id_jurnal = :id_jurnal, id_unit = :id_unit, id_program = :id_program, 
-                        tipe_transaksi = :tipe, tanggal = :tgl, 
-                        no_bukti = :no_bukti, akun_kas_bank = :akun_kas, akun_lawan = :akun_lawan, 
-                        jumlah = :jumlah, deskripsi = :deskripsi
-                      WHERE id_transaksi = :id_transaksi AND tenant_id = :tenant_id";
+            $hasUnit = $this->hasColumn('id_unit');
+            $hasProgram = $this->hasColumn('id_program');
+
+            $setClauses = ['id_jurnal = :id_jurnal'];
+            if ($hasUnit) $setClauses[] = 'id_unit = :id_unit';
+            if ($hasProgram) $setClauses[] = 'id_program = :id_program';
+            $setClauses[] = 'tipe_transaksi = :tipe';
+            $setClauses[] = 'tanggal = :tgl';
+            $setClauses[] = 'no_bukti = :no_bukti';
+            $setClauses[] = 'akun_kas_bank = :akun_kas';
+            $setClauses[] = 'akun_lawan = :akun_lawan';
+            $setClauses[] = 'jumlah = :jumlah';
+            $setClauses[] = 'deskripsi = :deskripsi';
+
+            $query = "UPDATE {$this->table} SET " . implode(', ', $setClauses) . " WHERE id_transaksi = :id_transaksi AND tenant_id = :tenant_id";
             $this->db->query($query);
             $this->db->bind('id_jurnal', $id_jurnal_baru);
-            $this->db->bind('id_unit', $data['id_unit'] ?? null);
-            $this->db->bind('id_program', $data['id_program'] ?? null);
+            if ($hasUnit) $this->db->bind('id_unit', !empty($data['id_unit']) ? $data['id_unit'] : null);
+            if ($hasProgram) $this->db->bind('id_program', !empty($data['id_program']) ? $data['id_program'] : null);
             $this->db->bind('tipe', $data['tipe_transaksi']);
             $this->db->bind('tgl', $data['tanggal']);
             $this->db->bind('no_bukti', $data['no_bukti']);
@@ -217,4 +278,3 @@ class Kas_model {
         }
     }
 }
-

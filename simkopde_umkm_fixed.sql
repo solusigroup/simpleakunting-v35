@@ -315,6 +315,8 @@ CREATE TABLE IF NOT EXISTS `kas_transaksi` (
   `id_transaksi` int(11) NOT NULL AUTO_INCREMENT,
   `tenant_id` int(11) NOT NULL,
   `id_jurnal` int(11) DEFAULT NULL,
+  `id_unit` int(11) DEFAULT NULL,
+  `id_program` int(11) DEFAULT NULL,
   `tipe_transaksi` enum('Masuk','Keluar') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `tanggal` date NOT NULL,
   `no_bukti` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
