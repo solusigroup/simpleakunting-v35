@@ -427,11 +427,32 @@ class Jurnal_model {
 
             foreach ($neracaLajur['data'] as $akun) {
                 if ($akun['neraca_debit'] > 0 || $akun['neraca_kredit'] > 0) {
-                    $item = ['kode_akun' => $akun['kode_akun'], 'nama_akun' => $akun['nama_akun'], 'total' => ($akun['neraca_debit'] > 0) ? $akun['neraca_debit'] : $akun['neraca_kredit']];
                     $kode_awal = substr($akun['kode_akun'], 0, 1);
-                    if ($kode_awal == '1') { $result['aset'][] = $item; $result['total_aset'] += ($akun['neraca_debit'] - $akun['neraca_kredit']); } 
-                    elseif ($kode_awal == '2') { $result['kewajiban'][] = $item; $result['total_kewajiban'] += ($akun['neraca_kredit'] - $akun['neraca_debit']); } 
-                    elseif ($kode_awal == '3') { $result['modal'][] = $item; $result['total_modal'] += ($akun['neraca_kredit'] - $akun['neraca_debit']); }
+                    if ($kode_awal == '1') {
+                        $total = (float)$akun['neraca_debit'] - (float)$akun['neraca_kredit'];
+                        $result['aset'][] = [
+                            'kode_akun' => $akun['kode_akun'],
+                            'nama_akun' => $akun['nama_akun'],
+                            'total' => $total
+                        ];
+                        $result['total_aset'] += $total;
+                    } elseif ($kode_awal == '2') {
+                        $total = (float)$akun['neraca_kredit'] - (float)$akun['neraca_debit'];
+                        $result['kewajiban'][] = [
+                            'kode_akun' => $akun['kode_akun'],
+                            'nama_akun' => $akun['nama_akun'],
+                            'total' => $total
+                        ];
+                        $result['total_kewajiban'] += $total;
+                    } elseif ($kode_awal == '3') {
+                        $total = (float)$akun['neraca_kredit'] - (float)$akun['neraca_debit'];
+                        $result['modal'][] = [
+                            'kode_akun' => $akun['kode_akun'],
+                            'nama_akun' => $akun['nama_akun'],
+                            'total' => $total
+                        ];
+                        $result['total_modal'] += $total;
+                    }
                 }
             }
             $labaRugiBersih = $neracaLajur['laba_rugi_bersih'];
