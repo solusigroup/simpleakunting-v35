@@ -12,8 +12,12 @@ class Controller {
      */
     public function __construct()
     {
-        $this->db = new Database;
-        Logger::init($this->db);
+        try {
+            $this->db = new Database;
+            Logger::init($this->db);
+        } catch (Throwable $e) {
+            $this->db = null;
+        }
     }
 
     /**

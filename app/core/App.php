@@ -12,7 +12,7 @@
 */
 
 class App {
-    protected $controller = 'Dashboard';
+    protected $controller = 'Home';
     protected $method = 'index';
     protected $params = [];
 
@@ -22,9 +22,10 @@ class App {
 
         // --- VALIDASI CSRF SECARA GLOBAL ---
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Bypass CSRF check untuk controller login (misal /login/process)
-            $isLoginRoute = (!empty($url) && strtolower($url[0]) === 'login');
-            if (!$isLoginRoute) {
+            // Bypass CSRF check untuk controller login, kurasi, dan form publik
+            $currentCtrl = (!empty($url)) ? strtolower($url[0]) : 'home';
+            $isBypassRoute = in_array($currentCtrl, ['login', 'kurasi', 'home']);
+            if (!$isBypassRoute) {
                 $csrf_token = $_POST['csrf_token'] ?? '';
                 if (empty($csrf_token) || !hash_equals($_SESSION['csrf_token'] ?? '', $csrf_token)) {
                     Flash::setFlash('Akses Ditolak! Permintaan diblokir karena token keamanan (CSRF) tidak valid atau kedaluwarsa.', 'danger');
@@ -36,22 +37,26 @@ class App {
 
         // --- GERBANG KEAMANAN YANG DIPERBARUI ---
 
+        // Rute publik yang dapat diakses pengunjung tanpa login
+        $publicControllers = ['login', 'home', 'kurasi'];
+        $currentController = !empty($url) ? strtolower($url[0]) : 'home';
+        $isPublicRoute = in_array($currentController, $publicControllers);
+
         // Cek apakah controller yang dituju adalah 'login'.
-        $isLoginController = (!empty($url) && strtolower($url[0]) === 'login');
+        $isLoginController = ($currentController === 'login');
         
         // Cek apakah method yang dituju adalah 'index' (artinya, form login).
         // Jika method tidak ada, defaultnya adalah 'index'.
         $isLoginForm = ($isLoginController && (!isset($url[1]) || strtolower($url[1]) === 'index'));
 
-        // Skenario 1: Pengguna BELUM login DAN TIDAK sedang mencoba mengakses controller login.
-        if (!Auth::isLoggedIn() && !$isLoginController) {
+        // Skenario 1: Pengguna BELUM login DAN BUKAN rute publik.
+        if (!Auth::isLoggedIn() && !$isPublicRoute) {
             header('Location: ' . BASEURL . '/login');
             exit;
         }
 
         // Skenario 2: Pengguna SUDAH login TETAPI mencoba mengakses FORM login.
         if (Auth::isLoggedIn() && $isLoginForm) {
-            // Ini tidak perlu, arahkan mereka ke halaman utama.
              header('Location: ' . BASEURL . '/dashboard');
              exit;
         }
