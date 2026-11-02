@@ -56,8 +56,9 @@
                     <label for="akun_piutang_default" class="form-label">Akun Piutang Usaha</label>
                     <select class="form-select" id="akun_piutang_default" name="akun_piutang_default" required>
                         <?php foreach($data['akun'] as $akun){ 
-                            // Tampilkan semua akun Aset (Prefix 1) yang bukan Header
-                            if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
+                            // Tampilkan akun Aset Lancar non-kas (bukan Header dan bukan Kas/Bank)
+                            $isKasBank = ($akun['tipe_akun'] == 'Kas & Bank' || substr($akun['kode_akun'], 0, 5) == '1-100' || substr($akun['kode_akun'], 0, 4) == '1-11' || stripos($akun['nama_akun'], 'kas') !== false || stripos($akun['nama_akun'], 'bank') !== false);
+                            if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header' && !$isKasBank){ 
                                 $selected = ($akun['kode_akun'] == $data['perusahaan']['akun_piutang_default']) ? 'selected' : ''; 
                                 echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
                             } 
@@ -141,7 +142,8 @@
                     <select class="form-select" id="akun_akumulasi_depresiasi_default" name="akun_akumulasi_depresiasi_default">
                         <option value="">-- Pilih Akun --</option>
                         <?php foreach($data['akun'] as $akun){ 
-                             if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
+                             $isKasBank = ($akun['tipe_akun'] == 'Kas & Bank' || substr($akun['kode_akun'], 0, 5) == '1-100' || substr($akun['kode_akun'], 0, 4) == '1-11' || stripos($akun['nama_akun'], 'kas') !== false || stripos($akun['nama_akun'], 'bank') !== false);
+                            if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header' && !$isKasBank){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_akumulasi_depresiasi_default'] ?? '')) ? 'selected' : ''; 
                                 echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
                             } 
@@ -209,7 +211,8 @@
                     <select class="form-select" id="akun_pajak_pembelian" name="akun_pajak_pembelian">
                         <option value="">-- Pilih Akun --</option>
                         <?php foreach($data['akun'] as $akun){ 
-                             if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header'){ 
+                             $isKasBank = ($akun['tipe_akun'] == 'Kas & Bank' || substr($akun['kode_akun'], 0, 5) == '1-100' || substr($akun['kode_akun'], 0, 4) == '1-11' || stripos($akun['nama_akun'], 'kas') !== false || stripos($akun['nama_akun'], 'bank') !== false);
+                            if(substr($akun['kode_akun'],0,1)=='1' && $akun['tipe_akun']!='Header' && !$isKasBank){ 
                                 $selected = ($akun['kode_akun'] == ($data['perusahaan']['akun_pajak_pembelian'] ?? '')) ? 'selected' : ''; 
                                 echo "<option value='{$akun['kode_akun']}' {$selected}>{$akun['nama_akun']}</option>"; 
                             } 

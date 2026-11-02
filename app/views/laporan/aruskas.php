@@ -64,73 +64,130 @@
                     <?php if ($data['metode'] == 'indirect'): ?>
                         <!-- Tampilan Metode Tidak Langsung -->
                         <tr>
-                            <td class="ps-4">Laba Bersih</td>
+                            <td class="ps-4">Laba Bersih Periode Berjalan</td>
                             <td class="text-end pe-4 fw-bold"><?php echo number_format($data['laporan']['laba_bersih'] ?? 0, 2, ',', '.'); ?></td>
                         </tr>
                         <tr>
-                            <td colspan="2" class="ps-4 small text-muted italic">Penyesuaian laba bersih ke kas bersih:</td>
+                            <td colspan="2" class="ps-4 small text-muted fst-italic">Penyesuaian untuk merekonsiliasi laba bersih ke kas bersih operasi:</td>
                         </tr>
-                        <?php 
-                            $totalOperasi = $data['laporan']['laba_bersih'] ?? 0;
-                            foreach(($data['laporan']['penyesuaian'] ?? []) as $item): 
-                            $totalOperasi += $item['jumlah'];
-                        ?>
-                        <tr>
-                            <td class="ps-5"><?php echo htmlspecialchars($item['label']); ?></td>
-                            <td class="text-end pe-4 text-<?php echo ($item['jumlah'] < 0) ? 'danger' : 'success'; ?>">
-                                <?php echo number_format($item['jumlah'], 2, ',', '.'); ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
+                        <?php if (empty($data['laporan']['arus_operasi'])): ?>
+                            <tr>
+                                <td class="ps-5 text-muted"><em>(Tidak ada penyesuaian modal kerja & pos non-kas)</em></td>
+                                <td class="text-end pe-4">0,00</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach(($data['laporan']['arus_operasi'] ?? []) as $item): ?>
+                            <tr>
+                                <td class="ps-5"><?php echo htmlspecialchars($item['label']); ?></td>
+                                <td class="text-end pe-4 text-<?php echo ($item['jumlah'] < 0) ? 'danger' : 'success'; ?>">
+                                    <?php echo ($item['jumlah'] < 0) ? '(' . number_format(abs($item['jumlah']), 2, ',', '.') . ')' : number_format($item['jumlah'], 2, ',', '.'); ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     <?php else: ?>
                         <!-- Tampilan Metode Langsung -->
-                        <?php 
-                            $totalOperasi = 0;
-                            foreach(($data['laporan']['arus_operasi'] ?? []) as $item): 
-                            $totalOperasi += $item['jumlah'];
-                        ?>
-                        <tr>
-                            <td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td>
-                            <td class="text-end pe-4 text-<?php echo ($item['jumlah'] < 0) ? 'danger' : 'success'; ?>">
-                                <?php echo number_format($item['jumlah'], 2, ',', '.'); ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
+                        <?php if (empty($data['laporan']['arus_operasi'])): ?>
+                            <tr>
+                                <td class="ps-4 text-muted"><em>(Tidak ada penerimaan/pengeluaran kas operasi)</em></td>
+                                <td class="text-end pe-4">0,00</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach(($data['laporan']['arus_operasi'] ?? []) as $item): ?>
+                            <tr>
+                                <td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td>
+                                <td class="text-end pe-4 text-<?php echo ($item['jumlah'] < 0) ? 'danger' : 'success'; ?>">
+                                    <?php echo ($item['jumlah'] < 0) ? '(' . number_format(abs($item['jumlah']), 2, ',', '.') . ')' : number_format($item['jumlah'], 2, ',', '.'); ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <tr class="table-primary-subtle fw-bold">
                         <td class="ps-4">Total Arus Kas Bersih dari Aktivitas Operasi</td>
-                        <td class="text-end pe-4 border-top border-dark"><?php echo number_format($totalOperasi, 2, ',', '.'); ?></td>
+                        <td class="text-end pe-4 border-top border-dark text-<?php echo (($data['laporan']['total_operasi'] ?? 0) < 0) ? 'danger' : 'dark'; ?>">
+                            <?php 
+                                $totOp = $data['laporan']['total_operasi'] ?? 0;
+                                echo ($totOp < 0) ? '(' . number_format(abs($totOp), 2, ',', '.') . ')' : number_format($totOp, 2, ',', '.'); 
+                            ?>
+                        </td>
                     </tr>
 
-                    <!-- Bagian Investasi & Pendanaan (Placeholders) -->
+                    <!-- Bagian Investasi -->
                     <tr>
                         <td colspan="2" class="bg-light fw-bold py-3"><i class="bi bi-piggy-bank me-2"></i> ARUS KAS DARI AKTIVITAS INVESTASI</td>
                     </tr>
-                    <tr>
-                        <td class="ps-4 text-muted"><em>(Belum ada transaksi investasi)</em></td>
-                        <td class="text-end pe-4">0,00</td>
+                    <?php if (empty($data['laporan']['arus_investasi'])): ?>
+                        <tr>
+                            <td class="ps-4 text-muted"><em>(Tidak ada aktivitas investasi)</em></td>
+                            <td class="text-end pe-4">0,00</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach($data['laporan']['arus_investasi'] as $item): ?>
+                        <tr>
+                            <td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td>
+                            <td class="text-end pe-4 text-<?php echo ($item['jumlah'] < 0) ? 'danger' : 'success'; ?>">
+                                <?php echo ($item['jumlah'] < 0) ? '(' . number_format(abs($item['jumlah']), 2, ',', '.') . ')' : number_format($item['jumlah'], 2, ',', '.'); ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    <tr class="table-primary-subtle fw-bold">
+                        <td class="ps-4">Total Arus Kas Bersih dari Aktivitas Investasi</td>
+                        <td class="text-end pe-4 border-top border-dark text-<?php echo (($data['laporan']['total_investasi'] ?? 0) < 0) ? 'danger' : 'dark'; ?>">
+                            <?php 
+                                $totInv = $data['laporan']['total_investasi'] ?? 0;
+                                echo ($totInv < 0) ? '(' . number_format(abs($totInv), 2, ',', '.') . ')' : number_format($totInv, 2, ',', '.'); 
+                            ?>
+                        </td>
                     </tr>
 
+                    <!-- Bagian Pendanaan -->
                     <tr>
                         <td colspan="2" class="bg-light fw-bold py-3"><i class="bi bi-cash-stack me-2"></i> ARUS KAS DARI AKTIVITAS PENDANAAN</td>
                     </tr>
-                    <tr>
-                        <td class="ps-4 text-muted"><em>(Belum ada transaksi pendanaan)</em></td>
-                        <td class="text-end pe-4">0,00</td>
+                    <?php if (empty($data['laporan']['arus_pendanaan'])): ?>
+                        <tr>
+                            <td class="ps-4 text-muted"><em>(Tidak ada aktivitas pendanaan)</em></td>
+                            <td class="text-end pe-4">0,00</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach($data['laporan']['arus_pendanaan'] as $item): ?>
+                        <tr>
+                            <td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td>
+                            <td class="text-end pe-4 text-<?php echo ($item['jumlah'] < 0) ? 'danger' : 'success'; ?>">
+                                <?php echo ($item['jumlah'] < 0) ? '(' . number_format(abs($item['jumlah']), 2, ',', '.') . ')' : number_format($item['jumlah'], 2, ',', '.'); ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    <tr class="table-primary-subtle fw-bold">
+                        <td class="ps-4">Total Arus Kas Bersih dari Aktivitas Pendanaan</td>
+                        <td class="text-end pe-4 border-top border-dark text-<?php echo (($data['laporan']['total_pendanaan'] ?? 0) < 0) ? 'danger' : 'dark'; ?>">
+                            <?php 
+                                $totPen = $data['laporan']['total_pendanaan'] ?? 0;
+                                echo ($totPen < 0) ? '(' . number_format(abs($totPen), 2, ',', '.') . ')' : number_format($totPen, 2, ',', '.'); 
+                            ?>
+                        </td>
                     </tr>
                 </tbody>
                 <tfoot class="border-top-0">
                     <tr class="fw-bold bg-light">
-                        <td class="py-3">Kenaikan (Penurunan) Bersih Kas</td>
-                        <td class="text-end pe-4 py-3 border-top"><?php echo number_format(($data['laporan']['kas_akhir'] ?? 0) - ($data['laporan']['kas_awal'] ?? 0), 2, ',', '.'); ?></td>
+                        <td class="py-3">Kenaikan (Penurunan) Bersih Kas &amp; Setara Kas</td>
+                        <td class="text-end pe-4 py-3 border-top text-<?php echo (($data['laporan']['kenaikan_kas_bersih'] ?? 0) < 0) ? 'danger' : 'dark'; ?>">
+                            <?php 
+                                $kenaikan = $data['laporan']['kenaikan_kas_bersih'] ?? (($data['laporan']['kas_akhir'] ?? 0) - ($data['laporan']['kas_awal'] ?? 0));
+                                echo ($kenaikan < 0) ? '(' . number_format(abs($kenaikan), 2, ',', '.') . ')' : number_format($kenaikan, 2, ',', '.'); 
+                            ?>
+                        </td>
                     </tr>
                     <tr>
-                        <td class="py-3">Saldo Kas Awal Periode</td>
+                        <td class="py-3">Saldo Kas &amp; Setara Kas Awal Periode</td>
                         <td class="text-end pe-4 py-3"><?php echo number_format($data['laporan']['kas_awal'] ?? 0, 2, ',', '.'); ?></td>
                     </tr>
                     <tr class="bg-primary text-white fs-5 fw-bold">
-                        <td class="py-3 px-4 rounded-start">SALDO KAS AKHIR PERIODE</td>
+                        <td class="py-3 px-4 rounded-start">SALDO KAS &amp; SETARA KAS AKHIR PERIODE</td>
                         <td class="text-end pe-4 py-3 rounded-end"><?php echo number_format($data['laporan']['kas_akhir'] ?? 0, 2, ',', '.'); ?></td>
                     </tr>
                 </tfoot>

@@ -649,24 +649,52 @@ class Jurnal_model {
         $neracaSaldoAwal = $this->getNeracaSaldo(date('Y-m-d', strtotime($tanggal_mulai . ' -1 day')), $tenant_id, $id_unit);
         $neracaSaldoAkhir = $this->getNeracaSaldo($tanggal_selesai, $tenant_id, $id_unit);
         
-        $kasAwal = 0; $kasAkhir = 0;
-        foreach ($neracaSaldoAwal as $akun) { if (substr($akun['kode_akun'], 0, 3) == '1-1') $kasAwal += $akun['debit'] - $akun['kredit']; }
-        foreach ($neracaSaldoAkhir as $akun) { if (substr($akun['kode_akun'], 0, 3) == '1-1') $kasAkhir += $akun['debit'] - $akun['kredit']; }
+        // Identifikasi semua akun Kas & Bank secara akurat
+        $this->db->query("SELECT kode_akun, nama_akun FROM akun 
+                          WHERE tenant_id = :tenant_id 
+                            AND (tipe_akun = 'Kas & Bank' 
+                                 OR kode_akun LIKE '1-100%' 
+                                 OR kode_akun LIKE '1-11%' 
+                                 OR LOWER(nama_akun) LIKE '%kas%' 
+                                 OR LOWER(nama_akun) LIKE '%bank%') 
+                            AND tipe_akun != 'Header'");
+        $this->db->bind('tenant_id', $tenant_id);
+        $kasRows = $this->db->resultSet();
+        $kasAkunList = !empty($kasRows) ? array_column($kasRows, 'kode_akun') : ['1-10001'];
+
+        $kasAwal = 0; 
+        $kasAkhir = 0;
+        foreach ($neracaSaldoAwal as $akun) { 
+            if (in_array($akun['kode_akun'], $kasAkunList)) {
+                $kasAwal += ((float)$akun['debit'] - (float)$akun['kredit']); 
+            }
+        }
+        foreach ($neracaSaldoAkhir as $akun) { 
+            if (in_array($akun['kode_akun'], $kasAkunList)) {
+                $kasAkhir += ((float)$akun['debit'] - (float)$akun['kredit']); 
+            }
+        }
 
         if ($metode === 'direct') {
-            // Metode Langsung: Ambil transaksi yang melibatkan Kas & Bank (1-1xxx)
+            // METODE LANGSUNG (DIRECT)
+            $kasInClause = "'" . implode("','", array_map('addslashes', $kasAkunList)) . "'";
+            
             $this->db->query("
-                SELECT a.nama_akun, SUM(jd.debit) as penerimaan, SUM(jd.kredit) as pengeluaran
+                SELECT a.kode_akun, a.nama_akun, 
+                       SUM(jd.debit) as total_debit, 
+                       SUM(jd.kredit) as total_kredit
                 FROM jurnal_detail jd
                 JOIN jurnal_umum ju ON jd.id_jurnal = ju.id_jurnal
                 JOIN akun a ON jd.kode_akun = a.kode_akun AND a.tenant_id = ju.tenant_id
-                WHERE ju.tanggal BETWEEN :mulai AND :selesai AND ju.tenant_id = :tenant_id
-                " . ($id_unit ? " AND ju.id_unit = :id_unit " : "") . "
-                AND jd.id_jurnal IN (
-                    SELECT id_jurnal FROM jurnal_detail WHERE kode_akun LIKE '1-1%'
-                )
-                AND jd.kode_akun NOT LIKE '1-1%'
-                GROUP BY jd.kode_akun
+                WHERE ju.tanggal BETWEEN :mulai AND :selesai 
+                  AND ju.tenant_id = :tenant_id
+                  " . ($id_unit ? " AND ju.id_unit = :id_unit " : "") . "
+                  AND jd.id_jurnal IN (
+                      SELECT DISTINCT id_jurnal FROM jurnal_detail WHERE kode_akun IN ($kasInClause)
+                  )
+                  AND jd.kode_akun NOT IN ($kasInClause)
+                GROUP BY jd.kode_akun, a.nama_akun
+                ORDER BY a.kode_akun ASC
             ");
             $this->db->bind('mulai', $tanggal_mulai);
             $this->db->bind('selesai', $tanggal_selesai);
@@ -675,37 +703,254 @@ class Jurnal_model {
             $transaksiDirect = $this->db->resultSet();
             
             $arusOperasi = [];
+            $arusInvestasi = [];
+            $arusPendanaan = [];
+            $totalOperasi = 0;
+            $totalInvestasi = 0;
+            $totalPendanaan = 0;
+
             foreach ($transaksiDirect as $trx) {
-                $arusOperasi[] = ['label' => $trx['nama_akun'], 'jumlah' => $trx['penerimaan'] - $trx['pengeluaran']];
+                // Catatan Akuntansi pada akun lawan kas:
+                // Kredit pada akun lawan = Kas didebit (Penerimaan Kas / Kas Masuk, tanda +)
+                // Debit pada akun lawan = Kas dikredit (Pengeluaran Kas / Kas Keluar, tanda -)
+                $netKas = (float)$trx['total_kredit'] - (float)$trx['total_debit'];
+                if ($netKas == 0) continue;
+
+                $kode = $trx['kode_akun'];
+                $prefix1 = substr($kode, 0, 1);
+                $prefix2 = substr($kode, 0, 3);
+                $isAkumulasi = (stripos($trx['nama_akun'], 'akum') !== false || stripos($trx['nama_akun'], 'penyusutan') !== false);
+
+                if ($prefix2 == '1-2' && !$isAkumulasi) {
+                    // Aktivitas Investasi: Pembelian / Pelepasan Aset Tetap
+                    $arusInvestasi[] = [
+                        'kode_akun' => $kode,
+                        'label' => $trx['nama_akun'],
+                        'jumlah' => $netKas
+                    ];
+                    $totalInvestasi += $netKas;
+                } elseif ($prefix1 == '3' || $prefix2 == '2-2') {
+                    // Aktivitas Pendanaan: Modal, Prive, Utang Bank Jangka Panjang
+                    $arusPendanaan[] = [
+                        'kode_akun' => $kode,
+                        'label' => $trx['nama_akun'],
+                        'jumlah' => $netKas
+                    ];
+                    $totalPendanaan += $netKas;
+                } else {
+                    // Aktivitas Operasi: Penerimaan Penjualan/Piutang, Pembayaran Beban/Persediaan/Utang Usaha
+                    $arusOperasi[] = [
+                        'kode_akun' => $kode,
+                        'label' => $trx['nama_akun'],
+                        'jumlah' => $netKas
+                    ];
+                    $totalOperasi += $netKas;
+                }
             }
-            
+
+            $kenaikanKasBersih = $totalOperasi + $totalInvestasi + $totalPendanaan;
+
             return [
                 'metode' => 'Direct',
-                'kas_awal' => $kasAwal, 'kas_akhir' => $kasAkhir,
-                'arus_operasi' => $arusOperasi
+                'kas_awal' => $kasAwal,
+                'kas_akhir' => $kasAkhir,
+                'kenaikan_kas_bersih' => $kenaikanKasBersih,
+                'laba_bersih' => $labaBersih,
+                'penyesuaian' => $arusOperasi,
+                'arus_operasi' => $arusOperasi,
+                'total_operasi' => $totalOperasi,
+                'arus_investasi' => $arusInvestasi,
+                'total_investasi' => $totalInvestasi,
+                'arus_pendanaan' => $arusPendanaan,
+                'total_pendanaan' => $totalPendanaan
             ];
         } else {
-            // Metode Tidak Langsung (Indirect)
-            $this->db->query("SELECT akun_piutang_default, akun_utang_default FROM perusahaan WHERE tenant_id = :tenant_id");
-            $this->db->bind('tenant_id', $tenant_id);
-            $pengaturan = $this->db->single();
-            $akun_piutang = $pengaturan['akun_piutang_default'] ?? '1-10200';
-            $akun_utang = $pengaturan['akun_utang_default'] ?? '2-10100';
+            // METODE TIDAK LANGSUNG (INDIRECT)
+            $saldoAwalMap = [];
+            $saldoAkhirMap = [];
+            $namaAkunMap = [];
 
-            $saldoAkunAwal = []; $saldoAkunAkhir = [];
-            foreach ($neracaSaldoAwal as $akun) { $saldoAkunAwal[$akun['kode_akun']] = $akun['debit'] - $akun['kredit']; }
-            foreach ($neracaSaldoAkhir as $akun) { $saldoAkunAkhir[$akun['kode_akun']] = $akun['debit'] - $akun['kredit']; }
-            
-            $perubahanPiutang = ($saldoAkunAkhir[$akun_piutang] ?? 0) - ($saldoAkunAwal[$akun_piutang] ?? 0);
-            $perubahanUtang = ($saldoAkunAkhir[$akun_utang] ?? 0) - ($saldoAkunAwal[$akun_utang] ?? 0);
+            foreach ($neracaSaldoAwal as $akun) {
+                $saldoAwalMap[$akun['kode_akun']] = [
+                    'debit' => (float)$akun['debit'],
+                    'kredit' => (float)$akun['kredit'],
+                    'net_debit' => (float)$akun['debit'] - (float)$akun['kredit'],
+                    'net_kredit' => (float)$akun['kredit'] - (float)$akun['debit']
+                ];
+                $namaAkunMap[$akun['kode_akun']] = $akun['nama_akun'];
+            }
+
+            foreach ($neracaSaldoAkhir as $akun) {
+                $saldoAkhirMap[$akun['kode_akun']] = [
+                    'debit' => (float)$akun['debit'],
+                    'kredit' => (float)$akun['kredit'],
+                    'net_debit' => (float)$akun['debit'] - (float)$akun['kredit'],
+                    'net_kredit' => (float)$akun['kredit'] - (float)$akun['debit']
+                ];
+                $namaAkunMap[$akun['kode_akun']] = $akun['nama_akun'];
+            }
+
+            $allKodes = array_unique(array_merge(array_keys($saldoAwalMap), array_keys($saldoAkhirMap)));
+            sort($allKodes);
+
+            $penyesuaianOperasi = [];
+            $arusInvestasi = [];
+            $arusPendanaan = [];
+
+            // 1. Beban Non-Kas (Penyusutan / Amortisasi dari Laba Rugi)
+            $bebanPenyusutan = 0;
+            if (!empty($labaRugiData['beban'])) {
+                foreach ($labaRugiData['beban'] as $b) {
+                    if (stripos($b['nama_akun'], 'penyusutan') !== false || stripos($b['nama_akun'], 'depresiasi') !== false || stripos($b['nama_akun'], 'amortisasi') !== false) {
+                        $bebanPenyusutan += (float)$b['total_1'];
+                    }
+                }
+            }
+            if ($bebanPenyusutan != 0) {
+                $penyesuaianOperasi[] = [
+                    'label' => 'Beban Penyusutan & Amortisasi',
+                    'jumlah' => $bebanPenyusutan
+                ];
+            }
+
+            // 2. Evaluasi Perubahan Neraca
+            foreach ($allKodes as $kode) {
+                // Abaikan akun Kas & Bank
+                if (in_array($kode, $kasAkunList)) continue;
+
+                $nama = $namaAkunMap[$kode] ?? $kode;
+                $prefix1 = substr($kode, 0, 1);
+                $prefix2 = substr($kode, 0, 3);
+                $isAkumulasi = (stripos($nama, 'akum') !== false || stripos($nama, 'penyusutan') !== false);
+
+                $awalDebit = $saldoAwalMap[$kode]['net_debit'] ?? 0;
+                $akhirDebit = $saldoAkhirMap[$kode]['net_debit'] ?? 0;
+                $deltaDebit = $akhirDebit - $awalDebit; // Positif jika saldo aset bertambah
+
+                $awalKredit = $saldoAwalMap[$kode]['net_kredit'] ?? 0;
+                $akhirKredit = $saldoAkhirMap[$kode]['net_kredit'] ?? 0;
+                $deltaKredit = $akhirKredit - $awalKredit; // Positif jika saldo kewajiban/modal bertambah
+
+                // A. ASET
+                if ($prefix1 == '1') {
+                    if ($prefix2 == '1-2') {
+                        // Aset Tetap
+                        if ($isAkumulasi) {
+                            // Akumulasi penyusutan sudah diakomodasi via addback Beban Penyusutan di Operasi
+                            continue;
+                        } else {
+                            // Aset Tetap fisik (Investasi):
+                            // Kenaikan aset tetap (deltaDebit > 0) = Pengeluaran kas / Pembelian (-)
+                            // Penurunan aset tetap (deltaDebit < 0) = Penerimaan kas / Penjualan (+)
+                            if ($deltaDebit != 0) {
+                                $arusInvestasi[] = [
+                                    'kode_akun' => $kode,
+                                    'label' => ($deltaDebit > 0 ? 'Perolehan / Pembelian ' : 'Pelepasan / Penjualan ') . $nama,
+                                    'jumlah' => -$deltaDebit
+                                ];
+                            }
+                        }
+                    } else {
+                        // Aset Lancar Operasi (Piutang, Persediaan, Perlengkapan, dll.)
+                        // Kenaikan aset lancar (deltaDebit > 0) = Arus kas berkurang (-)
+                        // Penurunan aset lancar (deltaDebit < 0) = Arus kas bertambah (+)
+                        if ($deltaDebit != 0) {
+                            $penyesuaianOperasi[] = [
+                                'kode_akun' => $kode,
+                                'label' => ($deltaDebit > 0 ? 'Kenaikan ' : 'Penurunan ') . $nama,
+                                'jumlah' => -$deltaDebit
+                            ];
+                        }
+                    }
+                }
+                // B. KEWAJIBAN
+                elseif ($prefix1 == '2') {
+                    if ($prefix2 == '2-2') {
+                        // Kewajiban Jangka Panjang (Pendanaan):
+                        // Kenaikan pinjaman (deltaKredit > 0) = Kas Masuk (+)
+                        // Pembayaran pinjaman (deltaKredit < 0) = Kas Keluar (-)
+                        if ($deltaKredit != 0) {
+                            $arusPendanaan[] = [
+                                'kode_akun' => $kode,
+                                'label' => ($deltaKredit > 0 ? 'Penerimaan ' : 'Pembayaran ') . $nama,
+                                'jumlah' => $deltaKredit
+                            ];
+                        }
+                    } else {
+                        // Kewajiban Lancar Operasi (Utang Usaha, Utang Gaji, Utang Pajak, dll.)
+                        // Kenaikan utang lancar (deltaKredit > 0) = Arus kas bertambah (+)
+                        // Penurunan utang lancar (deltaKredit < 0) = Arus kas berkurang (-)
+                        if ($deltaKredit != 0) {
+                            $penyesuaianOperasi[] = [
+                                'kode_akun' => $kode,
+                                'label' => ($deltaKredit > 0 ? 'Kenaikan ' : 'Penurunan ') . $nama,
+                                'jumlah' => $deltaKredit
+                            ];
+                        }
+                    }
+                }
+                // C. EKUITAS
+                elseif ($prefix1 == '3') {
+                    // Abaikan akun Laba Ditahan / Laba Berjalan / Ikhtisar Laba Rugi karena laba bersih sudah ada di Operasi
+                    if (stripos($nama, 'laba') !== false || stripos($nama, 'rugi') !== false || substr($kode, 0, 3) == '3-3') {
+                        continue;
+                    }
+
+                    // Prive Pemilik (posisi normal Debit)
+                    if (stripos($nama, 'prive') !== false || substr($kode, 0, 3) == '3-2') {
+                        if ($deltaDebit != 0) {
+                            // Penarikan prive = Arus kas keluar (-)
+                            $arusPendanaan[] = [
+                                'kode_akun' => $kode,
+                                'label' => 'Penarikan ' . $nama,
+                                'jumlah' => -$deltaDebit
+                            ];
+                        }
+                    } else {
+                        // Modal Pemilik / Modal Disetor (posisi normal Kredit)
+                        // Kenaikan modal (deltaKredit > 0) = Setoran modal / Kas Masuk (+)
+                        // Penurunan modal (deltaKredit < 0) = Pengurangan modal / Kas Keluar (-)
+                        if ($deltaKredit != 0) {
+                            $arusPendanaan[] = [
+                                'kode_akun' => $kode,
+                                'label' => ($deltaKredit > 0 ? 'Setoran ' : 'Pengurangan ') . $nama,
+                                'jumlah' => $deltaKredit
+                            ];
+                        }
+                    }
+                }
+            }
+
+            $totalOperasi = $labaBersih;
+            foreach ($penyesuaianOperasi as $p) {
+                $totalOperasi += (float)$p['jumlah'];
+            }
+
+            $totalInvestasi = 0;
+            foreach ($arusInvestasi as $i) {
+                $totalInvestasi += (float)$i['jumlah'];
+            }
+
+            $totalPendanaan = 0;
+            foreach ($arusPendanaan as $d) {
+                $totalPendanaan += (float)$d['jumlah'];
+            }
+
+            $kenaikanKasBersih = $totalOperasi + $totalInvestasi + $totalPendanaan;
 
             return [
                 'metode' => 'Indirect',
-                'kas_awal' => $kasAwal, 'kas_akhir' => $kasAkhir, 'laba_bersih' => $labaBersih,
-                'penyesuaian' => [
-                    ['label' => 'Kenaikan/Penurunan Piutang Usaha', 'jumlah' => -$perubahanPiutang],
-                    ['label' => 'Kenaikan/Penurunan Utang Usaha', 'jumlah' => $perubahanUtang]
-                ]
+                'kas_awal' => $kasAwal,
+                'kas_akhir' => $kasAkhir,
+                'kenaikan_kas_bersih' => $kenaikanKasBersih,
+                'laba_bersih' => $labaBersih,
+                'penyesuaian' => $penyesuaianOperasi,
+                'arus_operasi' => $penyesuaianOperasi,
+                'total_operasi' => $totalOperasi,
+                'arus_investasi' => $arusInvestasi,
+                'total_investasi' => $totalInvestasi,
+                'arus_pendanaan' => $arusPendanaan,
+                'total_pendanaan' => $totalPendanaan
             ];
         }
     }

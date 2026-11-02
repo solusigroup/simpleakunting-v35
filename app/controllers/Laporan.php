@@ -306,18 +306,50 @@ class Laporan extends Controller {
         $sheet->setCellValue('A'.$row, 'Arus Kas dari Aktivitas Operasi')->getStyle('A'.$row)->getFont()->setBold(true);
         $row++;
         if ($data['laporan']['metode'] == 'Indirect') {
-            $sheet->setCellValue('A'.$row, 'Laba Bersih')->setCellValue('B'.$row, $data['laporan']['laba_bersih']);
+            $sheet->setCellValue('A'.$row, 'Laba Bersih Periode Berjalan')->setCellValue('B'.$row, $data['laporan']['laba_bersih']);
             $row++;
-            foreach($data['laporan']['penyesuaian'] as $item) {
-                $sheet->setCellValue('A'.$row, $item['label'])->setCellValue('B'.$row, $item['jumlah']);
+            foreach(($data['laporan']['arus_operasi'] ?? []) as $item) {
+                $sheet->setCellValue('A'.$row, '  ' . $item['label'])->setCellValue('B'.$row, $item['jumlah']);
                 $row++;
             }
         } else {
-            foreach($data['laporan']['arus_operasi'] as $item) {
-                $sheet->setCellValue('A'.$row, $item['label'])->setCellValue('B'.$row, $item['jumlah']);
+            foreach(($data['laporan']['arus_operasi'] ?? []) as $item) {
+                $sheet->setCellValue('A'.$row, '  ' . $item['label'])->setCellValue('B'.$row, $item['jumlah']);
                 $row++;
             }
         }
+        $sheet->setCellValue('A'.$row, 'Total Arus Kas Aktivitas Operasi')->setCellValue('B'.$row, $data['laporan']['total_operasi'] ?? 0)->getStyle('A'.$row.':B'.$row)->getFont()->setBold(true);
+        $row += 2;
+
+        $sheet->setCellValue('A'.$row, 'Arus Kas dari Aktivitas Investasi')->getStyle('A'.$row)->getFont()->setBold(true);
+        $row++;
+        if (!empty($data['laporan']['arus_investasi'])) {
+            foreach($data['laporan']['arus_investasi'] as $item) {
+                $sheet->setCellValue('A'.$row, '  ' . $item['label'])->setCellValue('B'.$row, $item['jumlah']);
+                $row++;
+            }
+        } else {
+            $sheet->setCellValue('A'.$row, '  (Tidak ada transaksi investasi)')->setCellValue('B'.$row, 0);
+            $row++;
+        }
+        $sheet->setCellValue('A'.$row, 'Total Arus Kas Aktivitas Investasi')->setCellValue('B'.$row, $data['laporan']['total_investasi'] ?? 0)->getStyle('A'.$row.':B'.$row)->getFont()->setBold(true);
+        $row += 2;
+
+        $sheet->setCellValue('A'.$row, 'Arus Kas dari Aktivitas Pendanaan')->getStyle('A'.$row)->getFont()->setBold(true);
+        $row++;
+        if (!empty($data['laporan']['arus_pendanaan'])) {
+            foreach($data['laporan']['arus_pendanaan'] as $item) {
+                $sheet->setCellValue('A'.$row, '  ' . $item['label'])->setCellValue('B'.$row, $item['jumlah']);
+                $row++;
+            }
+        } else {
+            $sheet->setCellValue('A'.$row, '  (Tidak ada transaksi pendanaan)')->setCellValue('B'.$row, 0);
+            $row++;
+        }
+        $sheet->setCellValue('A'.$row, 'Total Arus Kas Aktivitas Pendanaan')->setCellValue('B'.$row, $data['laporan']['total_pendanaan'] ?? 0)->getStyle('A'.$row.':B'.$row)->getFont()->setBold(true);
+        $row += 2;
+
+        $sheet->setCellValue('A'.$row, 'Kenaikan (Penurunan) Bersih Kas')->setCellValue('B'.$row, $data['laporan']['kenaikan_kas_bersih'] ?? (($data['laporan']['kas_akhir'] ?? 0) - ($data['laporan']['kas_awal'] ?? 0)))->getStyle('A'.$row.':B'.$row)->getFont()->setBold(true);
         $row++;
         $sheet->setCellValue('A'.$row, 'Kas Awal Periode')->setCellValue('B'.$row, $data['laporan']['kas_awal']);
         $row++;

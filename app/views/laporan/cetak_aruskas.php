@@ -9,21 +9,20 @@ $isIndirect = (strtolower($metode) == 'indirect');
 
 $kasAwal = (float)($lap['kas_awal'] ?? 0);
 $kasAkhir = (float)($lap['kas_akhir'] ?? 0);
-$kenaikanKas = $kasAkhir - $kasAwal;
 
-$totalOperasi = 0;
+$totalOperasi = (float)($lap['total_operasi'] ?? 0);
+$arusInvestasi = $lap['arus_investasi'] ?? [];
+$totalInvestasi = (float)($lap['total_investasi'] ?? 0);
+$arusPendanaan = $lap['arus_pendanaan'] ?? [];
+$totalPendanaan = (float)($lap['total_pendanaan'] ?? 0);
+
+$kenaikanKas = isset($lap['kenaikan_kas_bersih']) ? (float)$lap['kenaikan_kas_bersih'] : ($totalOperasi + $totalInvestasi + $totalPendanaan);
+
 if ($isIndirect) {
     $labaBersih = (float)($lap['laba_bersih'] ?? 0);
-    $totalOperasi = $labaBersih;
-    $penyesuaian = $lap['penyesuaian'] ?? [];
-    foreach ($penyesuaian as $p) {
-        $totalOperasi += (float)($p['jumlah'] ?? 0);
-    }
+    $penyesuaian = $lap['penyesuaian'] ?? ($lap['arus_operasi'] ?? []);
 } else {
     $arusOperasi = $lap['arus_operasi'] ?? [];
-    foreach ($arusOperasi as $ao) {
-        $totalOperasi += (float)($ao['jumlah'] ?? 0);
-    }
 }
 ?>
 <!DOCTYPE html>
@@ -186,9 +185,65 @@ if ($isIndirect) {
                         </td>
                     </tr>
 
-                    <!-- II. REKONSILIASI KAS -->
+                    <!-- II. ARUS KAS DARI AKTIVITAS INVESTASI -->
                     <tr class="section-header" style="padding-top: 15px;">
-                        <td colspan="2">II. REKONSILIASI SALDO KAS &amp; SETARA KAS</td>
+                        <td colspan="2">II. ARUS KAS DARI AKTIVITAS INVESTASI</td>
+                    </tr>
+                    <?php if (empty($arusInvestasi)): ?>
+                        <tr>
+                            <td style="padding-left: 20px; color: #64748b; font-style: italic;">Tidak ada aktivitas investasi</td>
+                            <td class="text-right font-mono">0</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($arusInvestasi as $item): 
+                            $v = (float)($item['jumlah'] ?? 0);
+                        ?>
+                        <tr>
+                            <td style="padding-left: 20px;"><?php echo htmlspecialchars($item['label']); ?></td>
+                            <td class="text-right font-mono <?php echo $v < 0 ? 'text-danger' : ''; ?>">
+                                <?php echo ($v < 0) ? '(' . number_format(abs($v), 0, ',', '.') . ')' : number_format($v, 0, ',', '.'); ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    <tr class="total-row">
+                        <td>ARUS KAS BERSIH DARI AKTIVITAS INVESTASI</td>
+                        <td class="text-right font-mono <?php echo $totalInvestasi < 0 ? 'text-danger' : ''; ?>">
+                            <?php echo ($totalInvestasi < 0) ? '(' . number_format(abs($totalInvestasi), 0, ',', '.') . ')' : number_format($totalInvestasi, 0, ',', '.'); ?>
+                        </td>
+                    </tr>
+
+                    <!-- III. ARUS KAS DARI AKTIVITAS PENDANAAN -->
+                    <tr class="section-header" style="padding-top: 15px;">
+                        <td colspan="2">III. ARUS KAS DARI AKTIVITAS PENDANAAN</td>
+                    </tr>
+                    <?php if (empty($arusPendanaan)): ?>
+                        <tr>
+                            <td style="padding-left: 20px; color: #64748b; font-style: italic;">Tidak ada aktivitas pendanaan</td>
+                            <td class="text-right font-mono">0</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($arusPendanaan as $item): 
+                            $v = (float)($item['jumlah'] ?? 0);
+                        ?>
+                        <tr>
+                            <td style="padding-left: 20px;"><?php echo htmlspecialchars($item['label']); ?></td>
+                            <td class="text-right font-mono <?php echo $v < 0 ? 'text-danger' : ''; ?>">
+                                <?php echo ($v < 0) ? '(' . number_format(abs($v), 0, ',', '.') . ')' : number_format($v, 0, ',', '.'); ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    <tr class="total-row">
+                        <td>ARUS KAS BERSIH DARI AKTIVITAS PENDANAAN</td>
+                        <td class="text-right font-mono <?php echo $totalPendanaan < 0 ? 'text-danger' : ''; ?>">
+                            <?php echo ($totalPendanaan < 0) ? '(' . number_format(abs($totalPendanaan), 0, ',', '.') . ')' : number_format($totalPendanaan, 0, ',', '.'); ?>
+                        </td>
+                    </tr>
+
+                    <!-- IV. REKONSILIASI KAS -->
+                    <tr class="section-header" style="padding-top: 15px;">
+                        <td colspan="2">IV. REKONSILIASI SALDO KAS &amp; SETARA KAS</td>
                     </tr>
                     <tr>
                         <td style="padding-left: 20px;">Saldo Kas Awal Periode</td>

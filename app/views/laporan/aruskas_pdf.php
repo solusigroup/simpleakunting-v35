@@ -34,19 +34,47 @@
             <tr><td colspan="2" class="fw-bold">Arus Kas dari Aktivitas Operasi</td></tr>
             <?php if($data['laporan']['metode'] == 'Indirect'): ?>
                 <tr><td class="ps-4">Laba Bersih</td><td class="text-end"><?php echo number_format($data['laporan']['laba_bersih'], 2, ',', '.'); ?></td></tr>
-                <?php $totalOperasi = $data['laporan']['laba_bersih']; foreach($data['laporan']['penyesuaian'] as $item): $totalOperasi += $item['jumlah']; ?>
-                    <tr><td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td><td class="text-end"><?php echo number_format($item['jumlah'], 2, ',', '.'); ?></td></tr>
-                <?php endforeach; ?>
+                <?php if (empty($data['laporan']['arus_operasi'])): ?>
+                    <tr><td class="ps-4" style="color: #888; font-style: italic;">(Tidak ada penyesuaian modal kerja)</td><td class="text-end">0,00</td></tr>
+                <?php else: ?>
+                    <?php foreach($data['laporan']['arus_operasi'] as $item): ?>
+                        <tr><td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td><td class="text-end"><?php echo ($item['jumlah'] < 0) ? '(' . number_format(abs($item['jumlah']), 2, ',', '.') . ')' : number_format($item['jumlah'], 2, ',', '.'); ?></td></tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             <?php else: ?>
-                <?php $totalOperasi = 0; foreach($data['laporan']['arus_operasi'] as $item): $totalOperasi += $item['jumlah']; ?>
-                    <tr><td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td><td class="text-end"><?php echo number_format($item['jumlah'], 2, ',', '.'); ?></td></tr>
+                <?php if (empty($data['laporan']['arus_operasi'])): ?>
+                    <tr><td class="ps-4" style="color: #888; font-style: italic;">(Tidak ada transaksi operasi)</td><td class="text-end">0,00</td></tr>
+                <?php else: ?>
+                    <?php foreach($data['laporan']['arus_operasi'] as $item): ?>
+                        <tr><td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td><td class="text-end"><?php echo ($item['jumlah'] < 0) ? '(' . number_format(abs($item['jumlah']), 2, ',', '.') . ')' : number_format($item['jumlah'], 2, ',', '.'); ?></td></tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            <?php endif; ?>
+            <tr class="fw-bold bg-light"><td>Arus Kas Bersih dari Aktivitas Operasi</td><td class="text-end"><?php $totOp = $data['laporan']['total_operasi'] ?? 0; echo ($totOp < 0) ? '(' . number_format(abs($totOp), 2, ',', '.') . ')' : number_format($totOp, 2, ',', '.'); ?></td></tr>
+            
+            <tr><td colspan="2" class="fw-bold" style="padding-top: 15px;">Arus Kas dari Aktivitas Investasi</td></tr>
+            <?php if(empty($data['laporan']['arus_investasi'])): ?>
+                <tr><td class="ps-4" style="color: #888; font-style: italic;">(Tidak ada transaksi investasi)</td><td class="text-end">0,00</td></tr>
+            <?php else: ?>
+                <?php foreach($data['laporan']['arus_investasi'] as $item): ?>
+                    <tr><td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td><td class="text-end"><?php echo ($item['jumlah'] < 0) ? '(' . number_format(abs($item['jumlah']), 2, ',', '.') . ')' : number_format($item['jumlah'], 2, ',', '.'); ?></td></tr>
                 <?php endforeach; ?>
             <?php endif; ?>
-            <tr class="fw-bold bg-light"><td>Arus Kas Bersih dari Aktivitas Operasi</td><td class="text-end"><?php echo number_format($totalOperasi, 2, ',', '.'); ?></td></tr>
-            
-            <tr><td colspan="2" class="fw-bold" style="padding-top: 15px;">Kenaikan/Penurunan Kas</td></tr>
+            <tr class="fw-bold bg-light"><td>Arus Kas Bersih dari Aktivitas Investasi</td><td class="text-end"><?php $totInv = $data['laporan']['total_investasi'] ?? 0; echo ($totInv < 0) ? '(' . number_format(abs($totInv), 2, ',', '.') . ')' : number_format($totInv, 2, ',', '.'); ?></td></tr>
+
+            <tr><td colspan="2" class="fw-bold" style="padding-top: 15px;">Arus Kas dari Aktivitas Pendanaan</td></tr>
+            <?php if(empty($data['laporan']['arus_pendanaan'])): ?>
+                <tr><td class="ps-4" style="color: #888; font-style: italic;">(Tidak ada transaksi pendanaan)</td><td class="text-end">0,00</td></tr>
+            <?php else: ?>
+                <?php foreach($data['laporan']['arus_pendanaan'] as $item): ?>
+                    <tr><td class="ps-4"><?php echo htmlspecialchars($item['label']); ?></td><td class="text-end"><?php echo ($item['jumlah'] < 0) ? '(' . number_format(abs($item['jumlah']), 2, ',', '.') . ')' : number_format($item['jumlah'], 2, ',', '.'); ?></td></tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <tr class="fw-bold bg-light"><td>Arus Kas Bersih dari Aktivitas Pendanaan</td><td class="text-end"><?php $totPen = $data['laporan']['total_pendanaan'] ?? 0; echo ($totPen < 0) ? '(' . number_format(abs($totPen), 2, ',', '.') . ')' : number_format($totPen, 2, ',', '.'); ?></td></tr>
+
+            <tr><td colspan="2" class="fw-bold" style="padding-top: 15px;">Rekonsiliasi Kas &amp; Setara Kas</td></tr>
+            <tr><td>Kenaikan (Penurunan) Kas Bersih</td><td class="text-end"><?php $kenaikan = $data['laporan']['kenaikan_kas_bersih'] ?? (($data['laporan']['kas_akhir'] ?? 0) - ($data['laporan']['kas_awal'] ?? 0)); echo ($kenaikan < 0) ? '(' . number_format(abs($kenaikan), 2, ',', '.') . ')' : number_format($kenaikan, 2, ',', '.'); ?></td></tr>
             <tr><td>Kas Awal Periode</td><td class="text-end"><?php echo number_format($data['laporan']['kas_awal'], 2, ',', '.'); ?></td></tr>
-            <tr><td>Kenaikan (Penurunan) Kas Bersih</td><td class="text-end"><?php echo number_format($data['laporan']['kas_akhir'] - $data['laporan']['kas_awal'], 2, ',', '.'); ?></td></tr>
             <tr class="fw-bold bg-light" style="font-size: 11pt;"><td>KAS AKHIR PERIODE</td><td class="text-end"><?php echo number_format($data['laporan']['kas_akhir'], 2, ',', '.'); ?></td></tr>
         </tbody>
     </table>
