@@ -194,9 +194,9 @@
                 <div style="position: relative; z-index: 2;">
                     <img src="<?php echo BASEURL; ?>/img/pasuruan_sedap_malam.png" alt="Sedap Malam Pasuruan"
                         class="img-fluid mb-4 shadow-lg">
-                    <h2 class="fw-bold mt-4">Puspa Candra </h2>
-                    <p class="mt-2 opacity-90">Sistem Akuntansi Terintegrasi dengan kearifan lokal Kabupaten Pasuruan.
-                        Mewujudkan tata kelola keuangan yang subur dan transparan.</p>
+                    <h2 class="fw-bold mt-4">Puspa Candra</h2>
+                    <p class="mt-2 opacity-90">Sistem Akuntansi Terintegrasi dengan kearifan lokal Kabupaten Kota di Jawa Timur.
+                        Mewujudkan tata kelola keuangan yang andal dan transparan.</p>
                 </div>
             </div>
             <!-- Sisi Form Login -->
