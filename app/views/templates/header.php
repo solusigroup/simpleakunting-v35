@@ -387,7 +387,8 @@
     $canKas = Auth::hasPermission('trx_kas') || Auth::isAdmin() || Auth::isManager();
     $canJurnal = Auth::hasPermission('fin_jurnal') || Auth::isAdmin() || Auth::isManager();
     $canLaporan = Auth::hasPermission('fin_laporan') || Auth::isAdmin() || Auth::isManager();
-    $showKeuanganSection = $canKas || $canJurnal || $canLaporan;
+    $canTutupBuku = Auth::isAdmin() || Auth::isManager() || Auth::isActuallySuperadmin();
+    $showKeuanganSection = $canKas || $canJurnal || $canLaporan || $canTutupBuku;
 
     // Akses khusus user superadmin
     $isSuperadminUser = Auth::hasRole('Superadmin') 
@@ -677,6 +678,14 @@
                         <a class="nav-link <?php echo ($current_controller == 'laporan') ? 'active' : ''; ?>"
                             href="<?php echo BASEURL; ?>/laporan">
                             <i class="bi bi-pie-chart-fill"></i> Laporan
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if ($canTutupBuku): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo ($current_controller == 'tutupbuku') ? 'active' : ''; ?>"
+                            href="<?php echo BASEURL; ?>/tutupBuku">
+                            <i class="bi bi-archive-fill"></i> Tutup Buku
                         </a>
                     </li>
                 <?php endif; ?>
