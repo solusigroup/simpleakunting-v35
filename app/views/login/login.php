@@ -202,7 +202,7 @@
             <!-- Sisi Form Login -->
             <div class="col-12 col-lg-6 login-form-side">
                 <div class="text-center mb-5">
-                    <img src="<?php echo BASEURL; ?>/img/logo_pasuruan.png" alt="Logo Kabupaten Pasuruan"
+                    <img src="<?php echo BASEURL; ?>/img/icon-512.png" alt="Logo SimpleAkunting"
                         class="mx-auto mb-3" style="max-height: 120px;">
                     <h3 class="fw-bold mb-1" style="color: var(--pasuruan-green);">SIMPLE AKUNTING</h3>
                     <div class="badge bg-pasuruan rounded-pill px-3 py-2 mt-2">
