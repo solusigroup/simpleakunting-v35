@@ -439,7 +439,7 @@
                 <div class="d-flex align-items-center gap-3">
                     <span class="tech-pill-tag font-mono-tech">
                         <span class="live-dot"></span>
-                        OPERATE // SIMPLEAKUNTING v3.6
+                        OPERATE // SIMPLEAKUNTING v3.5
                     </span>
                     <span class="badge bg-light text-dark border d-none d-md-inline-block" style="font-size: 0.7rem;">
                         SAK EP &bull; JATIM INTEGRATED
@@ -479,7 +479,7 @@
                     </div>
                     <div class="col-lg-5">
                         <p class="hero-desc">
-                            SimpleAkunting v3.6 menghubungkan UMKM, BUMDesa, dan perbankan melalui tata kelola pembukuan terstandar SAK EP. 
+                            SimpleAkunting v3.5 menghubungkan UMKM, BUMDesa, dan perbankan melalui tata kelola pembukuan terstandar SAK EP. 
                             Mewujudkan kurasi kelayakan usaha yang terverifikasi, transparan, dan siap akses pembiayaan.
                         </p>
                         <div class="d-flex flex-wrap gap-2 pt-2">
@@ -505,7 +505,7 @@
                             <i class="bi bi-lock-fill text-success me-1"></i> simpleakunting.id / tenant: bumdes-jatim / sak-ep / status: terkurasi-grade-a
                         </div>
                         <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill font-mono-tech" style="font-size: 0.72rem;">
-                            LIVE V3.6 AUDIT-READY
+                            LIVE V3.5 AUDIT-READY
                         </span>
                     </div>
 
@@ -691,7 +691,7 @@
                             Kurasi UMKM yang Layak & Berdaya Saing
                         </h2>
                         <p class="text-muted small mb-0">
-                            Daftar UMKM dan BUMDesa di Jawa Timur yang telah terverifikasi melalui SimpleAkunting v3.6 dengan pembukuan sehat dan layak pembiayaan.
+                            Daftar UMKM dan BUMDesa di Jawa Timur yang telah terverifikasi melalui SimpleAkunting v3.5 dengan pembukuan sehat dan layak pembiayaan.
                         </p>
                     </div>
                     <div class="pt-2">
@@ -856,7 +856,7 @@
                             Aplikasi tidak mencetak laba. Usaha Anda yang melakukannya.
                         </h3>
                         <p class="small text-muted mb-0">
-                            SimpleAkunting v3.6 dirancang bukan sekadar sebagai database penyimpan angka, melainkan ruang kerja finansial yang teratur, presisi, dan memberikan kendali penuh di tangan pelaku usaha.
+                            SimpleAkunting v3.5 dirancang bukan sekadar sebagai database penyimpan angka, melainkan ruang kerja finansial yang teratur, presisi, dan memberikan kendali penuh di tangan pelaku usaha.
                         </p>
                     </div>
 
@@ -872,7 +872,7 @@
                             Mengintegrasikan ketahanan ekonomi rakyat dari lereng Bromo Pasuruan, sentra industri Surabaya-Sidoarjo, hingga pelosok BUMDesa Jawa Timur dalam ekosistem akuntansi yang subur dan transparan.
                         </p>
                         <div class="font-mono-tech small text-dark fw-semibold">
-                            Versi 3.6 &bull; Berbasis SAK EP Nasional
+                            Versi 3.5 &bull; Berbasis SAK EP Nasional
                         </div>
                     </div>
 
@@ -902,7 +902,7 @@
             <footer class="pt-5 mt-5 border-top d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div>
                     <div class="fw-bold" style="color: var(--op-green-dark);">
-                        SimpleAkunting v3.6 &bull; Puspa Candra
+                        SimpleAkunting v3.5 &bull; Puspa Candra
                     </div>
                     <small class="text-muted">
                         Sistem Akuntansi Terintegrasi dengan kearifan lokal Kabupaten Kota di Jawa Timur.
@@ -945,7 +945,7 @@ document.getElementById('formSimulasi').addEventListener('submit', function(e) {
 
     let grade = 'C';
     let statusText = 'Perlu Pendampingan Pembukuan';
-    let rekomendasiText = 'Gunakan SimpleAkunting v3.6 minimal 3 bulan untuk merapikan pembukuan SAK EP.';
+    let rekomendasiText = 'Gunakan SimpleAkunting v3.5 minimal 3 bulan untuk merapikan pembukuan SAK EP.';
     let badgeClass = 'badge bg-secondary';
 
     if (skor >= 85) {

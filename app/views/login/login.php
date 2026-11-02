@@ -206,7 +206,7 @@
                         class="mx-auto mb-3" style="max-height: 120px;">
                     <h3 class="fw-bold mb-1" style="color: var(--pasuruan-green);">SIMPLE AKUNTING</h3>
                     <div class="badge bg-pasuruan rounded-pill px-3 py-2 mt-2">
-                        <i class="bi bi-patch-check-fill me-1"></i> SimpleAkunting v3.6
+                        <i class="bi bi-patch-check-fill me-1"></i> SimpleAkunting v3.5
                     </div>
                 </div>
                 <h3 class="text-center fw-bold mb-1">Selamat Datang</h3>
@@ -346,7 +346,7 @@
         // PWA Service Worker Registration with automatic update check
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('<?php echo BASEURL; ?>/sw.js?v=3.6')
+                navigator.serviceWorker.register('<?php echo BASEURL; ?>/sw.js?v=3.5')
                     .then(reg => {
                         console.log('SW Registered', reg);
                         reg.update();

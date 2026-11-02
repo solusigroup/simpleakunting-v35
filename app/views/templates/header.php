@@ -398,7 +398,7 @@
                 <img src="<?php echo BASEURL; ?>/img/logo_pasuruan.png" alt="Logo"
                     class="w-100 h-100 object-fit-contain">
             </div>
-            <span class="ms-1">SA v3.6</span>
+            <span class="ms-1">SA v3.5</span>
         </div>
         <ul class="nav flex-column">
             <li class="nav-item">
@@ -677,11 +677,11 @@
 
             <?php endif; ?>
 
-            <!-- Menu Kurasi UMKM Layak (v3.6) -->
+            <!-- Menu Kurasi UMKM Layak (v3.5) -->
             <li class="nav-item mt-3 pt-2 border-top border-secondary-subtle">
                 <a class="nav-link text-success fw-bold <?php echo ($current_controller == 'kurasi' && ($url_parts[1] ?? '') !== 'kelola') ? 'active' : ''; ?>"
                     href="<?php echo BASEURL; ?>/kurasi">
-                    <i class="bi bi-patch-check-fill text-success"></i> Kurasi UMKM (v3.6)
+                    <i class="bi bi-patch-check-fill text-success"></i> Kurasi UMKM (v3.5)
                 </a>
             </li>
             <?php if (Auth::isActuallySuperadmin() || Auth::isAdmin()): ?>

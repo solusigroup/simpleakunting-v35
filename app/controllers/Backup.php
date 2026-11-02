@@ -35,7 +35,7 @@ class Backup extends Controller {
             ob_end_clean();
         }
 
-        echo "-- SimpleAkunting v3.6 Database Backup\n";
+        echo "-- SimpleAkunting v3.5 Database Backup\n";
         echo "-- Generated: " . date('Y-m-d H:i:s') . "\n";
         echo "-- Mode: " . ($isSuperadmin && empty($tenant_id) ? "Full System" : "Tenant ID: " . $tenant_id) . "\n\n";
         echo "SET FOREIGN_KEY_CHECKS=0;\n";

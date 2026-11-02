@@ -1,4 +1,4 @@
-const CACHE_NAME = 'simpleakunting-v3-6-v1';
+const CACHE_NAME = 'simpleakunting-v3-5-v6';
 const assets = [
   './',
   './login',

@@ -199,7 +199,7 @@
         <!-- Header Kurasi Title & Metrics -->
         <div class="mb-4">
             <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill font-mono-tech mb-2">
-                STANDARDISASI SAK EP &bull; SIMPLEAKUNTING v3.6
+                STANDARDISASI SAK EP &bull; SIMPLEAKUNTING v3.5
             </span>
             <h1 class="fw-bold mb-2" style="font-size: 2.2rem; color: var(--op-green-dark);">
                 Direktori Kurasi UMKM Layak Pembiayaan
@@ -336,7 +336,7 @@
 
         <!-- CTA Ajukan Kurasi -->
         <div class="mt-5 p-4 rounded-4 bg-white border text-center">
-            <h4 class="fw-bold mb-2">Ingin UMKM Anda Masuk dalam Kurasi SimpleAkunting v3.6?</h4>
+            <h4 class="fw-bold mb-2">Ingin UMKM Anda Masuk dalam Kurasi SimpleAkunting v3.5?</h4>
             <p class="text-muted small mb-3" style="max-width: 650px; margin: 0 auto;">
                 Dapatkan pendampingan standardisasi SAK EP, penilaian kelayakan perbankan (Bankable Score), serta peluang fasilitasi pembiayaan dari mitra bank dan BUMD Jawa Timur.
             </p>

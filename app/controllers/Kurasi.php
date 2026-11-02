@@ -29,7 +29,7 @@ class Kurasi extends Controller {
                         'pertumbuhan' => '+20% YoY',
                         'kepatuhan' => 'SAK EP Terverifikasi',
                         'rekomendasi_dana' => $item['rekomendasi_pembiayaan'] ?: 'KUR Bank Jatim',
-                        'deskripsi' => $item['deskripsi'] ?: 'UMKM terkurasi resmi SimpleAkunting v3.6.'
+                        'deskripsi' => $item['deskripsi'] ?: 'UMKM terkurasi resmi SimpleAkunting v3.5.'
                     ];
                 }
             }
@@ -50,7 +50,7 @@ class Kurasi extends Controller {
         }
 
         $data = [
-            'judul' => 'Kurasi UMKM Layak Pembiayaan - SimpleAkunting v3.6',
+            'judul' => 'Kurasi UMKM Layak Pembiayaan - SimpleAkunting v3.5',
             'is_logged_in' => Auth::isLoggedIn(),
             'is_superadmin' => Auth::isActuallySuperadmin() || Auth::isAdmin(),
             'user' => Auth::user(),
@@ -80,7 +80,7 @@ class Kurasi extends Controller {
             $newId = $kurasiModel->simpanPengajuan($_POST, $tenantId);
 
             if ($newId) {
-                Flash::setFlash("Alhamdulillah, pendaftaran kurasi untuk \"$nama\" (ID: #KRS-$newId) berhasil disimpan. Tim kurator SimpleAkunting v3.6 & dinas terkait akan memverifikasi dalam 1-2 hari kerja.", 'success');
+                Flash::setFlash("Alhamdulillah, pendaftaran kurasi untuk \"$nama\" (ID: #KRS-$newId) berhasil disimpan. Tim kurator SimpleAkunting v3.5 & dinas terkait akan memverifikasi dalam 1-2 hari kerja.", 'success');
             } else {
                 Flash::setFlash("Data kurasi berhasil diterima. Tim verifikator akan segera memproses.", 'success');
             }
@@ -92,7 +92,7 @@ class Kurasi extends Controller {
         $pendingCount = $isSuperadmin ? $kurasiModel->countPending() : 0;
 
         $data = [
-            'judul' => 'Ajukan Kurasi UMKM - SimpleAkunting v3.6',
+            'judul' => 'Ajukan Kurasi UMKM - SimpleAkunting v3.5',
             'is_logged_in' => Auth::isLoggedIn(),
             'is_superadmin' => $isSuperadmin,
             'pending_count' => $pendingCount,
@@ -205,7 +205,7 @@ class Kurasi extends Controller {
 
         $grade = 'C';
         $status = 'Perlu Pendampingan Akuntansi';
-        $rekomendasi = 'Gunakan SimpleAkunting v3.6 untuk merapikan pembukuan SAK EP selama minimal 3 bulan sebelum pengajuan pembiayaan.';
+        $rekomendasi = 'Gunakan SimpleAkunting v3.5 untuk merapikan pembukuan SAK EP selama minimal 3 bulan sebelum pengajuan pembiayaan.';
 
         if ($skor >= 85) {
             $grade = 'A';

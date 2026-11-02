@@ -25,7 +25,7 @@ $modAkhir2 = (float)($p2['modal_akhir'] ?? 0);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Perubahan Ekuitas - <?php echo htmlspecialchars($c['nama_perusahaan'] ?? 'SimpleAkunting'); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="<?php echo BASEURL; ?>/css/print.css?v=3.6">
+    <link rel="stylesheet" href="<?php echo BASEURL; ?>/css/print.css?v=3.5">
 </head>
 <body class="print-preview-mode">
 

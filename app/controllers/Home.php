@@ -16,7 +16,7 @@ class Home extends Controller {
         } catch (Throwable $e) {}
 
         $data = [
-            'judul' => 'SimpleAkunting v3.6 - Sistem Akuntansi & Kurasi UMKM Layak',
+            'judul' => 'SimpleAkunting v3.5 - Sistem Akuntansi & Kurasi UMKM Layak',
             'is_logged_in' => Auth::isLoggedIn(),
             'user' => Auth::user(),
             'tenant_count' => $tenantCount,

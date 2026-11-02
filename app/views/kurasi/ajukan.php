@@ -87,7 +87,7 @@
                     </a>
                 <?php endif; ?>
                 <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill font-mono-tech p-2 px-3">
-                    FORMULIR KURASI v3.6
+                    FORMULIR KURASI v3.5
                 </span>
             </div>
         </div>
