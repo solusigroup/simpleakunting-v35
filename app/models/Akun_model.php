@@ -3,23 +3,60 @@
 class Akun_model {
     private $table = 'akun';
     private $db;
+    private static $aktivaChecked = false;
 
     public function __construct($db)
     {
         $this->db = $db;
+        $this->ensureSakEpCompliance();
     }
 
+    /**
+     * Memastikan kepatuhan terminologi SAK EP:
+     * Mengganti seluruh istilah usang 'AKTIVA' menjadi 'Aset' pada tabel akun dan central_akun
+     */
+    private function ensureSakEpCompliance()
+    {
+        if (self::$aktivaChecked) return;
+        self::$aktivaChecked = true;
+
+        try {
+            $this->db->query("UPDATE {$this->table} SET nama_akun = 'Aset' WHERE LOWER(nama_akun) = 'aktiva'");
+            $this->db->execute();
+
+            $this->db->query("UPDATE {$this->table} SET nama_akun = REPLACE(REPLACE(nama_akun, 'AKTIVA', 'Aset'), 'Aktiva', 'Aset') WHERE nama_akun LIKE '%aktiva%' OR nama_akun LIKE '%Aktiva%' OR nama_akun LIKE '%AKTIVA%'");
+            $this->db->execute();
+
+            $this->db->query("UPDATE central_akun SET nama_akun = 'Aset' WHERE LOWER(nama_akun) = 'aktiva'");
+            $this->db->execute();
+
+            $this->db->query("UPDATE central_akun SET nama_akun = REPLACE(REPLACE(nama_akun, 'AKTIVA', 'Aset'), 'Aktiva', 'Aset') WHERE nama_akun LIKE '%aktiva%' OR nama_akun LIKE '%Aktiva%' OR nama_akun LIKE '%AKTIVA%'");
+            $this->db->execute();
+        } catch (Throwable $e) {}
+    }
     public function getAllAkun($tenant_id)
     {
+        $this->ensureSakEpCompliance();
         $this->db->query('SELECT * FROM ' . $this->table . ' WHERE tenant_id = :tenant_id ORDER BY kode_akun ASC');
         $this->db->bind('tenant_id', $tenant_id);
-        return $this->db->resultSet();
+        $res = $this->db->resultSet();
+        if (is_array($res)) {
+            foreach ($res as &$acc) {
+                if (!empty($acc['nama_akun']) && stripos($acc['nama_akun'], 'aktiva') !== false) {
+                    $acc['nama_akun'] = preg_replace('/aktiva/i', 'Aset', $acc['nama_akun']);
+                }
+            }
+            unset($acc);
+            return $res;
+        }
+        return [];
     }
 
     public function tambahDataAkun($data, $tenant_id)
     {
         // Keamanan: Saldo awal untuk Header selalu 0
         $saldo_awal = ($data['tipe_akun'] == 'Header') ? 0.00 : ($data['saldo_awal'] ?? 0.00);
+        $nama_akun = preg_replace('/aktiva/i', 'Aset', $data['nama_akun'] ?? '');
 
         $query = "INSERT INTO {$this->table} (tenant_id, kode_akun, nama_akun, tipe_akun, saldo_normal, posisi_saldo_normal, saldo_awal) 
                   VALUES (:tenant_id, :kode_akun, :nama_akun, :tipe_akun, :saldo_normal, :posisi_saldo_normal, :saldo_awal)";
@@ -27,7 +64,7 @@ class Akun_model {
         $this->db->query($query);
         $this->db->bind('tenant_id', $tenant_id);
         $this->db->bind('kode_akun', $data['kode_akun']);
-        $this->db->bind('nama_akun', $data['nama_akun']);
+        $this->db->bind('nama_akun', $nama_akun);
         $this->db->bind('tipe_akun', $data['tipe_akun']);
         $this->db->bind('saldo_normal', $data['posisi_saldo_normal']); // Use the same value for compatibility
         $this->db->bind('posisi_saldo_normal', $data['posisi_saldo_normal']);
@@ -44,6 +81,7 @@ class Akun_model {
     {
         // **LOGIKA BARU: Pastikan saldo awal untuk Header selalu 0 di sisi server**
         $saldo_awal = ($data['tipe_akun'] == 'Header') ? 0.00 : ($data['saldo_awal'] ?? 0.00);
+        $nama_akun = preg_replace('/aktiva/i', 'Aset', $data['nama_akun'] ?? '');
 
         $query = "UPDATE {$this->table} SET 
                     nama_akun = :nama_akun,
@@ -54,7 +92,7 @@ class Akun_model {
                   WHERE kode_akun = :kode_akun AND tenant_id = :tenant_id";
         
         $this->db->query($query);
-        $this->db->bind('nama_akun', $data['nama_akun']);
+        $this->db->bind('nama_akun', $nama_akun);
         $this->db->bind('tipe_akun', $data['tipe_akun']);
         $this->db->bind('saldo_normal', $data['posisi_saldo_normal']);
         $this->db->bind('posisi_saldo_normal', $data['posisi_saldo_normal']);

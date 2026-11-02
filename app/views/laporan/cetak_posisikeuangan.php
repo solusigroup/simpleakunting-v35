@@ -101,7 +101,7 @@ $totPasiva2 = $totKewajiban2 + $totModal2;
             <!-- 3. KPI RINGKASAN EKSEKUTIF -->
             <div class="kpi-grid">
                 <div class="kpi-box">
-                    <span class="kpi-label">Total Aset (Aktiva)</span>
+                    <span class="kpi-label">Total Aset</span>
                     <span class="kpi-value income"><?php echo format_rupiah($totAset1, 0); ?></span>
                 </div>
                 <div class="kpi-box">
@@ -139,7 +139,7 @@ $totPasiva2 = $totKewajiban2 + $totModal2;
                 <tbody>
                     <!-- BAGIAN I: ASET -->
                     <tr class="section-header">
-                        <td colspan="<?php echo $isKomparatif ? '3' : '2'; ?>">I. ASET (AKTIVA)</td>
+                        <td colspan="<?php echo $isKomparatif ? '3' : '2'; ?>">I. ASET</td>
                     </tr>
                     <?php if (empty($p1['aset'])): ?>
                     <tr>

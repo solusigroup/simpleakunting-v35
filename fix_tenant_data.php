@@ -54,4 +54,19 @@ foreach ($users as $u) {
     }
 }
 
+echo "\n--- STANDAR SAK EP: UPDATING TERMINOLOGY AKTIVA -> ASET ---\n";
+try {
+    $db->query("UPDATE akun SET nama_akun = 'Aset' WHERE LOWER(nama_akun) = 'aktiva'");
+    $db->execute();
+    $db->query("UPDATE akun SET nama_akun = REPLACE(REPLACE(nama_akun, 'AKTIVA', 'Aset'), 'Aktiva', 'Aset') WHERE nama_akun LIKE '%aktiva%' OR nama_akun LIKE '%Aktiva%' OR nama_akun LIKE '%AKTIVA%'");
+    $db->execute();
+    $db->query("UPDATE central_akun SET nama_akun = 'Aset' WHERE LOWER(nama_akun) = 'aktiva'");
+    $db->execute();
+    $db->query("UPDATE central_akun SET nama_akun = REPLACE(REPLACE(nama_akun, 'AKTIVA', 'Aset'), 'Aktiva', 'Aset') WHERE nama_akun LIKE '%aktiva%' OR nama_akun LIKE '%Aktiva%' OR nama_akun LIKE '%AKTIVA%'");
+    $db->execute();
+    echo "✓ Terminologi akun berhasil disesuaikan dengan SAK EP (AKTIVA -> Aset).\n";
+} catch (Throwable $e) {
+    echo "⚠ Gagal memperbarui terminologi: " . $e->getMessage() . "\n";
+}
+
 echo "\nFixing complete! Please ask the user to logout and login again.\n";
