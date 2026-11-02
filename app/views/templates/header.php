@@ -388,6 +388,11 @@
     $canJurnal = Auth::hasPermission('fin_jurnal') || Auth::isAdmin() || Auth::isManager();
     $canLaporan = Auth::hasPermission('fin_laporan') || Auth::isAdmin() || Auth::isManager();
     $showKeuanganSection = $canKas || $canJurnal || $canLaporan;
+
+    // Akses khusus user superadmin
+    $isSuperadminUser = Auth::hasRole('Superadmin') 
+        || (isset($user['role']) && strcasecmp($user['role'], 'superadmin') === 0)
+        || (isset($user['name']) && strcasecmp($user['name'], 'superadmin') === 0);
     ?>
 
     <!-- Sidebar -->
@@ -466,10 +471,12 @@
                             href="<?php echo BASEURL; ?>/central/agregat">
                             <i class="bi bi-bar-chart-steps"></i> Laporan Agregat
                         </a>
+                        <?php if ($isSuperadminUser): ?>
                         <a class="nav-link ms-4 py-1 text-success <?php echo ($current_controller == 'kurasi' && ($url_parts[1] ?? '') == 'kelola') ? 'fw-bold text-white' : ''; ?>"
                             href="<?php echo BASEURL; ?>/kurasi/kelola">
                             <i class="bi bi-patch-check-fill text-success"></i> Hasil Kurasi UMKM
                         </a>
+                        <?php endif; ?>
                         <a class="nav-link ms-4 py-1 text-info"
                             href="<?php echo BASEURL; ?>/panduan_superadmin.html" target="_blank">
                             <i class="bi bi-journal-check"></i> Panduan Penyelia
@@ -684,7 +691,7 @@
                     <i class="bi bi-patch-check-fill text-success"></i> Kurasi UMKM (v3.5)
                 </a>
             </li>
-            <?php if (Auth::isActuallySuperadmin() || Auth::isAdmin()): ?>
+            <?php if ($isSuperadminUser): ?>
             <li class="nav-item">
                 <a class="nav-link text-warning <?php echo ($current_controller == 'kurasi' && ($url_parts[1] ?? '') == 'kelola') ? 'active' : ''; ?>"
                     href="<?php echo BASEURL; ?>/kurasi/kelola">

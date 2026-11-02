@@ -52,7 +52,7 @@ class Kurasi extends Controller {
         $data = [
             'judul' => 'Kurasi UMKM Layak Pembiayaan - SimpleAkunting v3.5',
             'is_logged_in' => Auth::isLoggedIn(),
-            'is_superadmin' => Auth::isActuallySuperadmin() || Auth::isAdmin(),
+            'is_superadmin' => $this->isSuperadminUser(),
             'user' => Auth::user(),
             'umkm_list' => array_values($allUmkm),
             'selected_kategori' => $kategori,
@@ -88,7 +88,7 @@ class Kurasi extends Controller {
             exit;
         }
 
-        $isSuperadmin = Auth::isActuallySuperadmin() || Auth::isAdmin();
+        $isSuperadmin = $this->isSuperadminUser();
         $pendingCount = $isSuperadmin ? $kurasiModel->countPending() : 0;
 
         $data = [
@@ -102,14 +102,54 @@ class Kurasi extends Controller {
     }
 
     /**
-     * Panel Pengelolaan Hasil Kurasi Khusus Superadmin & Admin
+     * Helper cek khusus apakah user yang aktif adalah Superadmin
+     */
+    private function isSuperadminUser(): bool
+    {
+        if (!Auth::isLoggedIn()) {
+            return false;
+        }
+
+        $user = Auth::user();
+        if (!$user) {
+            return false;
+        }
+
+        $role = strtolower(trim($user['role'] ?? ''));
+        $name = strtolower(trim($user['name'] ?? ''));
+
+        // Cek username atau role 'superadmin'
+        if ($name === 'superadmin' || $role === 'superadmin') {
+            return true;
+        }
+
+        // Cek jika akun original saat impersonasi adalah superadmin
+        if (isset($_SESSION['original_user'])) {
+            $origRole = strtolower(trim($_SESSION['original_user']['role'] ?? ''));
+            $origName = strtolower(trim($_SESSION['original_user']['name'] ?? ''));
+            if ($origName === 'superadmin' || $origRole === 'superadmin') {
+                return true;
+            }
+        }
+
+        return Auth::hasRole('Superadmin');
+    }
+
+    /**
+     * Panel Pengelolaan Hasil Kurasi Khusus User "superadmin"
      */
     public function kelola()
     {
-        // Guard akses khusus Superadmin / Admin
-        if (!Auth::isLoggedIn() || (!Auth::isActuallySuperadmin() && !Auth::isAdmin())) {
-            Flash::setFlash('Akses terbatas! Halaman hasil kurasi hanya dapat diakses oleh Superadmin atau Admin.', 'danger');
+        // Guard akses khusus user "superadmin"
+        if (!Auth::isLoggedIn()) {
+            Flash::setFlash('Akses terbatas! Silakan login sebagai superadmin untuk mengakses halaman kelola hasil kurasi.', 'danger');
             header('Location: ' . BASEURL . '/login');
+            exit;
+        }
+
+        if (!$this->isSuperadminUser()) {
+            Flash::setFlash('Akses ditolak! Halaman hasil kurasi hanya dapat diakses oleh user "superadmin".', 'danger');
+            header('Location: ' . BASEURL . '/dashboard');
             exit;
         }
 
@@ -136,7 +176,8 @@ class Kurasi extends Controller {
      */
     public function update_status()
     {
-        if (!Auth::isLoggedIn() || (!Auth::isActuallySuperadmin() && !Auth::isAdmin())) {
+        if (!Auth::isLoggedIn() || !$this->isSuperadminUser()) {
+            Flash::setFlash('Akses ditolak! Hanya user "superadmin" yang dapat memvalidasi kurasi.', 'danger');
             header('Location: ' . BASEURL . '/login');
             exit;
         }
@@ -162,7 +203,8 @@ class Kurasi extends Controller {
      */
     public function hapus($id)
     {
-        if (!Auth::isLoggedIn() || (!Auth::isActuallySuperadmin() && !Auth::isAdmin())) {
+        if (!Auth::isLoggedIn() || !$this->isSuperadminUser()) {
+            Flash::setFlash('Akses ditolak! Hanya user "superadmin" yang dapat menghapus kurasi.', 'danger');
             header('Location: ' . BASEURL . '/login');
             exit;
         }
