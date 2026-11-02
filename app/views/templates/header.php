@@ -466,6 +466,10 @@
                             href="<?php echo BASEURL; ?>/central/agregat">
                             <i class="bi bi-bar-chart-steps"></i> Laporan Agregat
                         </a>
+                        <a class="nav-link ms-4 py-1 text-success <?php echo ($current_controller == 'kurasi' && ($url_parts[1] ?? '') == 'kelola') ? 'fw-bold text-white' : ''; ?>"
+                            href="<?php echo BASEURL; ?>/kurasi/kelola">
+                            <i class="bi bi-patch-check-fill text-success"></i> Hasil Kurasi UMKM
+                        </a>
                         <a class="nav-link ms-4 py-1 text-info"
                             href="<?php echo BASEURL; ?>/panduan_superadmin.html" target="_blank">
                             <i class="bi bi-journal-check"></i> Panduan Penyelia
@@ -675,11 +679,19 @@
 
             <!-- Menu Kurasi UMKM Layak (v3.6) -->
             <li class="nav-item mt-3 pt-2 border-top border-secondary-subtle">
-                <a class="nav-link text-success fw-bold <?php echo ($current_controller == 'kurasi') ? 'active' : ''; ?>"
+                <a class="nav-link text-success fw-bold <?php echo ($current_controller == 'kurasi' && ($url_parts[1] ?? '') !== 'kelola') ? 'active' : ''; ?>"
                     href="<?php echo BASEURL; ?>/kurasi">
                     <i class="bi bi-patch-check-fill text-success"></i> Kurasi UMKM (v3.6)
                 </a>
             </li>
+            <?php if (Auth::isActuallySuperadmin() || Auth::isAdmin()): ?>
+            <li class="nav-item">
+                <a class="nav-link text-warning <?php echo ($current_controller == 'kurasi' && ($url_parts[1] ?? '') == 'kelola') ? 'active' : ''; ?>"
+                    href="<?php echo BASEURL; ?>/kurasi/kelola">
+                    <i class="bi bi-table text-warning"></i> Kelola Hasil Kurasi
+                </a>
+            </li>
+            <?php endif; ?>
 
             <!-- Menu Bantuan & Edukasi (Selalu Tampil) -->
             <li class="nav-item mt-4 pt-3 border-top border-secondary-subtle">
